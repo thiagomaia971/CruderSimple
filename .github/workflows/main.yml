@@ -16,7 +16,7 @@ jobs:
 
     env:
       BUILD_CONFIG: 'Release'
-      SOLUTION: 'src/CruderSimple.sln.sln'
+      SOLUTION: 'src/CruderSimple.sln'
 
     runs-on: ubuntu-latest
 
