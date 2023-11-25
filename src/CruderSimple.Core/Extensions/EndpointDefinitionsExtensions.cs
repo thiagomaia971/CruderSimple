@@ -10,15 +10,14 @@ namespace CruderSimple.Core.Extensions;
 
 public static class EndpointDefinitionsExtensions
 {
-    public static Assembly GlobalAssembly;
     public static IServiceCollection AddRequestDefinitions(
-        this IServiceCollection services,
-        params Type[] entityScanMarkers)
+        this IServiceCollection services)
     {
         var stopWatch = new Stopwatch();
         stopWatch.Start();
-        GlobalAssembly = entityScanMarkers.First().Assembly;
-        var requestHandlers = entityScanMarkers.First().Assembly.GetTypesWithHelpAttribute<EndpointRequest>();
+        
+        var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.ExportedTypes);
+        var requestHandlers = types.GetTypesWithHelpAttribute<EndpointRequest>();
 
         foreach (var handler in requestHandlers)
         {
@@ -33,10 +32,10 @@ public static class EndpointDefinitionsExtensions
     }
     
     public static WebApplication UseRequestDefinitions(
-        this WebApplication app,
-        params Type[] entityScanMarkers)
+        this WebApplication app)
     {
-        var requestHandlers = entityScanMarkers.First().Assembly.GetTypesWithHelpAttribute<EndpointRequest>();
+        var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.ExportedTypes);
+        var requestHandlers = types.GetTypesWithHelpAttribute<EndpointRequest>();
 
         var instances = requestHandlers
             .Select(x => Activator.CreateInstance(x, 
@@ -48,8 +47,8 @@ public static class EndpointDefinitionsExtensions
         return app;
     }
     
-    public static IEnumerable<Type> GetTypesWithHelpAttribute<T>(this Assembly assembly) {
-        foreach(Type type in assembly.GetTypes()) {
+    public static IEnumerable<Type> GetTypesWithHelpAttribute<T>(this IEnumerable<Type> types) {
+        foreach(Type type in types) {
             if (type.GetCustomAttributes(typeof(T), true).Length > 0) {
                 yield return (type);
             }
