@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  release:
+    types: 
+      - created
+  push:
+    branches:
+    - main
+  pull_request:
+    branches:
+    - main
+    
+jobs:
+  build:
+
+    env:
+      BUILD_CONFIG: 'Release'
+      SOLUTION: 'src/CruderSimple.sln.sln'
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Get Version
+      id: get_version
+      uses: battila7/get-version-action@v2.2.1
+      
+    - name: Print
+      run: |
+          echo ${{ steps.get_version.outputs.version }}
+          echo ${{ steps.get_version.outputs.version-without-v }}
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 7.x.x
+        include-prerelease: true
+
+    - name: Build
+      run: dotnet build $SOLUTION --configuration $BUILD_CONFIG
+
+#     - name: Run tests
+#       run: dotnet test /p:Configuration=$env:BUILD_CONFIG --no-restore --no-build --verbosity normal
+
+
+    - name: Pack nugets
+      if: github.event_name == 'release'
+      run: dotnet pack $SOLUTION -c Release -p:PackageVersion=${{ steps.get_version.outputs.version-without-v }} --no-build --output .
+      
+    - name: Publish
+      if: github.event_name == 'release'
+      run: nuget push **\*.nupkg -Source 'https://api.nuget.org/v3/index.json' -ApiKey ${{secrets.NUGET_API_KEY}} -SkipDuplicate
