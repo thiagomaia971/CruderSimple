@@ -27,27 +27,25 @@ public static class ServiceCollectionExtensions
     }
     
     public static IServiceCollection AddRepositories(
-        this IServiceCollection services,
-        params Type[] entityScanMarkers)
+        this IServiceCollection services)
     {
-        foreach (var marker in entityScanMarkers)
+        var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.ExportedTypes);
+        
+        var entityTypes = types
+            .Where(x => typeof(Entity).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
+        
+        foreach (var entityType in entityTypes)
         {
-            var entityTypes = marker.Assembly.ExportedTypes
-                .Where(x => typeof(Entity).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
-            
-            foreach (var entityType in entityTypes)
-            {
-                var genericInterface = typeof(IRepository<>).MakeGenericType(entityType);
-                var genericImplementation = typeof(Repository<>).MakeGenericType(entityType);
-                services.AddScoped(genericInterface, genericImplementation);
+            var genericInterface = typeof(IRepository<>).MakeGenericType(entityType);
+            var genericImplementation = typeof(Repository<>).MakeGenericType(entityType);
+            services.AddScoped(genericInterface, genericImplementation);
 
-                var @interface = marker.Assembly.ExportedTypes.FirstOrDefault(x => genericInterface.IsAssignableFrom(x) && x.IsInterface);
-                if (@interface is null)
-                    continue;
-                
-                var implementation = marker.Assembly.ExportedTypes.FirstOrDefault(x => @interface.IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
-                services.AddScoped(@interface, implementation);
-            }
+            var @interface = types.FirstOrDefault(x => genericInterface.IsAssignableFrom(x) && x.IsInterface);
+            if (@interface is null)
+                continue;
+            
+            var implementation = types.FirstOrDefault(x => @interface.IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
+            services.AddScoped(@interface, implementation);
         }
         
         return services;

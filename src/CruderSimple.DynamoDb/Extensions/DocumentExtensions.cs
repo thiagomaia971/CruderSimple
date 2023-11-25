@@ -20,11 +20,15 @@ public static class DocumentExtensions
         var entities = new List<T>();
 
         var entitiesFromDocuments = documents
-            .Select(x => FromDocumentGeneric(
-                dynamoDbContext,
-                EndpointDefinitionsExtensions.GlobalAssembly.GetType(x[nameof(Entity.EntityType)]),
-                x)
-            )
+            .Select(x =>
+            {
+                var assemblyBy = AppDomain.CurrentDomain
+                    .GetAssemblyBy(nameof(Entity.EntityType));
+                return FromDocumentGeneric(
+                    dynamoDbContext,
+                    assemblyBy,
+                    x);
+            })
             .GroupBy(x => (x.InheritedType, x.InheritedKey), x=> x);
 
         foreach (var entityGrouped in entitiesFromDocuments)
@@ -36,7 +40,8 @@ public static class DocumentExtensions
 
             foreach (var innerGrouped in innerEntities)
             {
-                var innerType = EndpointDefinitionsExtensions.GlobalAssembly.GetType(innerGrouped.Key);
+                var innerType = AppDomain.CurrentDomain
+                    .GetAssemblyBy(innerGrouped.Key);
                 var genericList = typeof(List<>).MakeGenericType(innerType);
                 var listOfInnerType = Activator.CreateInstance(genericList);
 
@@ -176,5 +181,13 @@ public static class DocumentExtensions
                       collumnJsonName?.PropertyName ?? 
                       property.Name;
         return collumn;
+    }
+
+    public static Type GetAssemblyBy(this AppDomain appDomain, string typeName)
+    {
+        return appDomain
+            .GetAssemblies()
+            .FirstOrDefault(x => x.GetType(typeName) != null)
+            .GetType(typeName);
     }
 }

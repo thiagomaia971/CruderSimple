@@ -13,24 +13,22 @@ public static class Configuration
     public static IServiceCollection AddCruderSimpleServices(
         this IServiceCollection services,
         IConfiguration configuration,
-        IHostEnvironment environment,
-        params Type[] entityScanMarkers)
+        IHostEnvironment environment)
     {
         services
             .AddMediatR(typeof(Configuration))
-            .AddRequestDefinitions(entityScanMarkers)
+            .AddRequestDefinitions()
             .AddDynamodbMapper(configuration, environment)
-            .AddRepositories(entityScanMarkers)
+            .AddRepositories()
             .AddScoped<MultiTenantScoped>();
         
         return services;
     }
     
     public static WebApplication UseCruderSimpleServices(
-        this WebApplication app,
-        params Type[] entityScanMarkers)
+        this WebApplication app)
     {
-        app.UseRequestDefinitions(entityScanMarkers);
+        app.UseRequestDefinitions();
         
         return app;
     }
