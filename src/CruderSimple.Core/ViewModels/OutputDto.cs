@@ -1,7 +1,3 @@
 ﻿namespace CruderSimple.Core.ViewModels;
 
-public abstract class OutputDto
-{
-    public string Id { get; set; }
-
-}
+public record OutputDto(string Id, string CreatedAt, string UpdatedAt);

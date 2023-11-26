@@ -1,3 +1,9 @@
-﻿namespace CruderSimple.Core.Entities;
+﻿using CruderSimple.Core.ViewModels;
 
-public interface IEntity;
+namespace CruderSimple.Core.Entities;
+
+public interface IEntity
+{
+    public IEntity FromInput(InputDto input);
+    public OutputDto ToOutput();
+}
