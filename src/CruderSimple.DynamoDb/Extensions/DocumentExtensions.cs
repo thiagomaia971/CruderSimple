@@ -23,7 +23,7 @@ public static class DocumentExtensions
             .Select(x =>
             {
                 var assemblyBy = AppDomain.CurrentDomain
-                    .GetAssemblyBy(nameof(Entity.EntityType));
+                    .GetAssemblyBy(x[nameof(Entity.EntityType)]);
                 return FromDocumentGeneric(
                     dynamoDbContext,
                     assemblyBy,
