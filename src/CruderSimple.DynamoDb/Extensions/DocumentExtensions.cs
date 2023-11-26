@@ -119,7 +119,9 @@ public static class DocumentExtensions
         stopWatch.Start();
         
         var entities = new List<Entity>{entity};
-        
+
+        if (string.IsNullOrEmpty(entity.Id))
+            entity.Id = Guid.NewGuid().ToString();
         if (string.IsNullOrEmpty(entity.InheritedType))
             entity.InheritedType = entity.GetType().FullName;
         if (string.IsNullOrEmpty(entity.PrimaryKey))
@@ -155,13 +157,14 @@ public static class DocumentExtensions
             .GetProperties()
             .Where(x => x.CustomAttributes.Any(x => x.AttributeType == typeof(T)))
             .ToList();
-
+    
     public static IEnumerable<PropertyInfo> GetPropertiesWithoutAttribute<T>(this object @object)
         where T : Attribute 
         => @object.GetType()
             .GetProperties()
             .Where(x => x.CustomAttributes.All(x => x.AttributeType != typeof(T)))
             .ToList();
+    
 
     public static T GetPropertyWithAttribute<T>(this object @object)
         where T : Attribute
@@ -181,13 +184,5 @@ public static class DocumentExtensions
                       collumnJsonName?.PropertyName ?? 
                       property.Name;
         return collumn;
-    }
-
-    public static Type GetAssemblyBy(this AppDomain appDomain, string typeName)
-    {
-        return appDomain
-            .GetAssemblies()
-            .FirstOrDefault(x => x.GetType(typeName) != null)
-            .GetType(typeName);
     }
 }

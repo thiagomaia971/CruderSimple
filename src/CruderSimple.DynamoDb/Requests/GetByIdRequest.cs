@@ -1,8 +1,8 @@
 ﻿using CruderSimple.Core.Requests;
 using CruderSimple.Core.ViewModels;
+using CruderSimple.DynamoDb.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Http;
-using Entity = CruderSimple.DynamoDb.Entities.Entity;
 
 namespace CruderSimple.DynamoDb.Requests;
 

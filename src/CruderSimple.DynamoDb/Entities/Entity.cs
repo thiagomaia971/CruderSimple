@@ -52,6 +52,18 @@ public abstract class Entity : IEntity
         EntityType = GetType().FullName;
     }
 
-    public abstract Entity FromInput(InputDto input);
-    public abstract OutputDto ToOutput();
+    public virtual IEntity FromInput(InputDto input)
+    {
+        Id = input.Id;
+        return this;
+    }
+
+    public virtual OutputDto ToOutput()
+    {
+        var output = new OutputDto(
+            Id,
+            CreatedAt,
+            UpdatedAt);
+        return output;
+    }
 }
