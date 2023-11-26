@@ -25,7 +25,7 @@ public abstract class HttpHandlerBase<TQuery, TEntity> : IHttpRequestHandler
             .WithTags(typeof(TEntity).Name)
             .WithOpenApi();
 
-        if (httpRequestAttribute.AuthorizeRole is not null && httpRequestAttribute.AuthorizeRole?.Length > 0)
+        if (httpRequestAttribute.AuthorizeRole is not null)
             routeBuilder = routeBuilder.RequireAuthorization(httpRequestAttribute.AuthorizeRole);
         
         if (httpRequestAttribute.IsMultiTenant)
