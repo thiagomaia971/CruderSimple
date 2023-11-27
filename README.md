@@ -9,8 +9,7 @@ app
     .UseCruderSimpleServices();
 ```
 
-## [Repository](./CruderSimple.DynamoDb/README.md)
-
+## [Repository](./src/CruderSimple.DynamoDb/README.md)
 ## CRUD Endpoit Request
 
 Just create a Record to be a Query, inhired to IEndpointQuery and create a Handler class with HttpHandlerBase<Query, Entity> and IRequestHandler<Query, IResult> implementations.  
