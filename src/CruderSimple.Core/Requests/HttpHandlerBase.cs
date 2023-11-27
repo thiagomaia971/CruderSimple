@@ -25,10 +25,10 @@ public abstract class HttpHandlerBase<TQuery, TEntity> : IHttpRequestHandler
             .WithTags(typeof(TEntity).Name)
             .WithOpenApi();
 
-        if (httpRequestAttribute.AuthorizeRole is not null)
-            routeBuilder = routeBuilder.RequireAuthorization(httpRequestAttribute.AuthorizeRole);
+        if (httpRequestAttribute.RequireAuthorization)
+            routeBuilder = routeBuilder.RequireAuthorization(httpRequestAttribute.Roles ?? Array.Empty<string>());
         
-        if (httpRequestAttribute.IsMultiTenant)
+        if (this is ITenantEntity tenantEntity)
             routeBuilder = routeBuilder.AddEndpointFilter<MultiTenantActionFilter>();
         
         routeBuilder = ConfigureRoute(routeBuilder);
