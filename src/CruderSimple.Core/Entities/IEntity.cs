@@ -4,6 +4,7 @@ namespace CruderSimple.Core.Entities;
 
 public interface IEntity
 {
+    public string Id { get; set; }
     public IEntity FromInput(InputDto input);
     public OutputDto ToOutput();
 }
