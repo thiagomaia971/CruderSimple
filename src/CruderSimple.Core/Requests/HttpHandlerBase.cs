@@ -28,7 +28,7 @@ public abstract class HttpHandlerBase<TQuery, TEntity> : IHttpRequestHandler
         if (httpRequestAttribute.RequireAuthorization)
             routeBuilder = routeBuilder.RequireAuthorization(httpRequestAttribute.Roles ?? Array.Empty<string>());
         
-        if (this is ITenantEntity tenantEntity)
+        if (typeof(ITenantEntity).IsAssignableFrom(typeof(TEntity)))
             routeBuilder = routeBuilder.AddEndpointFilter<MultiTenantActionFilter>();
         
         routeBuilder = ConfigureRoute(routeBuilder);
