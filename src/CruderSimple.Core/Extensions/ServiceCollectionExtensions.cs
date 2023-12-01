@@ -8,6 +8,7 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddRepositories(
         this IServiceCollection services,
+        Type repositoryInterfaceType,
         Type repositoryImplementationType)
     {
         var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.ExportedTypes);
@@ -17,7 +18,7 @@ public static class ServiceCollectionExtensions
         
         foreach (var entityType in entityTypes)
         {
-            var genericInterface = typeof(IRepository<>).MakeGenericType(entityType);
+            var genericInterface = repositoryInterfaceType.MakeGenericType(entityType);
             var genericImplementation = repositoryImplementationType.MakeGenericType(entityType);
             services.AddScoped(genericInterface, genericImplementation);
 

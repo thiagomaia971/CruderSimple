@@ -16,7 +16,7 @@ public static class GetByIdRequest
         where TQuery : Query
         where TEntity : IEntity
         where IOutputDto : OutputDto 
-        where IRepository : Interfaces.IRepository<TEntity>
+        where IRepository : Interfaces.IRepositoryBase<TEntity>
     {
         public override async Task<IResult> Handle(TQuery request, CancellationToken cancellationToken)
         {

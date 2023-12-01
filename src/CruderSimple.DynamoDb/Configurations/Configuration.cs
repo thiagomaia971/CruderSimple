@@ -1,5 +1,6 @@
 ﻿using CruderSimple.Core.Entities;
 using CruderSimple.Core.Extensions;
+using CruderSimple.DynamoDb.Interfaces;
 using CruderSimple.DynamoDb.Repositories;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
@@ -20,7 +21,7 @@ public static class Configuration
             .AddMediatR(typeof(Configuration))
             .AddRequestDefinitions()
             .AddDynamodbMapper(configuration, environment)
-            .AddRepositories(typeof(Repository<>))
+            .AddRepositories(typeof(IRepository<>), typeof(Repository<>))
             .AddScoped<MultiTenantScoped>();
         
         return services;

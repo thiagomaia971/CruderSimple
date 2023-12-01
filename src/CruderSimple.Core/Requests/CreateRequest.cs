@@ -19,7 +19,7 @@ public static class CreateRequest
         where TEntity : IEntity
         where TInputDto : InputDto 
         where IOutputDto : OutputDto 
-        where IRepository : IRepository<TEntity>
+        where IRepository : IRepositoryBase<TEntity>
     {
         public override async Task<IResult> Handle(TQuery request, CancellationToken cancellationToken)
         {

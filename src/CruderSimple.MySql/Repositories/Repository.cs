@@ -1,6 +1,7 @@
 ﻿using CruderSimple.Core.Entities;
 using CruderSimple.Core.Interfaces;
 using CruderSimple.MySql.Entities;
+using CruderSimple.MySql.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
 namespace CruderSimple.MySql.Repositories;
@@ -8,7 +9,9 @@ namespace CruderSimple.MySql.Repositories;
 public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTenant) : IRepository<TEntity>
     where TEntity : Entity
 {
-    public IRepository<TEntity> Add(TEntity entity)
+    protected readonly DbSet<TEntity> dbSet = dbContext.Set<TEntity>();
+
+    public IRepositoryBase<TEntity> Add(TEntity entity)
     {
         if (entity is TenantEntity m)
             m.UserId = multiTenant.UserId;
@@ -17,7 +20,7 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
         return this;
     }
 
-    public IRepository<TEntity> Update(TEntity entity)
+    public IRepositoryBase<TEntity> Update(TEntity entity)
     {
         if (entity is TenantEntity m)
             m.UserId = multiTenant.UserId;
@@ -26,7 +29,7 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
         return this;
     }
 
-    public IRepository<TEntity> Remove(TEntity entity)
+    public IRepositoryBase<TEntity> Remove(TEntity entity)
     {
         dbContext.Remove(entity);
         return this;

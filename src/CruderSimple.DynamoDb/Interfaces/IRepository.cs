@@ -3,7 +3,7 @@ using CruderSimple.DynamoDb.Entities;
 
 namespace CruderSimple.DynamoDb.Interfaces;
 
-public interface IDynamodbRepository<TEntity> : IRepository<TEntity>
+public interface IRepository<TEntity> : IRepositoryBase<TEntity>
     where TEntity : Entity
 {
     DynamoDbQueryBuilder<TEntity> CreateQuery();

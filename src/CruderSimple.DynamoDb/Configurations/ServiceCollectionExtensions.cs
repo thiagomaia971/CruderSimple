@@ -36,8 +36,7 @@ public static class ServiceCollectionExtensions
                 new AmazonDynamoDBConfig
                 {
                     UseHttp = true,
-                    ServiceURL = configuration["AWS:Dynamodb:ServiceUrl"]
-                }))
+                    ServiceURL = configuration["AWS:Dynamodb:ServicRepositoryBase             }))
             .AddSingleton<IDynamoDBContext>(provider =>
             {
                 return new DynamoDBContext(

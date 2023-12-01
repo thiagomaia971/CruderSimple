@@ -1,7 +1,5 @@
-﻿using System.Globalization;
-using Amazon.DynamoDBv2;
+﻿using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
-using Amazon.DynamoDBv2.Model;
 using CruderSimple.Core.Entities;
 using CruderSimple.Core.Interfaces;
 using CruderSimple.DynamoDb.Entities;
@@ -12,14 +10,14 @@ namespace CruderSimple.DynamoDb.Repositories;
 
 public class Repository<T>(IDynamoDBContext dynamoDbContext, IAmazonDynamoDB amazonDynamoDb,
         MultiTenantScoped multiTenant)
-    : IDynamodbRepository<T>
+    : IRepository<T>
     where T : Entity
 {
     protected readonly IDynamoDBContext _dynamoDbContext = dynamoDbContext;
     protected string _entityType = typeof(T).FullName;
     private IDictionary<Type, BatchWrite<object>> batchWrites = new Dictionary<Type, BatchWrite<object>>();
 
-    public IRepository<T> Add(T entity)
+    public IRepositoryBase<T> Add(T entity)
     {
         var oldEntities = entity.Id is null ? new List<Entity>() : (FindById(entity.Id).GetAwaiter().GetResult())?.SegregateEntities() ?? new List<Entity>();
         var entitiesToSave = entity.SegregateEntities();
@@ -65,7 +63,7 @@ public class Repository<T>(IDynamoDBContext dynamoDbContext, IAmazonDynamoDB ama
         return this;
     }
 
-    public IRepository<T> Update(T entity) 
+    public IRepositoryBase<T> Update(T entity) 
         => Add(entity);
 
     private BatchWrite<object> AddBatchWrite(Entity entityToSave)
@@ -79,7 +77,7 @@ public class Repository<T>(IDynamoDBContext dynamoDbContext, IAmazonDynamoDB ama
         return batchWrite;
     }
 
-    public virtual IRepository<T> Remove(T entity)
+    public virtual IRepositoryBase<T> Remove(T entity)
     {
         var batchWrite = AddBatchWrite(entity);
         batchWrite.AddDeleteItem(entity);

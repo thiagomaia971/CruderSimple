@@ -2,12 +2,12 @@
 
 namespace CruderSimple.Core.Interfaces;
 
-public interface IRepository<T>
+public interface IRepositoryBase<T>
     where T : IEntity
 {
-    IRepository<T> Add(T entity);
-    IRepository<T> Update(T entity);
-    IRepository<T> Remove(T entity);
+    IRepositoryBase<T> Add(T entity);
+    IRepositoryBase<T> Update(T entity);
+    IRepositoryBase<T> Remove(T entity);
     Task Save();
     Task<T> FindById(string id);
     Task<T> FindBy(string propertyName, string value);
