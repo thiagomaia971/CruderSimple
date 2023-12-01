@@ -1,6 +1,7 @@
 ﻿using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.Runtime;
+using CruderSimple.Core.Interfaces;
 using CruderSimple.DynamoDb.Entities;
 using CruderSimple.DynamoDb.Interfaces;
 using CruderSimple.DynamoDb.Repositories;
@@ -24,31 +25,6 @@ public static class ServiceCollectionExtensions
             .AddDefaultAWSOptions(configuration.GetAWSOptions())
             .AddAWSService<IAmazonDynamoDB>()
             .AddTransient<IDynamoDBContext, DynamoDBContext>();
-    }
-    
-    public static IServiceCollection AddRepositories(
-        this IServiceCollection services)
-    {
-        var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.ExportedTypes);
-        
-        var entityTypes = types
-            .Where(x => typeof(Entity).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
-        
-        foreach (var entityType in entityTypes)
-        {
-            var genericInterface = typeof(IRepository<>).MakeGenericType(entityType);
-            var genericImplementation = typeof(Repository<>).MakeGenericType(entityType);
-            services.AddScoped(genericInterface, genericImplementation);
-
-            var @interface = types.FirstOrDefault(x => genericInterface.IsAssignableFrom(x) && x.IsInterface);
-            if (@interface is null)
-                continue;
-            
-            var implementation = types.FirstOrDefault(x => @interface.IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
-            services.AddScoped(@interface, implementation);
-        }
-        
-        return services;
     }
 
     private static IServiceCollection LocalhostConfig(IServiceCollection services, IConfiguration configuration)

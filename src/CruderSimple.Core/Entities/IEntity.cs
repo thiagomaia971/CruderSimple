@@ -7,4 +7,6 @@ public interface IEntity
     public string Id { get; set; }
     public IEntity FromInput(InputDto input);
     public OutputDto ToOutput();
+
+    public string GetPrimaryKey();
 }

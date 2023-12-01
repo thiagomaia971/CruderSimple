@@ -1,11 +1,11 @@
-﻿using CruderSimple.Core.Requests;
+﻿using CruderSimple.Core.Entities;
+using CruderSimple.Core.Requests.Base;
 using CruderSimple.Core.ViewModels;
-using CruderSimple.DynamoDb.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace CruderSimple.DynamoDb.Requests;
+namespace CruderSimple.Core.Requests;
 
 public static class DeleteRequest 
 {
@@ -15,7 +15,7 @@ public static class DeleteRequest
         (IRepository repository)
         : HttpHandlerBase<TQuery, TEntity>, IRequestHandler<TQuery, IResult> 
         where TQuery : Query
-        where TEntity : Entity
+        where TEntity : IEntity
         where IOutputDto : OutputDto 
         where IRepository : Interfaces.IRepository<TEntity>
     {
@@ -25,7 +25,8 @@ public static class DeleteRequest
             
             if (entity is null)
                 return Results.NotFound();
-            await repository.Remove(entity);
+            await repository.Remove(entity)
+                .Save();
             return Results.Ok(entity.ToOutput());
         }
     }

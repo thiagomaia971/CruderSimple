@@ -1,7 +1,6 @@
 using MediatR;
-using CruderSimple.Core.Requests;
 using Microsoft.AspNetCore.Http;
 
-namespace CruderSimple.Core.Requests;
+namespace CruderSimple.Core.Requests.Base;
 
 public interface IEndpointQuery : IRequest<IResult>;

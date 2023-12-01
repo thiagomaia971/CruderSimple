@@ -1,13 +1,13 @@
 ﻿using CruderSimple.Core.Entities;
 using CruderSimple.Core.Extensions;
-using CruderSimple.DynamoDb.Repositories;
+using CruderSimple.MySql.Repositories;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-namespace CruderSimple.DynamoDb.Configurations;
+namespace CruderSimple.MySql.Configurations;
 
 public static class Configuration
 {
@@ -19,7 +19,7 @@ public static class Configuration
         services
             .AddMediatR(typeof(Configuration))
             .AddRequestDefinitions()
-            .AddDynamodbMapper(configuration, environment)
+            // .AddDynamodbMapper(configuration, environment)
             .AddRepositories(typeof(Repository<>))
             .AddScoped<MultiTenantScoped>();
         

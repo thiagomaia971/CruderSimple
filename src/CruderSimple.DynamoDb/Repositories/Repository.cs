@@ -3,6 +3,7 @@ using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.Model;
 using CruderSimple.Core.Entities;
+using CruderSimple.Core.Interfaces;
 using CruderSimple.DynamoDb.Entities;
 using CruderSimple.DynamoDb.Extensions;
 using CruderSimple.DynamoDb.Interfaces;
@@ -11,15 +12,16 @@ namespace CruderSimple.DynamoDb.Repositories;
 
 public class Repository<T>(IDynamoDBContext dynamoDbContext, IAmazonDynamoDB amazonDynamoDb,
         MultiTenantScoped multiTenant)
-    : IRepository<T>
+    : IDynamodbRepository<T>
     where T : Entity
 {
     protected readonly IDynamoDBContext _dynamoDbContext = dynamoDbContext;
     protected string _entityType = typeof(T).FullName;
+    private IDictionary<Type, BatchWrite<object>> batchWrites = new Dictionary<Type, BatchWrite<object>>();
 
-    public virtual async Task<T> Save(T entity)
+    public IRepository<T> Add(T entity)
     {
-        var oldEntities = entity.Id is null ? new List<Entity>() : (await FindById(entity.Id))?.SegregateEntities() ?? new List<Entity>();
+        var oldEntities = entity.Id is null ? new List<Entity>() : (FindById(entity.Id).GetAwaiter().GetResult())?.SegregateEntities() ?? new List<Entity>();
         var entitiesToSave = entity.SegregateEntities();
         
         foreach (var entityToSave in entitiesToSave)
@@ -31,12 +33,11 @@ public class Repository<T>(IDynamoDBContext dynamoDbContext, IAmazonDynamoDB ama
                 entityToSave.CreatedAt = DateTime.Now.ToString("O"); 
             if (entityToSave is TenantEntity m)
                 m.UserId = multiTenant.UserId;
-            
-            await amazonDynamoDb.PutItemAsync(
-                new PutItemRequest(
-                    entityToSave.GetPropertyWithAttribute<DynamoDBTableAttribute>().TableName, 
-                    entityToSave.AttributeValues()));
+
+            var batchWrite = AddBatchWrite(entityToSave);
+            batchWrite.AddPutItem(entityToSave);
         }
+        
         var entitiesToDelete =(
             from xinput in oldEntities
             join xxinput in entitiesToSave on xinput.Id equals xxinput.Id into joined
@@ -46,18 +47,49 @@ public class Repository<T>(IDynamoDBContext dynamoDbContext, IAmazonDynamoDB ama
                 EntityRemoved = xinput,
                 EntityEmpty = xentity
             }).Where(x => x.EntityEmpty is null);
+        
         foreach (var oldEntity in entitiesToDelete)
         {
-            await amazonDynamoDb.DeleteItemAsync(new DeleteItemRequest(
-                oldEntity.EntityRemoved.GetPropertyWithAttribute<DynamoDBTableAttribute>().TableName,
-                new Dictionary<string, AttributeValue>
-                {
-                    {nameof(Entity.Id),new AttributeValue(oldEntity.EntityRemoved.Id)} ,
-                    {nameof(Entity.CreatedAt),new AttributeValue(oldEntity.EntityRemoved.CreatedAt.ToString(CultureInfo.InvariantCulture))} 
-                }));
+            var batchWrite = AddBatchWrite(oldEntity.EntityRemoved);
+            batchWrite.AddDeleteItem(oldEntity.EntityRemoved);
+            
+            // await amazonDynamoDb.DeleteItemAsync(new DeleteItemRequest(
+            //     oldEntity.EntityRemoved.GetPropertyWithAttribute<DynamoDBTableAttribute>().TableName,
+            //     new Dictionary<string, AttributeValue>
+            //     {
+            //         {nameof(Entity.Id),new AttributeValue(oldEntity.EntityRemoved.Id)} ,
+            //         {nameof(Entity.CreatedAt),new AttributeValue(oldEntity.EntityRemoved.CreatedAt.ToString(CultureInfo.InvariantCulture))} 
+            //     }));
         }
 
-        return entity;
+        return this;
+    }
+
+    public IRepository<T> Update(T entity) 
+        => Add(entity);
+
+    private BatchWrite<object> AddBatchWrite(Entity entityToSave)
+    {
+        BatchWrite<object> batchWrite = dynamoDbContext.CreateBatchWrite(GetType(), new DynamoDBOperationConfig());
+
+        if (batchWrites.ContainsKey(entityToSave.GetType()))
+            batchWrite = batchWrites[entityToSave.GetType()];
+        else
+            batchWrites.Add(entityToSave.GetType(), batchWrite);
+        return batchWrite;
+    }
+
+    public virtual IRepository<T> Remove(T entity)
+    {
+        var batchWrite = AddBatchWrite(entity);
+        batchWrite.AddDeleteItem(entity);
+        return this;
+    }
+
+    public virtual async Task Save()
+    {
+        var multiTableBatchWrite = dynamoDbContext.CreateMultiTableBatchWrite(batchWrites.Values.ToArray());
+        await multiTableBatchWrite.ExecuteAsync();
     }
 
     public DynamoDbQueryBuilder<T> CreateQuery()
@@ -72,11 +104,14 @@ public class Repository<T>(IDynamoDBContext dynamoDbContext, IAmazonDynamoDB ama
             .ById(id)
             .FindAsync();
 
+    public async Task<T> FindBy(string propertyName, string value) 
+        => await CreateQuery()
+            .ByGsi(propertyName, value)
+            .ByInheritedType()
+            .FindAsync();
+
     public virtual async Task<Pagination<T>> GetAll() 
         => await CreateQuery()
             .ByGsi(x => x.InheritedType, _entityType)
             .QueryAsync();
-
-    public virtual async Task Remove(T entity) 
-        => await _dynamoDbContext.DeleteAsync(entity);
 }

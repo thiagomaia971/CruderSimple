@@ -4,22 +4,15 @@
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <AssemblyName>CruderSimple.DynamoDb</AssemblyName>
-        <RootNamespace>CruderSimple.DynamoDb</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.7.300.7" />
-        <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.7.300" />
         <PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.0-rc.2.22472.3" />
+        <PackageReference Include="MySql.EntityFrameworkCore" Version="8.0.0-preview" />
     </ItemGroup>
-    
+
     <ItemGroup>
       <ProjectReference Include="..\CruderSimple.Core\CruderSimple.Core.csproj" />
-    </ItemGroup>
-    
-    <ItemGroup>
-      <Folder Include="Requests\" />
     </ItemGroup>
 
 </Project>

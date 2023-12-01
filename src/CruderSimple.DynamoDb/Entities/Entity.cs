@@ -66,4 +66,7 @@ public abstract class Entity : IEntity
             UpdatedAt);
         return output;
     }
+
+    public string GetPrimaryKey() 
+        => PrimaryKey;
 }

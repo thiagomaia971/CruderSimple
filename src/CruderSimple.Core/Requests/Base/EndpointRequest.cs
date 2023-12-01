@@ -1,4 +1,4 @@
-namespace CruderSimple.Core.Requests;
+namespace CruderSimple.Core.Requests.Base;
 
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
 public class EndpointRequest(EndpointMethod method,

@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace CruderSimple.Core.Requests;
+namespace CruderSimple.Core.Requests.Base;
 
 public abstract class HttpHandlerBase<TQuery, TEntity> : IHttpRequestHandler
     where TQuery : IEndpointQuery
