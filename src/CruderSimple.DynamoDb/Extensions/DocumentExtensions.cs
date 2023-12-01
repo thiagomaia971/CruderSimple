@@ -105,6 +105,7 @@ public static class DocumentExtensions
 
     private static Entity FromDocumentGeneric(IDynamoDBContext dynamoDbContext, Type innerType, Document innerDocument)
     {
+        dynamoDbContext.FromDocument<Document>(innerDocument);
         var methodInfo = dynamoDbContext.GetType().GetMethod("FromDocument", new[] { typeof(Document) });
         var methodGenericInfo =
             methodInfo.MakeGenericMethod(innerType);

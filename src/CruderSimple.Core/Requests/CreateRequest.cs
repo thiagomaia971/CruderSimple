@@ -1,11 +1,12 @@
-﻿using CruderSimple.Core.Requests;
+﻿using CruderSimple.Core.Entities;
+using CruderSimple.Core.Interfaces;
+using CruderSimple.Core.Requests.Base;
 using CruderSimple.Core.ViewModels;
-using CruderSimple.DynamoDb.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace CruderSimple.DynamoDb.Requests;
+namespace CruderSimple.Core.Requests;
 
 public static class CreateRequest 
 {
@@ -15,28 +16,25 @@ public static class CreateRequest
         (IRepository repository)
         : HttpHandlerBase<TQuery, TEntity>, IRequestHandler<TQuery, IResult> 
         where TQuery : Query<TInputDto>
-        where TEntity : Entity
+        where TEntity : IEntity
         where TInputDto : InputDto 
         where IOutputDto : OutputDto 
-        where IRepository : Interfaces.IRepository<TEntity>
+        where IRepository : IRepositoryBase<TEntity>
     {
         public override async Task<IResult> Handle(TQuery request, CancellationToken cancellationToken)
         {
             var entity = (TEntity) Activator.CreateInstance<TEntity>().FromInput(request.payload);
-            if (!string.IsNullOrEmpty(entity.PrimaryKey))
+            if (!string.IsNullOrEmpty(entity.GetPrimaryKey()))
             {
-                var entityExist = await repository
-                    .CreateQuery()
-                    .ByGsi(x => x.PrimaryKey, entity.PrimaryKey)
-                    .ByInheritedType()
-                    .FindAsync();
+                var entityExist = await repository.FindBy("PrimaryKey", entity.GetPrimaryKey());
             
                 if (entityExist is not null)
                     return Results.Ok(entityExist.ToOutput());
             }
-                
-            var outputDto = (await repository.Save(entity)).ToOutput();
-            return Results.Ok(outputDto);
+
+            await repository.Add(entity)
+                .Save();
+            return Results.Ok(entity.ToOutput());
         }
     }
 }

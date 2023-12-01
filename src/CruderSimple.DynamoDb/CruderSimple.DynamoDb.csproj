@@ -17,5 +17,9 @@
     <ItemGroup>
       <ProjectReference Include="..\CruderSimple.Core\CruderSimple.Core.csproj" />
     </ItemGroup>
+    
+    <ItemGroup>
+      <Folder Include="Requests\" />
+    </ItemGroup>
 
 </Project>

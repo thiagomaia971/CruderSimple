@@ -1,10 +1,10 @@
-﻿using CruderSimple.Core.Requests;
+﻿using CruderSimple.Core.Entities;
+using CruderSimple.Core.Requests.Base;
 using CruderSimple.Core.ViewModels;
-using CruderSimple.DynamoDb.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 
-namespace CruderSimple.DynamoDb.Requests;
+namespace CruderSimple.Core.Requests;
 
 public static class GetByIdRequest
 {
@@ -14,9 +14,9 @@ public static class GetByIdRequest
         (IRepository repository)
         : HttpHandlerBase<TQuery, TEntity>, IRequestHandler<TQuery, IResult> 
         where TQuery : Query
-        where TEntity : Entity
+        where TEntity : IEntity
         where IOutputDto : OutputDto 
-        where IRepository : Interfaces.IRepository<TEntity>
+        where IRepository : Interfaces.IRepositoryBase<TEntity>
     {
         public override async Task<IResult> Handle(TQuery request, CancellationToken cancellationToken)
         {
