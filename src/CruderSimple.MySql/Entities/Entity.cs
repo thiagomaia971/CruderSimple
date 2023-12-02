@@ -29,8 +29,8 @@ public abstract class Entity : IEntity
     {
         var output = new OutputDto(
             Id,
-            CreatedAt,
-            UpdatedAt);
+            CreatedAt.ToString("O"),
+            UpdatedAt?.ToString("O"));
         return output;
     }
 
