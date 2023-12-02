@@ -1,5 +1,6 @@
 ﻿using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
+using Amazon.DynamoDBv2.Model;
 using CruderSimple.Core.Entities;
 using CruderSimple.Core.Interfaces;
 using CruderSimple.DynamoDb.Entities;
@@ -29,8 +30,10 @@ public class Repository<T>(IDynamoDBContext dynamoDbContext, IAmazonDynamoDB ama
                 entityToSave.Id = Guid.NewGuid().ToString();
             if (string.IsNullOrEmpty(entityToSave.CreatedAt))
                 entityToSave.CreatedAt = DateTime.Now.ToString("O"); 
-            if (entityToSave is TenantEntity m)
-                m.UserId = multiTenant.UserId;
+            
+            var userIdProp = entity.GetType().GetProperties().FirstOrDefault(x => x.Name == "UserId");
+            if (userIdProp != null) 
+                userIdProp.SetValue(entity, multiTenant.UserId);
 
             var batchWrite = AddBatchWrite(entityToSave);
             batchWrite.AddPutItem(entityToSave);
@@ -68,7 +71,7 @@ public class Repository<T>(IDynamoDBContext dynamoDbContext, IAmazonDynamoDB ama
 
     private BatchWrite<object> AddBatchWrite(Entity entityToSave)
     {
-        BatchWrite<object> batchWrite = dynamoDbContext.CreateBatchWrite(GetType(), new DynamoDBOperationConfig());
+        BatchWrite<object> batchWrite = dynamoDbContext.CreateBatchWrite(entityToSave.GetType(), new DynamoDBOperationConfig());
 
         if (batchWrites.ContainsKey(entityToSave.GetType()))
             batchWrite = batchWrites[entityToSave.GetType()];
@@ -92,7 +95,11 @@ public class Repository<T>(IDynamoDBContext dynamoDbContext, IAmazonDynamoDB ama
 
     public DynamoDbQueryBuilder<T> CreateQuery()
     {
-        var multiTenantUserId = typeof(TenantEntity).IsAssignableFrom(typeof(T)) ? multiTenant.UserId : null;
+        var userIdProp = typeof(T).GetProperties().FirstOrDefault(x => x.Name == "UserId");
+        string multiTenantUserId = null;
+        if (userIdProp != null) 
+            multiTenantUserId = multiTenant.UserId;
+
         return DynamoDbQueryBuilder<T>
             .CreateQuery(_dynamoDbContext, multiTenantUserId);
     }
