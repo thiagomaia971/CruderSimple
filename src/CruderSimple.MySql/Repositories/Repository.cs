@@ -13,7 +13,7 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
 
     public IRepositoryBase<TEntity> Add(TEntity entity)
     {
-        if (entity is TenantEntity m)
+        if (entity is TenantEntity<IEntity> m)
             m.UserId = multiTenant.UserId;
 
         dbContext.Add(entity);
@@ -22,7 +22,7 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
 
     public IRepositoryBase<TEntity> Update(TEntity entity)
     {
-        if (entity is TenantEntity m)
+        if (entity is TenantEntity<IEntity> m)
             m.UserId = multiTenant.UserId;
 
         dbContext.Update(entity);

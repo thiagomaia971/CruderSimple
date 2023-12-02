@@ -2,7 +2,9 @@
 
 namespace CruderSimple.MySql.Entities;
 
-public class TenantEntity : Entity, ITenantEntity
+public class TenantEntity<TUser> : Entity, ITenantEntity
+    where TUser : IEntity
 {
     public string UserId { get; set; }
+    public TUser User { get; set; }
 }
