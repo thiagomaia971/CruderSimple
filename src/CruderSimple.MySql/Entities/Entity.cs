@@ -12,16 +12,16 @@ public abstract class Entity : IEntity
     public string Id { get; set; } = Guid.NewGuid().ToString();
 
     [JsonProperty("CreatedAt")]
-    public DateTimeOffset CreatedAt { get; set; }
+    public DateTime CreatedAt { get; set; }
     
     [JsonProperty("UpdatedAt")]
-    public DateTimeOffset? UpdatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
 
     public virtual IEntity FromInput(InputDto input)
     {
         Id = string.IsNullOrEmpty(input.Id) ? Guid.NewGuid().ToString() : input.Id;
-        CreatedAt = CreatedAt == DateTime.MinValue ? DateTimeOffset.UtcNow : CreatedAt;
-        UpdatedAt= DateTimeOffset.UtcNow;
+        CreatedAt = CreatedAt == DateTime.MinValue ? DateTime.UtcNow : CreatedAt;
+        UpdatedAt= DateTime.UtcNow;
         return this;
     }
 
