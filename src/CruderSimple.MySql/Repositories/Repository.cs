@@ -1,6 +1,7 @@
 ﻿using CruderSimple.Core.Entities;
 using CruderSimple.Core.Interfaces;
 using CruderSimple.MySql.Entities;
+using CruderSimple.MySql.Extensions;
 using CruderSimple.MySql.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -43,7 +44,7 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
     }
 
     public Task<TEntity> FindById(string id) 
-        => dbContext.Set<TEntity>().FirstOrDefaultAsync(x => x.Id == id);
+        => dbContext.Set<TEntity>().LoadRelated().FirstOrDefaultAsync(x => x.Id == id);
 
     public Task<TEntity> FindBy(string propertyName, string value)
         => FindById(value);
@@ -53,7 +54,7 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
         var pagination = new Pagination<TEntity>
         {
             Size = dbContext.Set<TEntity>().Count(),
-            Data = dbContext.Set<TEntity>()
+            Data = dbContext.Set<TEntity>().LoadRelated()
         };
         
         return Task.FromResult(pagination);
