@@ -1,10 +1,6 @@
 ﻿using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.Runtime;
-using CruderSimple.Core.Interfaces;
-using CruderSimple.DynamoDb.Entities;
-using CruderSimple.DynamoDb.Interfaces;
-using CruderSimple.DynamoDb.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -36,7 +32,8 @@ public static class ServiceCollectionExtensions
                 new AmazonDynamoDBConfig
                 {
                     UseHttp = true,
-                    ServiceURL = configuration["AWS:Dynamodb:ServicRepositoryBase             }))
+                    ServiceURL = configuration["AWS:Dynamodb:ServiceUrl"]
+                }))
             .AddSingleton<IDynamoDBContext>(provider =>
             {
                 return new DynamoDBContext(
