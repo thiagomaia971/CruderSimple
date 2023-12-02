@@ -13,8 +13,9 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
 
     public IRepositoryBase<TEntity> Add(TEntity entity)
     {
-        if (entity is TenantEntity<IEntity> m)
-            m.UserId = multiTenant.UserId;
+        var userIdProp = entity.GetType().GetProperties().FirstOrDefault(x => x.Name == "UserId");
+        if (userIdProp != null) 
+            userIdProp.SetValue(entity, multiTenant.UserId);
 
         dbContext.Add(entity);
         return this;
@@ -22,8 +23,9 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
 
     public IRepositoryBase<TEntity> Update(TEntity entity)
     {
-        if (entity is TenantEntity<IEntity> m)
-            m.UserId = multiTenant.UserId;
+        var userIdProp = entity.GetType().GetProperties().FirstOrDefault(x => x.Name == "UserId");
+        if (userIdProp != null) 
+            userIdProp.SetValue(entity, multiTenant.UserId);
 
         dbContext.Update(entity);
         return this;
