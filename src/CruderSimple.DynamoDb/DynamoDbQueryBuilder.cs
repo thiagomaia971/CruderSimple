@@ -75,7 +75,7 @@ public class DynamoDbQueryBuilder<T>
         => ByGsi(GetGsiName(property), GetPropertyName(property), value, queryOperator);
 
     public DynamoDbQueryBuilder<T> ByGsi(string property, string value, DynamoDbOperator queryOperator = DynamoDbOperator.Equal) 
-        => ByGsi(GetGsiName(property), property, value, queryOperator);
+        => ByGsi(GetGsiName(property), GetPropertyName(property), value, queryOperator);
 
     public DynamoDbQueryBuilder<T> ByGsi(
         string gsiName, 
@@ -156,7 +156,7 @@ public class DynamoDbQueryBuilder<T>
 
     private string GetGsiName(string propertyName)
     {
-        var dynamoDbGsi= (DynamoDbGsi?) GetType().GetProperty(propertyName)?.GetCustomAttributes(true).FirstOrDefault(x => typeof(DynamoDbGsi).IsAssignableFrom(x.GetType()));
+        var dynamoDbGsi= (DynamoDbGsi?) typeof(T).GetProperty(propertyName)?.GetCustomAttributes(true).FirstOrDefault(x => typeof(DynamoDbGsi).IsAssignableFrom(x.GetType()));
         
         if (dynamoDbGsi is not null)
             return dynamoDbGsi.GsiName;
@@ -173,6 +173,15 @@ public class DynamoDbQueryBuilder<T>
             return dynamoDbPropertyAttribute.AttributeName;
         
         return expression.Member.Name;
+    }
+
+    private static string GetPropertyName(string propertyName)
+    {
+        var dynamoDbPropertyAttribute = (DynamoDBPropertyAttribute?) typeof(T).GetProperty(propertyName)?.GetCustomAttributes(true).FirstOrDefault(x => typeof(DynamoDBPropertyAttribute).IsAssignableFrom(x.GetType()));
+        if (dynamoDbPropertyAttribute is not null)
+            return dynamoDbPropertyAttribute.AttributeName;
+        
+        return propertyName;
     }
 
     private static List<string> GetAllProperties(Type type)
