@@ -44,7 +44,7 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
     }
 
     public Task<TEntity> FindById(string id) 
-        => dbContext.Set<TEntity>().LoadRelated().FirstOrDefaultAsync(x => x.Id == id);
+        => dbContext.Set<TEntity>().FirstOrDefaultAsync(x => x.Id == id);
 
     public Task<TEntity> FindBy(string propertyName, string value)
         => FindById(value);
@@ -54,7 +54,7 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
         var pagination = new Pagination<TEntity>
         {
             Size = dbContext.Set<TEntity>().Count(),
-            Data = dbContext.Set<TEntity>().LoadRelated()
+            Data = dbContext.Set<TEntity>()
         };
         
         return Task.FromResult(pagination);
