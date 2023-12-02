@@ -12,11 +12,13 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
 {
     protected readonly DbSet<TEntity> dbSet = dbContext.Set<TEntity>();
 
+    protected MultiTenantScoped MultiTenant { get; } = multiTenant;
+
     public IRepositoryBase<TEntity> Add(TEntity entity)
     {
         var userIdProp = entity.GetType().GetProperties().FirstOrDefault(x => x.Name == "UserId");
         if (userIdProp != null) 
-            userIdProp.SetValue(entity, multiTenant.UserId);
+            userIdProp.SetValue(entity, MultiTenant.UserId);
 
         dbContext.Add(entity);
         return this;
@@ -26,7 +28,7 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
     {
         var userIdProp = entity.GetType().GetProperties().FirstOrDefault(x => x.Name == "UserId");
         if (userIdProp != null) 
-            userIdProp.SetValue(entity, multiTenant.UserId);
+            userIdProp.SetValue(entity, MultiTenant.UserId);
 
         dbContext.Update(entity);
         return this;
@@ -44,7 +46,7 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
     }
 
     public Task<TEntity> FindById(string id) 
-        => dbContext.Set<TEntity>().FirstOrDefaultAsync(x => x.Id == id);
+        => Query().FirstOrDefaultAsync(x => x.Id == id);
 
     public Task<TEntity> FindBy(string propertyName, string value)
         => FindById(value);
@@ -53,10 +55,13 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
     {
         var pagination = new Pagination<TEntity>
         {
-            Size = dbContext.Set<TEntity>().Count(),
-            Data = dbContext.Set<TEntity>()
+            Size = Query().Count(),
+            Data = Query()
         };
         
         return Task.FromResult(pagination);
     }
+
+    protected virtual IQueryable<TEntity> Query() 
+        => dbContext.Set<TEntity>();
 }
