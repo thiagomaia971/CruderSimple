@@ -171,10 +171,6 @@ public static class DocumentExtensions
         where T : Attribute
         => ((T?) @object.GetType().GetCustomAttributes(true).FirstOrDefault(x => typeof(T).IsAssignableFrom(x.GetType())));
 
-    public static T? GetCustomAttribute<T>(this PropertyInfo property)
-        where T : Attribute 
-        => (T?) property.GetCustomAttributes(false)
-            .FirstOrDefault(y => typeof(T).IsAssignableFrom(y.GetType()));
 
     public static string GetCollumnName(this PropertyInfo property)
     {

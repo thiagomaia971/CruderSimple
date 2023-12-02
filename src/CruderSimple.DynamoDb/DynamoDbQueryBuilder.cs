@@ -2,6 +2,7 @@
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.DocumentModel;
 using CruderSimple.Core.Entities;
+using CruderSimple.Core.Extensions;
 using CruderSimple.DynamoDb.Attributes;
 using CruderSimple.DynamoDb.Entities;
 using CruderSimple.DynamoDb.Extensions;
