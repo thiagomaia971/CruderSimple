@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 using CruderSimple.Core.Entities;
 using CruderSimple.Core.ViewModels;
 using Newtonsoft.Json;
@@ -9,6 +10,7 @@ namespace CruderSimple.MySql.Entities;
 public abstract class Entity : IEntity
 {
     [JsonProperty("Id")]
+    [StringLength(36)]
     public string Id { get; set; } = Guid.NewGuid().ToString();
 
     [JsonProperty("CreatedAt")]

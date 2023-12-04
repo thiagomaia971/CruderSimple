@@ -2,5 +2,4 @@
 
 public interface ITenantEntity : IEntity
 {
-    public string UserId { get; set; }
 }

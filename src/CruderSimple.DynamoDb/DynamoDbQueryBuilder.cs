@@ -98,7 +98,7 @@ public class DynamoDbQueryBuilder<T>
     public async Task<Pagination<T>> QueryAsync()
     {
         if (!string.IsNullOrEmpty(_multiTenantUserId))
-            _conditions.Add(DynamoDbCondition.Create(GetGsiName<TenantEntity, string>(x => x.UserId), DynamoDbOperator.Equal, _multiTenantUserId));
+            _conditions.Add(DynamoDbCondition.Create(GetGsiName<TenantEntity, string>(x => x.GetId), DynamoDbOperator.Equal, _multiTenantUserId));
         
         var queryOperationConfig = new QueryOperationConfig
         {
@@ -123,7 +123,7 @@ public class DynamoDbQueryBuilder<T>
     public async Task<Pagination<T>> ScanAsync()
     {
         if (!string.IsNullOrEmpty(_multiTenantUserId))
-            _conditions.Add(DynamoDbCondition.Create(GetGsiName<TenantEntity, string>(x => x.UserId), DynamoDbOperator.Equal, _multiTenantUserId));
+            _conditions.Add(DynamoDbCondition.Create(GetGsiName<TenantEntity, string>(x => x.GetId), DynamoDbOperator.Equal, _multiTenantUserId));
         
         var scanOperationConfig = new ScanOperationConfig
         {

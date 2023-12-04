@@ -29,4 +29,8 @@ public static class CollectionExtensions
         where TEntity : IEntity
         where TOutput : OutputDto 
         => entities.Select(x => x.ToOutput()).Cast<TOutput>().ToList();
+    
+    public static TOutput ToOutput<TOutput>(this IEntity entity)
+        where TOutput : OutputDto 
+        => (TOutput) entity.ToOutput();
 }
