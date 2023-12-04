@@ -10,10 +10,10 @@ public class MultiTenantActionFilter([FromServices] MultiTenantScoped multiTenan
     public ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
     {
         var claims = context.HttpContext.User.Identity as ClaimsIdentity;
-        if (claims.Claims.Any(x => x.Type == "UserId"))
+        if (claims.Claims.Any(x => x.Type == "TenantId"))
         {
-            var userId = claims.Claims.First(x => x.Type == "UserId").Value;
-            multiTenant.UserId = userId;
+            var userId = claims.Claims.First(x => x.Type == "TenantId").Value;
+            multiTenant.Id = userId;
         }
         return next(context);
     }

@@ -2,5 +2,5 @@
 
 public class MultiTenantScoped
 {
-    public string UserId { get; set; }
+    public string Id { get; set; }
 }

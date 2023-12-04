@@ -6,6 +6,5 @@ namespace CruderSimple.DynamoDb.Entities;
 
 public abstract class TenantEntity : Entity, ITenantEntity
 {
-    [DynamoDBProperty("UserId")]
-    public string UserId { get; set; }
+    public string GetId { get; }
 }

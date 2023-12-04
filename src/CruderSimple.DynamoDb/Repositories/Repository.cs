@@ -33,7 +33,7 @@ public class Repository<T>(IDynamoDBContext dynamoDbContext, IAmazonDynamoDB ama
             
             var userIdProp = entity.GetType().GetProperties().FirstOrDefault(x => x.Name == "UserId");
             if (userIdProp != null) 
-                userIdProp.SetValue(entity, multiTenant.UserId);
+                userIdProp.SetValue(entity, multiTenant.Id);
 
             var batchWrite = AddBatchWrite(entityToSave);
             batchWrite.AddPutItem(entityToSave);
@@ -98,7 +98,7 @@ public class Repository<T>(IDynamoDBContext dynamoDbContext, IAmazonDynamoDB ama
         var userIdProp = typeof(T).GetProperties().FirstOrDefault(x => x.Name == "UserId");
         string multiTenantUserId = null;
         if (userIdProp != null) 
-            multiTenantUserId = multiTenant.UserId;
+            multiTenantUserId = multiTenant.Id;
 
         return DynamoDbQueryBuilder<T>
             .CreateQuery(_dynamoDbContext, multiTenantUserId);
