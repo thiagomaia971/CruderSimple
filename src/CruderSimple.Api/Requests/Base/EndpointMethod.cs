@@ -1,5 +1,5 @@
 
-namespace CruderSimple.Core.Requests.Base;
+namespace CruderSimple.Api.Requests.Base;
 
 public enum EndpointMethod
 {

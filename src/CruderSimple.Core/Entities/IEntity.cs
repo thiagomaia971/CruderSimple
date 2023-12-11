@@ -6,7 +6,23 @@ public interface IEntity
 {
     public string Id { get; set; }
     public IEntity FromInput(InputDto input);
-    public OutputDto ToOutput();
-
+    OutputDto ConvertToOutput();
     public string GetPrimaryKey();
+}
+
+public static class EntityExtensions
+{
+    public static TOutput ToOutput<TOutput>(this IEntity entity)
+        where TOutput : OutputDto 
+        => (TOutput) entity.ConvertToOutput();
+    
+    public static ICollection<TOutput> ToOutput<TEntity, TOutput>(this ICollection<TEntity> entities)
+        where TEntity : IEntity
+        where TOutput : OutputDto 
+        => entities.Select(x => x.ToOutput<TOutput>()).ToList();
+    
+    public static ICollection<TOutput> ToOutput<TEntity, TOutput>(this IQueryable<TEntity> entities)
+        where TEntity : IEntity
+        where TOutput : OutputDto 
+        => entities.Select(x => x.ToOutput<TOutput>()).ToList();
 }

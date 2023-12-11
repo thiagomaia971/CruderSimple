@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Builder;
 
-namespace CruderSimple.Core.Requests.Base;
+namespace CruderSimple.Api.Requests.Base;
 
 public interface IHttpRequestHandler
 {

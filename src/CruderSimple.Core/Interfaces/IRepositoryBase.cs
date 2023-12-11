@@ -11,5 +11,5 @@ public interface IRepositoryBase<T>
     Task Save();
     Task<T> FindById(string id);
     Task<T> FindBy(string propertyName, string value);
-    Task<Pagination<T>> GetAll();
+    Task<IQueryable<T>> GetAll();
 }

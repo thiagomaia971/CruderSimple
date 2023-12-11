@@ -3,7 +3,7 @@ using CruderSimple.Core.Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace CruderSimple.Core.Filters;
+namespace CruderSimple.Api.Filters;
 
 public class MultiTenantActionFilter([FromServices] MultiTenantScoped multiTenant) : IEndpointFilter
 {

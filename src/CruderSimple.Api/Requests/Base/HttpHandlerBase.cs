@@ -1,11 +1,11 @@
+using CruderSimple.Api.Filters;
 using CruderSimple.Core.Entities;
-using CruderSimple.Core.Filters;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace CruderSimple.Core.Requests.Base;
+namespace CruderSimple.Api.Requests.Base;
 
 public abstract class HttpHandlerBase<TQuery, TEntity> : IHttpRequestHandler
     where TQuery : IEndpointQuery

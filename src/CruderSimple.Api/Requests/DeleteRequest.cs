@@ -1,11 +1,11 @@
-﻿using CruderSimple.Core.Entities;
-using CruderSimple.Core.Requests.Base;
+﻿using CruderSimple.Api.Requests.Base;
+using CruderSimple.Core.Entities;
 using CruderSimple.Core.ViewModels;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace CruderSimple.Core.Requests;
+namespace CruderSimple.Api.Requests;
 
 public static class DeleteRequest 
 {
@@ -17,7 +17,7 @@ public static class DeleteRequest
         where TQuery : Query
         where TEntity : IEntity
         where IOutputDto : OutputDto 
-        where IRepository : Interfaces.IRepositoryBase<TEntity>
+        where IRepository : Core.Interfaces.IRepositoryBase<TEntity>
     {
         public override async Task<IResult> Handle(TQuery request, CancellationToken cancellationToken)
         {
@@ -27,7 +27,7 @@ public static class DeleteRequest
                 return Results.NotFound();
             await repository.Remove(entity)
                 .Save();
-            return Results.Ok(entity.ToOutput());
+            return Results.Ok(entity.ToOutput<IOutputDto>());
         }
     }
 }
