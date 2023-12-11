@@ -92,10 +92,10 @@ public class DynamoDbQueryBuilder<T>
     public async Task<T> FindAsync()
     {
         var result = await QueryAsync();
-        return result.Data.SingleOrDefault();
+        return result.SingleOrDefault();
     }
 
-    public async Task<Pagination<T>> QueryAsync()
+    public async Task<IQueryable<T>> QueryAsync()
     {
         if (!string.IsNullOrEmpty(_multiTenantUserId))
             _conditions.Add(DynamoDbCondition.Create(GetGsiName<TenantEntity, string>(x => x.GetId), DynamoDbOperator.Equal, _multiTenantUserId));
@@ -113,11 +113,7 @@ public class DynamoDbQueryBuilder<T>
         var search = table.Query(queryOperationConfig);
         var documents = await search.GetNextSetAsync();
         var entities = _dynamoDbContext.ToEntities<T>(documents);
-        
-        return new Pagination<T>
-        {
-            Data = entities
-        };
+        return entities.AsQueryable();
     }
 
     public async Task<Pagination<T>> ScanAsync()

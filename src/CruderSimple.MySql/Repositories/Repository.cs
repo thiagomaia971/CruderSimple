@@ -42,16 +42,8 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
     public virtual Task<TEntity> FindBy(string propertyName, string value)
         => FindById(value);
 
-    public virtual Task<Pagination<TEntity>> GetAll()
-    {
-        var pagination = new Pagination<TEntity>
-        {
-            Size = Query().Count(),
-            Data = Query()
-        };
-        
-        return Task.FromResult(pagination);
-    }
+    public virtual Task<IQueryable<TEntity>> GetAll() 
+        => Task.FromResult(Query());
 
     protected virtual IQueryable<TEntity> Query()
     {

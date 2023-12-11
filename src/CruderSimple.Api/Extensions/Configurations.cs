@@ -1,17 +1,15 @@
 ﻿using System.Diagnostics;
-using System.Reflection;
-using CruderSimple.Core.Requests;
-using CruderSimple.Core.Requests.Base;
+using CruderSimple.Api.Requests.Base;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace CruderSimple.Core.Extensions;
+namespace CruderSimple.Api.Extensions;
 
-public static class EndpointDefinitionsExtensions
+public static class Configurations
 {
-    public static IServiceCollection AddRequestDefinitions(
+    public static IServiceCollection AddCruderRequestDefinitions(
         this IServiceCollection services)
     {
         var stopWatch = new Stopwatch();
@@ -44,7 +42,6 @@ public static class EndpointDefinitionsExtensions
             .Cast<IHttpRequestHandler>();
         foreach (var handler in instances)
             handler.AddEndpointDefinition(app);
-        
         return app;
     }
     
@@ -54,5 +51,13 @@ public static class EndpointDefinitionsExtensions
                 yield return (type);
             }
         }
+    }
+    
+    public static WebApplication UseCruderSimpleServices(
+        this WebApplication app)
+    {
+        app.UseRequestDefinitions();
+        
+        return app;
     }
 }

@@ -15,7 +15,7 @@
     </ItemGroup>
     
     <ItemGroup>
-      <ProjectReference Include="..\CruderSimple.Core\CruderSimple.Core.csproj" />
+      <ProjectReference Include="..\CruderSimple.Api\CruderSimple.Api.csproj" />
     </ItemGroup>
     
     <ItemGroup>

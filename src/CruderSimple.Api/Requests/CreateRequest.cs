@@ -1,12 +1,12 @@
-﻿using CruderSimple.Core.Entities;
+﻿using CruderSimple.Api.Requests.Base;
+using CruderSimple.Core.Entities;
 using CruderSimple.Core.Interfaces;
-using CruderSimple.Core.Requests.Base;
 using CruderSimple.Core.ViewModels;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace CruderSimple.Core.Requests;
+namespace CruderSimple.Api.Requests;
 
 public static class CreateRequest 
 {
@@ -29,12 +29,12 @@ public static class CreateRequest
                 var entityExist = await repository.FindBy("PrimaryKey", entity.GetPrimaryKey());
             
                 if (entityExist is not null)
-                    return Results.Ok(entityExist.ToOutput());
+                    return Results.Ok(entityExist.ToOutput<IOutputDto>());
             }
 
             await repository.Add(entity)
                 .Save();
-            return Results.Ok(entity.ToOutput());
+            return Results.Ok(entity.ToOutput<IOutputDto>());
         }
     }
 }

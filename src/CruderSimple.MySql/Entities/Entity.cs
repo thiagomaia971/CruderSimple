@@ -27,7 +27,7 @@ public abstract class Entity : IEntity
         return this;
     }
 
-    public virtual OutputDto ToOutput()
+    public virtual OutputDto ConvertToOutput()
     {
         var output = new OutputDto(
             Id,

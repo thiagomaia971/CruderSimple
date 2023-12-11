@@ -1,4 +1,5 @@
-﻿using CruderSimple.Core.Entities;
+﻿using CruderSimple.Api.Extensions;
+using CruderSimple.Core.Entities;
 using CruderSimple.Core.Extensions;
 using CruderSimple.DynamoDb.Interfaces;
 using CruderSimple.DynamoDb.Repositories;
@@ -19,7 +20,6 @@ public static class Configuration
     {
         services
             .AddMediatR(typeof(Configuration))
-            .AddRequestDefinitions()
             .AddDynamodbMapper(configuration, environment)
             .AddRepositories(typeof(IRepository<>), typeof(Repository<>))
             .AddScoped<MultiTenantScoped>();

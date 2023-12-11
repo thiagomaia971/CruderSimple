@@ -1,4 +1,5 @@
-﻿using CruderSimple.Core.Entities;
+﻿using System.Reflection;
+using CruderSimple.Core.Entities;
 using CruderSimple.Core.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -11,11 +12,19 @@ public static class ServiceCollectionExtensions
         Type repositoryInterfaceType,
         Type repositoryImplementationType)
     {
-        var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.ExportedTypes);
-        
+        var types = Assembly
+                        .GetEntryAssembly()
+                        .GetReferencedAssemblies()
+                        .Select(Assembly.Load)
+                        .SelectMany(x => x.DefinedTypes)
+                        .Concat(AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.ExportedTypes))
+                        .Distinct();
+
         var entityTypes = types
             .Where(x => typeof(IEntity).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
-        
+
+        Console.WriteLine(string.Join(",", entityTypes.Select(x => x.Name)));
+
         foreach (var entityType in entityTypes)
         {
             var genericInterface = repositoryInterfaceType.MakeGenericType(entityType);

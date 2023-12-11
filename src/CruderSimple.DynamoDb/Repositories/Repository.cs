@@ -115,7 +115,7 @@ public class Repository<T>(IDynamoDBContext dynamoDbContext, IAmazonDynamoDB ama
             .ByInheritedType()
             .FindAsync();
 
-    public virtual async Task<Pagination<T>> GetAll() 
+    public virtual async Task<IQueryable<T>> GetAll() 
         => await CreateQuery()
             .ByGsi(x => x.InheritedType, _entityType)
             .QueryAsync();
