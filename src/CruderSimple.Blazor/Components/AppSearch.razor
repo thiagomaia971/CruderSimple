@@ -1,0 +1,43 @@
+﻿@using CruderSimple.Blazor.Services
+@inject IdentityAuthenticationStateProvider state
+@inject NavigationManager navigation
+
+<Autocomplete @ref=@autoComplete
+              TItem="LoginRouteResult"
+              TValue="LoginRouteResult"
+              Data="@Routes"
+              TextField="@(( item ) => item.Name)"
+              ValueField="@(( item ) => item)"
+              Placeholder="Search..."
+              HighlightSearch
+              Filter="AutocompleteFilter.Contains"
+              SelectedValueChanged="OnChange"
+              @onblur="OnBlur"
+              @onfocus="OnBlur"
+              @onclick="OnBlur">
+    <NotFoundContent> Sorry... @context was not found! :( </NotFoundContent>
+</Autocomplete>
+
+@code {
+    public IEnumerable<LoginRouteResult> Routes { get; set; }
+    public Autocomplete<LoginRouteResult, LoginRouteResult> autoComplete { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var user = await state.GetUserInfo();
+        Routes = user.Routes;
+    }
+    public void OnChange(LoginRouteResult value)
+    {
+        autoComplete.Clear();
+
+        if (value.Url == "home")
+            navigation.NavigateTo("/");
+        else
+            navigation.NavigateTo(value.Url);
+    }
+    public void OnBlur()
+    {
+        autoComplete.OpenDropdown();
+    }
+}

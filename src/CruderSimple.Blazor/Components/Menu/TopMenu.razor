@@ -1,0 +1,60 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@inject NavigationManager navigationManager
+@inject AuthenticationStateProvider authenticationState
+@inject IdentityAuthenticationStateProvider authentication
+
+<Bar Breakpoint="Breakpoint.Desktop" Background="Background.Light" ThemeContrast="ThemeContrast.Light">
+    <BarBrand>
+        <BarItem>
+            <BarLink To="">
+                OdontoManagement
+            </BarLink>
+        </BarItem>
+    </BarBrand>
+    <BarToggler />
+    <BarMenu>
+        <BarStart>
+            <AppSearch />
+        </BarStart>
+        <BarEnd>
+            <BarItem>
+                <BarDropdown RightAligned>
+                    <BarDropdownToggle Display="Display.InlineBlock.OnTablet.None.OnMobile">
+                        <Image Class="avatar" Source="_content/OdontoManagement.Shared/img/avatars/avatar-6.jpg" Text="Avatar" Fluid Border="Border.RoundedCircle" Margin="Margin.Is1.FromEnd" Style="width:40px; height:40px;" />
+                         <Span TextColor="TextColor.Dark">@UserName</Span>
+                        @*<Span TextColor="TextColor.Muted">Founder</Span>*@
+                    </BarDropdownToggle>
+                    <BarDropdownMenu>
+                        <BarDropdownItem>
+                            <Icon Name="IconName.Wrench" />
+                            User Settings
+                        </BarDropdownItem>
+                        <BarDropdownDivider />
+                        <BarDropdownItem>
+                            <div @onclick="@LogoutClick">
+                                <Icon Name="IconName.Lock" TextColor="TextColor.Danger" />
+                                Logout
+                            </div>
+                        </BarDropdownItem>
+                    </BarDropdownMenu>
+                </BarDropdown>
+            </BarItem>
+        </BarEnd>
+    </BarMenu>
+</Bar>
+@code{
+    RenderFragment customIcon =@<img src="/brand-logo.png" style="width:32px; height: 32px" />;
+    public string UserName { get; set; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        var user = await authenticationState.GetAuthenticationStateAsync();
+        UserName = user?.User?.Identity?.Name ?? string.Empty;
+    }
+
+    async Task LogoutClick()
+    {
+        await authentication.Logout();
+        navigationManager.NavigateTo("/login");
+    }
+}

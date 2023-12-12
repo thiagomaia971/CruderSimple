@@ -1,0 +1,41 @@
+﻿<Card>
+    <CardBody TextAlignment="TextAlignment.Center">
+        @if ( Recomended )
+        {
+            <Alert Color="Color.Danger" TextWeight="TextWeight.Bold" TextColor="TextColor.Danger" Border="Border.Is0" Padding="Padding.Is0.OnX.Is1.OnY" Visible>
+                <AlertDescription>
+                    Recommended
+                </AlertDescription>
+            </Alert>
+        }
+        <Paragraph TextWeight="TextWeight.Bold" TextTransform="TextTransform.Uppercase">
+            @Name
+        </Paragraph>
+        <Icon Name="@Icon" IconSize="IconSize.x3" Background="Background.Light" Border="Border.RoundedCircle" Display="Display.InlineBlock" Shadow="Shadow.Small" Style="width: 70px; height: 70px; line-height: 1.5em;" />
+        <Heading Size="HeadingSize.Is2" Margin="Margin.Is3.FromTop">
+            @Price <Span>/ @Unit</Span>
+        </Heading>
+        <ul class="pricing-list">
+            @foreach ( var feature in Features ?? Enumerable.Empty<string>() )
+            {
+                <li>@feature</li>
+            }
+        </ul>
+        <Button Color="Color.Primary" Margin="Margin.Is4.FromTop.Is2.FromBottom">
+            Choose Plan
+        </Button>
+    </CardBody>
+</Card>
+@code {
+    [Parameter] public bool Recomended { get; set; }
+
+    [Parameter] public string Name { get; set; }
+
+    [Parameter] public object Icon { get; set; }
+
+    [Parameter] public string Price { get; set; }
+
+    [Parameter] public string Unit { get; set; }
+
+    [Parameter] public IEnumerable<string> Features { get; set; }
+}

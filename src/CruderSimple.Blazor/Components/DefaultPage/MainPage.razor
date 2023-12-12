@@ -1,0 +1,22 @@
+﻿
+<Layout Sider="true">
+    <LayoutSider>
+        <LayoutSiderContent>
+            <SideMenu />
+        </LayoutSiderContent>
+    </LayoutSider>
+    <Layout>
+        <LayoutHeader Fixed="true">
+            <TopMenu />
+        </LayoutHeader>
+        <LayoutContent Padding="Padding.Is4.OnAll">
+            @ChildContent
+        </LayoutContent>
+    </Layout>
+</Layout>
+@code {
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+}

@@ -1,0 +1,15 @@
+﻿<Div Margin="@Margin">
+    <Heading Size="@HeadingSize">
+        <Strong>@Title:</Strong>
+    </Heading>
+    <Paragraph>
+        @ChildContent
+    </Paragraph>
+</Div>
+
+@code {
+    [Parameter] public IFluentSpacing Margin { get; set; } = Blazorise.Margin.Is4.FromTop;
+    [Parameter] public HeadingSize HeadingSize { get; set; } = HeadingSize.Is6;
+    [Parameter] public string Title { get; set; }
+    [Parameter] public RenderFragment ChildContent { get; set; }
+}
