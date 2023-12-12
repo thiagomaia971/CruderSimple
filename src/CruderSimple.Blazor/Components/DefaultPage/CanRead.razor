@@ -1,0 +1,49 @@
+﻿@inherits LayoutComponentBase
+
+<AuthorizeView Policy="CanRead" Resource="routeData" Context="context">
+    <Authorized>
+        <CascadingValue Name="CanRead" Value="@true">
+            <AuthorizeView Policy="CanWrite" Resource="routeData" Context="context2">
+                <Authorized>
+                    <CascadingValue Name="CanWrite" Value="@true">
+                        <MainPage>
+                            @ChildContent
+                        </MainPage>
+                    </CascadingValue>
+                </Authorized>
+                <NotAuthorized>
+                    <CascadingValue Name="CanWrite" Value="@false">
+                        <MainPage>
+                            @ChildContent
+                        </MainPage>
+                    </CascadingValue>
+                </NotAuthorized>
+            </AuthorizeView>
+        </CascadingValue>
+    </Authorized>
+    <NotAuthorized>
+        <CascadingValue Name="CanRead" Value="@false">
+            <CascadingValue Name="CanWrite" Value="@false">
+                asd
+                @if (context.User.Identity?.IsAuthenticated != true)
+                {
+                    <RedirectToLogin />
+                }
+                else
+                {
+                    <MainPage>
+                        <_401Page />
+                    </MainPage>
+                }
+            </CascadingValue>
+        </CascadingValue>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    [CascadingParameter(Name = "AppRouteData")]
+    RouteData? routeData { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}

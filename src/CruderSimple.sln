@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CruderSimple.MySql", "Crude
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CruderSimple.Api", "CruderSimple.Api\CruderSimple.Api.csproj", "{0A8251AB-1A81-4376-87C7-9ADC8761BFB5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CruderSimple.Blazor", "CruderSimple.Blazor\CruderSimple.Blazor.csproj", "{75908EC5-8A79-47B7-B88F-4DBF4D86CA81}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{0A8251AB-1A81-4376-87C7-9ADC8761BFB5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0A8251AB-1A81-4376-87C7-9ADC8761BFB5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0A8251AB-1A81-4376-87C7-9ADC8761BFB5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{75908EC5-8A79-47B7-B88F-4DBF4D86CA81}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{75908EC5-8A79-47B7-B88F-4DBF4D86CA81}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{75908EC5-8A79-47B7-B88F-4DBF4D86CA81}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{75908EC5-8A79-47B7-B88F-4DBF4D86CA81}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

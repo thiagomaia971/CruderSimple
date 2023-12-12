@@ -1,0 +1,24 @@
+﻿<OdontoManagement.Shared.Components.PageTitle Title="500 Error" BreadcrumbItems="@(new string[] { "OdontoManagement", "500" })" />
+
+<Row Flex="Flex.JustifyContent.Center">
+    <Column ColumnSize="ColumnSize.Is4.OnWidescreen">
+        <Div TextAlignment="TextAlignment.Center">
+            <Image Source="img/illustrations/tea.png" Text="Server error image" Style="height: 90px;" />
+
+            <DisplayHeading Size="DisplayHeadingSize.Is1" TextColor="TextColor.Primary" Margin="Margin.Is4.FromTop">
+                500
+            </DisplayHeading>
+            <Heading Size="HeadingSize.Is4" TextColor="TextColor.Danger" Margin="Margin.Is3.FromTop">
+                Internal server error
+            </Heading>
+            <Paragraph TextColor="TextColor.Muted" Margin="Margin.Is3.FromTop">
+                Why not try refreshing your page? or you can contact <Blazorise.Link To="#">Support</Blazorise.Link>
+            </Paragraph>
+
+            <Button Type="ButtonType.Link" To="" Margin="Margin.Is3.FromTop" Color="Color.Info">
+                <Icon Name="IconName.Reply" />
+                Return Home
+            </Button>
+        </Div>
+    </Column>
+</Row>

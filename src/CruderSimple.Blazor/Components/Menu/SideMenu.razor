@@ -1,0 +1,66 @@
+﻿@inject IdentityAuthenticationStateProvider state
+
+<Bar Breakpoint="Breakpoint.Desktop" NavigationBreakpoint="Breakpoint.Tablet" ThemeContrast="ThemeContrast.Dark"
+     Mode="BarMode.VerticalInline" CollapseMode="BarCollapseMode.Small">
+    <BarToggler />
+    <BarBrand>
+        <BarItem>
+            <BarLink To="">
+                <BarIcon IconName="customIcon" />
+                OdontoManagement
+            </BarLink>
+        </BarItem>
+    </BarBrand>
+    <BarMenu >
+        <BarStart>
+            @{
+                foreach (var item in Routes ?? new List<PageSide>())
+                {
+                    <BarLabel>@item.Name</BarLabel>
+                    <BarItem>
+                        <BarDropdown @bind-Visible="item.Toogle">
+                            <BarDropdownToggle>
+                                <BarIcon IconName="IconName.Home" IconSize="IconSize.Small" Margin="Margin.Is1.FromEnd" />
+                                @item.Name
+                            </BarDropdownToggle>
+                            <BarDropdownMenu>
+                                @{
+                                    foreach (var route in item.Routes)
+                                    {
+                                        <BarDropdownItem To="@route.Url">
+                                            @route.Name
+                                        </BarDropdownItem>
+                                    }
+                                }
+                            </BarDropdownMenu>
+                        </BarDropdown>
+                    </BarItem>
+                }
+            }
+        </BarStart>
+    </BarMenu>
+</Bar>
+@code{
+    RenderFragment customIcon =@<img src="/_content/OdontoManagement.Shared/brand-logo.png" style="width:32px; height: 32px" />;
+    public ICollection<PageSide>? Routes { get; set; } = new List<PageSide>();
+
+    protected async override Task OnInitializedAsync()
+    {
+        var user = await state.GetUserInfo();
+        if (user == null)
+            return;
+
+        Routes = user.Routes
+            .GroupBy(x => x.Parent)
+            .Select(x => new PageSide(x.Key, false, x.OrderBy(x => x.Position).ToList()))
+            .ToList() ?? new List<PageSide>();
+        Routes.Remove(Routes.First(x => x.Name == ""));
+    }
+
+    public class PageSide(string name, bool toogle, IEnumerable<LoginRouteResult> routes)
+    {
+        public string Name { get; set; } = name;
+        public bool Toogle { get; set; } = toogle;
+        public IEnumerable<LoginRouteResult> Routes { get; set; } = routes;
+    }
+}
