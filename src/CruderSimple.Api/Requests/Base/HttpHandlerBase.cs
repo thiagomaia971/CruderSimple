@@ -1,5 +1,6 @@
 using CruderSimple.Api.Filters;
 using CruderSimple.Core.Entities;
+using CruderSimple.Core.ViewModels;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -7,8 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace CruderSimple.Api.Requests.Base;
 
-public abstract class HttpHandlerBase<TQuery, TEntity> : IHttpRequestHandler
-    where TQuery : IEndpointQuery
+public abstract class HttpHandlerBase<TQuery, TEntity, TResult> : IHttpRequestHandler
+    where TQuery : CruderSimple.Core.EndpointQueries.IEndpointQuery
     where TEntity : IEntity
 {
     public WebApplication AddEndpointDefinition(WebApplication app)
@@ -18,10 +19,10 @@ public abstract class HttpHandlerBase<TQuery, TEntity> : IHttpRequestHandler
                 typeof(EndpointRequest).IsAssignableFrom(x.GetType()));
 
         var routeBuilder = app.MapMethods(
-            $"{httpRequestAttribute.Version}/{httpRequestAttribute.Endpoint}",
+            $"{httpRequestAttribute.Version}/{httpRequestAttribute.Endpoint.ToLower()}",
             new string[] { httpRequestAttribute.EndpointMethod.ToString() },
             async ([FromServices] IMediator mediator, [AsParameters] TQuery query)
-                => await mediator.Send(query))
+                => await SendRequest(mediator, query))
             .WithTags(typeof(TEntity).Name)
             .WithOpenApi();
 
@@ -36,7 +37,28 @@ public abstract class HttpHandlerBase<TQuery, TEntity> : IHttpRequestHandler
         return app;
     }
 
-    public abstract Task<IResult> Handle(TQuery request, CancellationToken cancellationToken);
+    private async Task<IResult> SendRequest(IMediator mediator, TQuery query)
+    {
+        Result result = await mediator.Send(query);
+        switch (result.HttpStatusCode)
+        {
+            case 200:
+                return Results.Ok(result);
+            case 201:
+                return Results.Created(string.Empty, result);
+            case 400:
+                return Results.BadRequest(result);
+            case 401:
+                return Results.Unauthorized();
+            case 404:
+                return Results.NotFound(result);
+            case 500:
+            default:
+                return Results.StatusCode(500);
+        }
+    }
+
+    public abstract Task<TResult> Handle(TQuery request, CancellationToken cancellationToken);
 
     public virtual RouteHandlerBuilder ConfigureRoute(RouteHandlerBuilder routeBuilder) 
         => routeBuilder;

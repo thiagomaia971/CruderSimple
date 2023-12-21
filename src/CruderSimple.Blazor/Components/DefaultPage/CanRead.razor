@@ -1,42 +1,49 @@
-﻿@inherits LayoutComponentBase
+﻿@using Microsoft.AspNetCore.Authorization
+@inherits LayoutComponentBase
 
 <AuthorizeView Policy="CanRead" Resource="routeData" Context="context">
     <Authorized>
-        <CascadingValue Name="CanRead" Value="@true">
-            <AuthorizeView Policy="CanWrite" Resource="routeData" Context="context2">
-                <Authorized>
-                    <CascadingValue Name="CanWrite" Value="@true">
-                        <MainPage>
-                            @ChildContent
-                        </MainPage>
-                    </CascadingValue>
-                </Authorized>
-                <NotAuthorized>
-                    <CascadingValue Name="CanWrite" Value="@false">
-                        <MainPage>
-                            @ChildContent
-                        </MainPage>
-                    </CascadingValue>
-                </NotAuthorized>
-            </AuthorizeView>
-        </CascadingValue>
+        <AuthorizeView Policy="CanWrite" Resource="routeData" Context="context2">
+            <Authorized>
+                <MainPage>
+                    @ChildContent
+                </MainPage>
+            </Authorized>
+            <NotAuthorized>
+                <MainPage>
+                    @ChildContent
+                </MainPage>
+            </NotAuthorized>
+        </AuthorizeView>
     </Authorized>
     <NotAuthorized>
-        <CascadingValue Name="CanRead" Value="@false">
-            <CascadingValue Name="CanWrite" Value="@false">
-                asd
-                @if (context.User.Identity?.IsAuthenticated != true)
-                {
-                    <RedirectToLogin />
-                }
-                else
+        IsAuth: @context.User.Identity?.IsAuthenticated
+        @if (context.User.Identity?.IsAuthenticated == true)
+        {
+            <MainPage>
+                @if (AllowAnonymous)
                 {
                     <MainPage>
-                        <_401Page />
+                        @ChildContent
                     </MainPage>
+                }else
+                {
+                    <_401Page />
                 }
-            </CascadingValue>
-        </CascadingValue>
+            </MainPage>
+        }
+
+        @if (context.User.Identity?.IsAuthenticated != true)
+        {
+            @if (AllowAnonymous)
+            {
+                @ChildContent
+            }else
+            {
+                <RedirectToLogin />
+            }
+
+        }
     </NotAuthorized>
 </AuthorizeView>
 
@@ -46,4 +53,13 @@
 
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
+
+    public bool AllowAnonymous { get; set; }
+
+    protected override Task OnInitializedAsync()
+    {
+        AllowAnonymous = routeData.PageType.CustomAttributes.Any(x => x.AttributeType == typeof(AllowAnonymousAttribute));
+        return base.OnInitializedAsync();
+    }
+
 }

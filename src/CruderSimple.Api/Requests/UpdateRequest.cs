@@ -1,4 +1,6 @@
-﻿using CruderSimple.Api.Requests.Base;
+﻿using System;
+using CruderSimple.Api.Requests.Base;
+using CruderSimple.Core.EndpointQueries;
 using CruderSimple.Core.Entities;
 using CruderSimple.Core.ViewModels;
 using MediatR;
@@ -13,24 +15,32 @@ public static class UpdateRequest
 
     public class Handler<TQuery, TEntity, TInputDto, IOutputDto, IRepository>
         (IRepository repository)
-        : HttpHandlerBase<TQuery, TEntity>, IRequestHandler<TQuery, IResult> 
+        : HttpHandlerBase<TQuery, TEntity, Result>, IRequestHandler<TQuery, Result> 
         where TQuery : Query<TInputDto>
         where TEntity : IEntity
         where TInputDto : InputDto 
         where IOutputDto : OutputDto 
         where IRepository : Core.Interfaces.IRepositoryBase<TEntity>
     {        
-        public override async Task<IResult> Handle(TQuery request, CancellationToken cancellationToken)
+        public override async Task<Result> Handle(TQuery request, CancellationToken cancellationToken)
         {
-            var entity = await repository.FindById(request.id);
+            try
+            {
+                var entity = await repository.FindById(request.id);
 
-            if (entity is null)
-                return Results.NotFound();
+                if (entity is null)
+                    return Result.CreateError("Recurso não encontrado", 404, ["Recurso não encontrado"]);
 
-            var entityToSave = (TEntity) entity.FromInput(request.payload);
-            await repository.Add(entityToSave)
-                .Save();
-            return Results.Ok(entityToSave.ToOutput<IOutputDto>());
+                var entityToSave = (TEntity) entity.FromInput(request.payload);
+                await repository.Update(entityToSave)
+                    .Save();
+
+                return Result.CreateSuccess(entityToSave.ToOutput<IOutputDto>());
+            }
+            catch (Exception exception)
+            {
+                return Result.CreateError(exception.StackTrace, 400, exception.Message);
+            }
         }
     }
 }

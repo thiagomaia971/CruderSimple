@@ -1,0 +1,19 @@
+﻿@typeparam TEntity
+@typeparam TDto
+
+<Autocomplete @ref="@autoComplete"
+              TItem="TDto"
+              TValue="string"
+              Data="@Data"
+              TextField="@TextField"
+              ValueField="@ValueField"
+              Placeholder="Search..."
+              HighlightSearch
+              MinLength="0"
+              Filter="AutocompleteFilter.Contains"
+              SearchFocus="@OnBlur"
+              ReadData="@GetData"
+              SelectedValueChanged="@OnSelectedValueChanged"
+              SelectedTextChanged="@OnSelectedTextChanged">
+    <NotFoundContent> Sorry... @context was not found! :( </NotFoundContent>
+</Autocomplete>

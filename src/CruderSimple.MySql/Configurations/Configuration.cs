@@ -11,15 +11,19 @@ namespace CruderSimple.MySql.Configurations;
 
 public static class Configuration
 {
-    public static IServiceCollection AddCruderSimpleServices(
+    public static IServiceCollection AddCruderSimpleServices<T>(
         this IServiceCollection services,
         IConfiguration configuration,
-        IHostEnvironment environment)
+        IHostEnvironment environment,
+        Type multiTenantRepositoryInterface,
+        Type multiTenantRepositoryImplementation)
+    where T : IEntity
     {
         services
             .AddMediatR(typeof(Configuration))
             // .AddDynamodbMapper(configuration, environment)
-            .AddRepositories(typeof(IRepository<>), typeof(Repository<>))
+            .AddRepositories<IEntity>(typeof(IRepository<>), typeof(Repository<>))
+            .AddRepositories<T>(multiTenantRepositoryInterface, multiTenantRepositoryImplementation)
             .AddScoped<MultiTenantScoped>();
         
         return services;

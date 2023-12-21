@@ -1,6 +1,9 @@
-﻿using CruderSimple.Core.Entities;
+﻿using CruderSimple.Core.EndpointQueries;
+using CruderSimple.Core.Entities;
+using CruderSimple.Core.Extensions;
 using CruderSimple.Core.Interfaces;
 using CruderSimple.MySql.Entities;
+using CruderSimple.MySql.Extensions;
 using CruderSimple.MySql.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -42,11 +45,9 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
     public virtual Task<TEntity> FindBy(string propertyName, string value)
         => FindById(value);
 
-    public virtual Task<IQueryable<TEntity>> GetAll() 
-        => Task.FromResult(Query());
+    public virtual Task<Pagination<TEntity>> GetAll(GetAllEndpointQuery query = null) 
+        => Task.FromResult(Query().ApplyQuery(query));
 
-    protected virtual IQueryable<TEntity> Query()
-    {
-        return dbSet;
-    }
+    protected virtual IQueryable<TEntity> Query() 
+        => dbSet;
 }

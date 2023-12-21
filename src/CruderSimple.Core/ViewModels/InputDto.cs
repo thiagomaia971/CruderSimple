@@ -1,3 +1,4 @@
 ﻿namespace CruderSimple.Core.ViewModels;
-
-public abstract record InputDto(string Id);
+public abstract class InputDto(string Id) : BaseDto(Id)
+{
+}

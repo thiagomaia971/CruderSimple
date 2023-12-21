@@ -1,0 +1,29 @@
+﻿@typeparam TEntity
+@typeparam TDto
+
+@if ( View )
+{
+    <Tooltip Text="@PermissionService.CanReadTooltip("Visualizar")" Inline>
+        <Button Size="Size.Small" Clicked="@ToView" Disabled="@(!PermissionService.CanRead)">
+            <Icon Name="IconName.Eye" />
+        </Button>
+    </Tooltip>
+}
+
+@if ( Edit )
+{
+    <Tooltip Text="@PermissionService.CanWriteTooltip("Editar")" Inline>
+        <Button Size="Size.Small" Clicked="@ToEdit" Disabled="@(!PermissionService.CanWrite)">
+            <Icon Name="IconName.Edit" />
+        </Button>
+    </Tooltip>
+}
+
+@if ( Delete )
+{
+    <Tooltip Text="@PermissionService.CanWriteTooltip("Deletar")" Inline>
+        <Button Size="Size.Small" Clicked="@DeleteAsync" Disabled="@(!PermissionService.CanWrite)">
+            <Icon Name="IconName.Delete" />
+        </Button>
+    </Tooltip>
+}
