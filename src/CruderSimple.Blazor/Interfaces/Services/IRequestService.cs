@@ -8,7 +8,7 @@ namespace CruderSimple.Blazor.Interfaces.Services
     {
         void HttpClientName(string name);
      
-        public Task<Pagination<TDto>> GetAll<TEntity, TDto> (GetAllEndpointQuery query, params string[] filters)
+        public Task<Pagination<TDto>> GetAll<TEntity, TDto> (GetAllEndpointQuery query)
             where TEntity : IEntity
             where TDto : BaseDto;
 

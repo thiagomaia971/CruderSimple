@@ -1,19 +1,29 @@
-﻿@typeparam TEntity
-@typeparam TDto
+﻿@using Newtonsoft.Json
+@typeparam TEntity
+@typeparam TEntityResult
+@typeparam TOutput
 
 <Autocomplete @ref="@autoComplete"
-              TItem="TDto"
-              TValue="string"
-              Data="@Data"
-              TextField="@TextField"
-              ValueField="@ValueField"
-              Placeholder="Search..."
-              HighlightSearch
-              MinLength="0"
-              Filter="AutocompleteFilter.Contains"
-              SearchFocus="@OnBlur"
-              ReadData="@GetData"
-              SelectedValueChanged="@OnSelectedValueChanged"
-              SelectedTextChanged="@OnSelectedTextChanged">
+                TItem="TOutput"
+                TValue="string"
+                Data="@SearchedData"
+                TextField="@TextField"
+                ValueField="@ValueField"
+                Placeholder="Search..."
+                HighlightSearch
+                MinLength="0"
+                CloseOnSelection="false"
+                Virtualize
+                TotalItems="@TotalData"
+                Filter="AutocompleteFilter.Contains"
+                ReadData="@GetData"
+                SelectionMode="@SelectionMode"
+                @bind-SelectedValues="SelectedKeyValues"
+                
+                SelectedValueChanged="@OnSelectedValueChanged"
+                SelectedTextChanged="@OnSelectedTextChanged"
+                SelectedTextsChanged="@OnSelectedTextsChanged">
     <NotFoundContent> Sorry... @context was not found! :( </NotFoundContent>
 </Autocomplete>
+testes
+SelectedKeyValues: @string.Join(",", SelectedKeyValues)

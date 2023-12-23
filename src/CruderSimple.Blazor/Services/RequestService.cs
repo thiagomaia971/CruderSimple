@@ -36,7 +36,7 @@ namespace CruderSimple.Blazor.Services
             return result;
         }
 
-        public async Task<Pagination<TDto>> GetAll<TEntity, TDto>(GetAllEndpointQuery query, params string[] filters)
+        public async Task<Pagination<TDto>> GetAll<TEntity, TDto>(GetAllEndpointQuery query)
             where TEntity : IEntity
             where TDto : BaseDto
         {
@@ -49,27 +49,12 @@ namespace CruderSimple.Blazor.Services
                 queryString.Add("page", query.page.ToString());
             if (query.size > 0)
                 queryString.Add("size", query.size.ToString());
-
-            if (queryString.Count > 0 || filters?.Length > 0)
-                url.Append("?");
-
+            if (!string.IsNullOrEmpty(query.filter))
+                queryString.Add("filter", query.filter);
+            
             if (queryString.Count > 0)
-            {
-                url.Append(queryString.ToString());
-                if (filters?.Length > 0)
-                {
-                    url.Append("&");
-                    url.Append(string.Join(",", filters));
-                }
-            }
-            else
-            {
-                if (filters?.Length > 0)
-                    url.Append(string.Join(",", filters));
-            }
+                url.Append($"?{queryString.ToString()}");
 
-            
-            
             var result = await HttpClient.GetFromJsonAsync<Pagination<TDto>>(url.ToString());
             return result;
         }

@@ -1,5 +1,5 @@
 ﻿namespace CruderSimple.Core.EndpointQueries
 {
 
-    public record GetAllEndpointQuery(string select, int size, int page) : IEndpointQuery;
+    public record GetAllEndpointQuery(string select, string filter, int size, int page) : IEndpointQuery;
 }

@@ -18,8 +18,8 @@ namespace CruderSimple.Blazor.Services
             RequestService.HttpClientName("OdontoManagement.Api");
         }
 
-        public async Task<Pagination<TDto>> GetAll(GetAllEndpointQuery query, params string[] filters) 
-            => await RequestService.GetAll<TItem, TDto>(query, filters);
+        public async Task<Pagination<TDto>> GetAll(GetAllEndpointQuery query) 
+            => await RequestService.GetAll<TItem, TDto>(query);
 
         public async Task<Result<TDto>> GetById(string id)
             => await RequestService.GetById<TItem, TDto>(id);

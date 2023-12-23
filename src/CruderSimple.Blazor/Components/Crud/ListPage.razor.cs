@@ -1,5 +1,6 @@
 using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
+using System.Text;
 using System.Timers;
 using Blazorise.DataGrid;
 using CruderSimple.Blazor.Interfaces.Services;
@@ -61,52 +62,13 @@ public partial class ListPage<TEntity, TDto> : ComponentBase
 
         IsLoading = true;
         StateHasChanged();
-        var dataGridColumnInfos = e.Columns.Where(x => x.SearchValue != null && !string.IsNullOrEmpty((string) x.SearchValue)).ToList();
-        var queryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
-        foreach (var columnInfo in dataGridColumnInfos)
-        {
-            if (columnInfo.FilterMethod is null)
-            {
-                queryString.Add(columnInfo.Field, $"contains {columnInfo.SearchValue}");
-                continue;
-            }
-            switch (columnInfo.FilterMethod.Value)
-            {
-                case DataGridColumnFilterMethod.StartsWith:
-                    queryString.Add(columnInfo.Field, $"startWith {columnInfo.SearchValue}");
-                    break;
-                case DataGridColumnFilterMethod.Contains:
-                    queryString.Add(columnInfo.Field, $"contains {columnInfo.SearchValue}");
-                    break;
-                case DataGridColumnFilterMethod.EndsWith:
-                    queryString.Add(columnInfo.Field, $"endWith {columnInfo.SearchValue}");
-                    break;
-                case DataGridColumnFilterMethod.Equals:
-                    queryString.Add(columnInfo.Field, $"eq {columnInfo.SearchValue}");
-                    break;
-                case DataGridColumnFilterMethod.NotEquals:
-                    queryString.Add(columnInfo.Field, $"neq {columnInfo.SearchValue}");
-                    break;
-                case DataGridColumnFilterMethod.LessThan:
-                    queryString.Add(columnInfo.Field, $"lt {columnInfo.SearchValue}");
-                    break;
-                case DataGridColumnFilterMethod.LessThanOrEqual:
-                    queryString.Add(columnInfo.Field, $"lteq {columnInfo.SearchValue}");
-                    break;
-                case DataGridColumnFilterMethod.GreaterThan:
-                    queryString.Add(columnInfo.Field, $"gt {columnInfo.SearchValue}");
-                    break;
-                case DataGridColumnFilterMethod.GreaterThanOrEqual:
-                    queryString.Add(columnInfo.Field, $"gteq {columnInfo.SearchValue}");
-                    break;
-            }
-        }
+        var dataGridSearchValues = e.Columns.Where(x => x.SearchValue != null && !string.IsNullOrEmpty((string) x.SearchValue)).ToList();
+        var dataGridFields = e.Columns.Where(x => !string.IsNullOrEmpty(x.Field)).Select(x => x.Field).ToList();
+        
+        var select = GetQuerySelect(dataGridFields);
+        var filter = GetQueryFilter(dataGridSearchValues);
 
-        var select = string.Join(",", e.Columns.Where(x => !string.IsNullOrEmpty(x.Field)).Select(x => x.Field));
-        var xx = e.Columns.ToList();
-        if (!string.IsNullOrEmpty(CustomSelect))
-            select += $",{CustomSelect}";
-        var data = await Service.GetAll(new GetAllEndpointQuery(select, e.PageSize, e.Page), queryString.ToString());
+        var data = await Service.GetAll(new GetAllEndpointQuery(select, filter, e.PageSize, e.Page));
 
         TotalData = data.Size;
         Data = data.Data;
@@ -114,6 +76,31 @@ public partial class ListPage<TEntity, TDto> : ComponentBase
 
         IsLoading = false;
         StateHasChanged();
+    }
+
+    private string GetQuerySelect(List<string> dataGridFields)
+    {
+        var select = string.Join(",", dataGridFields);
+        
+        if (!string.IsNullOrEmpty(CustomSelect))
+            select += $",{CustomSelect}";
+
+        return select;
+    }
+
+    private string GetQueryFilter(List<DataGridColumnInfo> dataGridColumnInfos)
+    {
+        var filters = new List<string>();
+        foreach (var columnInfo in dataGridColumnInfos)
+        {
+            if (string.IsNullOrEmpty((string) columnInfo.SearchValue))
+                continue;
+            if (columnInfo.FilterMethod is null)
+                filters.Add($"{columnInfo.Field} {DataGridColumnFilterMethod.Contains} {columnInfo.SearchValue}");
+            else
+                filters.Add($"{columnInfo.Field} {columnInfo.FilterMethod.Value} {columnInfo.SearchValue}");
+        }
+        return string.Join(",", filters);
     }
 
     protected Task GoBack() => PageHistorysState.GoBack();

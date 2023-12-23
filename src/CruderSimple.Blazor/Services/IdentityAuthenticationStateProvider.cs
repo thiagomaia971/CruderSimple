@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using System.Text.Json;
 using Blazored.LocalStorage;
 using CruderSimple.Blazor.Interfaces.Services;
 using CruderSimple.Core.ViewModels.Login;
@@ -21,6 +22,7 @@ public class IdentityAuthenticationStateProvider : AuthenticationStateProvider
     public async Task Login(LoginViewModel login)
     {
         var loginResult = await _authorizeApi.Login(login);
+        Console.WriteLine($"Saving: {JsonSerializer.Serialize(loginResult)}");
         await localStorage.SetItemAsync("identity", loginResult);
         NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
     }
@@ -40,6 +42,7 @@ public class IdentityAuthenticationStateProvider : AuthenticationStateProvider
     public async Task<LoginResult> GetUserInfo()
     {
         LoginResult loginResult = await localStorage.GetItemAsync<LoginResult>("identity");
+        Console.WriteLine($"Retrieve: {JsonSerializer.Serialize(loginResult)}");
         return loginResult;
     }
 

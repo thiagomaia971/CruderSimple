@@ -102,6 +102,7 @@ public static class ServiceCollectionExtensions
         var genericInterface = typeof(ICrudService<,>).MakeGenericType(entityType, inputDto);
         var genericImplementation = typeof(CrudService<,>).MakeGenericType(entityType, inputDto);
         services.AddScoped(genericInterface, genericImplementation);
+        Console.WriteLine($"Adding Scoped: <{genericInterface.Name},{genericImplementation.Name}>");
 
         var @interface = types.FirstOrDefault(x => genericInterface.IsAssignableFrom(x) && x.IsInterface);
         if (@interface is null)
@@ -109,5 +110,6 @@ public static class ServiceCollectionExtensions
 
         var implementation = types.FirstOrDefault(x => @interface.IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
         services.AddScoped(@interface, implementation);
+        Console.WriteLine($"Adding Scoped: <{@interface.Name},{implementation.Name}>");
     }
 }

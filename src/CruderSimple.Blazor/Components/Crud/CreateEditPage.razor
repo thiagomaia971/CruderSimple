@@ -29,7 +29,7 @@
                 </Tooltip>
             }else
             {
-                <Button Color="Color.Primary" Type="ButtonType.Submit" Loading="@IsLoading" Disabled="@IsLoading">
+                <Button Color="Color.Primary" Type="ButtonType.Submit" Loading="@IsLoading" Disabled="@IsLoading" @onkeypress:preventDefault>
                     Salvar
                 </Button>
             }

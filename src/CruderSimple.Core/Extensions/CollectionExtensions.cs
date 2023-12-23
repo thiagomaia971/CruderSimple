@@ -74,6 +74,7 @@ public static class CollectionExtensions
             size: source.Count(),
             data: source
                 .ApplyPagination(query)
+                .ApplyFilter<TSource>(query)
                 .SelectBy(query?.select ?? "*"));
     }
 
@@ -88,20 +89,42 @@ public static class CollectionExtensions
             .Take(size);
     }
 
-    public static IQueryable<TSource> ApplyFilter<TSource>(this IQueryable<TSource> source, string propertyName, string filter)
+    public static IQueryable<TSource> ApplyFilter<TSource>(
+        this IQueryable<TSource> source, 
+        GetAllEndpointQuery query)
     {
-        if (string.IsNullOrEmpty(filter))
+        if (query is null || string.IsNullOrEmpty(query.filter))
             return source;
-        return source
-            .ApplyFilterContains(propertyName, filter, "contains ", Op.Contains);
+        var filters = new List<Filter>();
+        var f = query.filter.Split(",");
+        foreach (var filter in f)
+        {
+            source = source.ApplyFilterContains(filter, $" {Op.Contains} ", Op.Contains);
+            source = source.ApplyFilterContains(filter, $" {Op.Equals} ", Op.Equals);
+            source = source.ApplyFilterContains(filter, $" {Op.GreaterThan} ", Op.GreaterThan);
+            source = source.ApplyFilterContains(filter, $" {Op.GreaterThanOrEqual} ", Op.GreaterThanOrEqual);
+            source = source.ApplyFilterContains(filter, $" {Op.EndsWith} ", Op.EndsWith);
+            source = source.ApplyFilterContains(filter, $" {Op.StartsWith} ", Op.StartsWith);
+            source = source.ApplyFilterContains(filter, $" {Op.LessThan} ", Op.LessThan);
+            source = source.ApplyFilterContains(filter, $" {Op.LessThanOrEqual} ", Op.LessThanOrEqual);
+        }
+
+        return source;
     }
 
-    public static IQueryable<TSource> ApplyFilterContains<TSource>(this IQueryable<TSource> source, string propertyName, string filter, string key, Op operation)
+    public static IQueryable<TSource> ApplyFilterContains<TSource>(
+        this IQueryable<TSource> source,
+        string filter, 
+        string key, 
+        Op operation)
     {
         if (filter.Contains(key))
         {
             var target = Expression.Parameter(typeof(TSource));
+            var propertyName = filter.Split(key)[0];
             var value = filter.Split(key)[1];
+            if (string.IsNullOrEmpty(value))
+                return source;
 
             return source.Provider.CreateQuery<TSource>(FilterExtensions.CreateWhereClause<TSource>
                 (target, source.Expression, new Filter

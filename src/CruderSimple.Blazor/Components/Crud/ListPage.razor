@@ -21,7 +21,7 @@
                         ReadData="@GetData"
                         TotalItems="@TotalData">
                 <DataGridColumns>
-                    <DataGridColumn TItem="TDto" Field="Id" TextAlignment="TextAlignment.Start" Width="140px" Editable="@false" Filterable="@false" Sortable="@false">
+                    <DataGridColumn TItem="TDto" Field="Id" TextAlignment="TextAlignment.Start" Width="140px" Editable="@false" Filterable="@false" Sortable="@false" FilterMode="DataGridFilterMode.Default">
                         <CaptionTemplate>
                             <Tooltip Text="@PermissionService.CanWriteTooltip("Novo")">
                                 <Button Type="ButtonType.Link" To="@(NavigationManager.ToBaseRelativePath(NavigationManager.Uri)+"/new")" Color="Color.Success" Block Width="Width.Px(140)" Size="Size.Small" Disabled="@(!PermissionService.CanWrite)">
