@@ -1,3 +1,4 @@
+using Blazorise;
 using Blazorise.Components;
 using CruderSimple.Blazor.Interfaces.Services;
 using CruderSimple.Core.EndpointQueries;
@@ -6,6 +7,7 @@ using CruderSimple.Core.Extensions;
 using CruderSimple.Core.ViewModels;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using System.Linq.Expressions;
 
 namespace CruderSimple.Blazor.Components;
 
@@ -19,11 +21,16 @@ public partial class EntityAutoComplete<TEntity, TEntityResult, TOutput> : Compo
 {
     [Parameter]
     [EditorRequired]
-    public Func<TOutput, string> TextField { get; set; }
+    public Func<TEntityResult, string> TextField { get; set; }
+    public Expression<Func<TEntityResult, string>> TextFieldExpression => x => TextField(x);
 
     [Parameter]
     [EditorRequired]
-    public Func<TOutput, string> ValueField { get; set; }
+    public Func<TOutput, string> KeyField { get; set; }
+
+    [Parameter]
+    [EditorRequired]
+    public Func<TOutput, TEntityResult> ToEntity { get; set; }
 
     [Parameter]
     [EditorRequired]
@@ -37,41 +44,58 @@ public partial class EntityAutoComplete<TEntity, TEntityResult, TOutput> : Compo
     [EditorRequired]
     public Func<TEntityResult, TOutput, bool> Compare { get; set; }
 
-    [Parameter]
-    public EventCallback<TOutput> SelectedValueChanged { get; set; }
+    private List<TOutput> _selectedValues { get; set; } = new List<TOutput>();
 
     [Parameter]
-    public EventCallback<List<TOutput>> SelectedValuesChanged { get; set; }
-    
-    [Parameter]
-    public EventCallback<string> SelectedTextChanged { get; set; }
-    
-    [Parameter]
-    public EventCallback<ICollection<string>> SelectedTextsChanged { get; set; }
+    public List<TOutput> SelectedValues 
+    { 
+        get => _selectedValues; 
+        set 
+        {
+            if (value != null && _selectedValues != value)
+            {
+                _selectedValues = value;
+                SelectedValuesChanged.InvokeAsync(value);
+                SelectedKeyValues = value.Select(x => KeyField(x)).ToList();
+                if (SearchedData is null || !SearchedData.Any())
+                    SearchedOriginalData = value.Select(x => ToEntity(x)).ToList();
+                StateHasChanged();
+            }
+        }
+    }
 
-    [Parameter]
-    public TOutput SelectedValue { get; set; }
-    [Parameter]
-    public List<TOutput> SelectedValues { get; set; } = new List<TOutput>();
-    public List<string> _selectedKeyValues { get; set; } = new List<string>();
+    private List<string> _selectedKeyValues { get; set; } = new List<string>();
 
     public List<string> SelectedKeyValues
     {
         get => _selectedKeyValues; 
         set
         {
-            _selectedKeyValues = value;
-            SelectedValuesChanged.InvokeAsync(SearchedOriginalData
-                .Select(x => Convert(x))
-                .Where(x => _selectedKeyValues.Any(y => y == ValueField(x)))
-                .ToList());
+            if (value != null && (_selectedKeyValues.Any(x => !value.Contains(x)) || 
+                value.Any(x => !_selectedKeyValues.Contains(x))))
+            {
 
+                _selectedKeyValues = value;
+                var fromPassedValue = SelectedValues
+                    .Where(x => value.Contains(KeyField(x)))
+                    .ToList();
+                var fromExternalData = SearchedData
+                    .Where(x => value.Any(y => x.Id == y))
+                    .Select(x => Convert(x))
+                    .ToList();
+                SelectedValues = fromPassedValue.Concat(fromExternalData).DistinctBy(x => KeyField(x)).ToList();
+                StateHasChanged();
+                //_selectedValues = SearchedData?
+                //    .Select(x => Convert(x))
+                //    .Where(x => _selectedKeyValues.Any(y => y == ValueField(x)))
+                //    .ToList();
+            }
         }
     }
+
     [Parameter]
-    public string SelectedText { get; set; }
-    [Parameter]
-    public IEnumerable<string> SelectedTexts { get; set; }
+    public EventCallback<List<TOutput>> SelectedValuesChanged { get; set; }
+
     [Parameter]
     public bool Multiselect { get; set; }
 
@@ -79,24 +103,20 @@ public partial class EntityAutoComplete<TEntity, TEntityResult, TOutput> : Compo
     public ICrudService<TEntity, TEntityResult> Service { get; set; }
 
 
+    public IEnumerable<TEntityResult> SearchedData => SearchedOriginalData?/*.Where(x => !SelectedKeyValues.Any(y => x.Id == y))*/.ToList() ?? new List<TEntityResult>();
     public IEnumerable<TEntityResult> SearchedOriginalData { get; set; } = new List<TEntityResult>();
-    public IEnumerable<TOutput> SearchedData { get; set; } = new List<TOutput>();
-    public Autocomplete<TOutput, string> autoComplete { get; set; }
+    public Autocomplete<TEntityResult, string> autoComplete { get; set; }
     public AutocompleteSelectionMode SelectionMode => Multiselect ? AutocompleteSelectionMode.Multiple : AutocompleteSelectionMode.Default;
-    public int TotalData { get; set; }
+    public int TotalData => SearchedData?.Count() ?? 0;
     public bool IsLoading { get; set; }
     public bool HasFocused { get; set; }
-
-    protected override void OnInitialized()
-    {
-        InitSelectedValues();
-    }
+    public bool IsFirstTime { get; set; } = true;
 
     private void InitSelectedValues()
     {
-        SelectedKeyValues = SelectedValues.Select(x => ValueField(x)).ToList();
-        SearchedData = SelectedValues;
-        StateHasChanged();
+        //SelectedKeyValues = SelectedValues?.Select(x => ValueField(x)).ToList();
+        //if (SearchedData is null || !SearchedData.Any())
+        //    SearchedData = SelectedValues;
         //SelectedValues = SearchedOriginalData
         //    .Where(x => SelectedValues.Any(y => Compare(x, y)))
         //    .Select(x => Convert(x))
@@ -124,17 +144,15 @@ public partial class EntityAutoComplete<TEntity, TEntityResult, TOutput> : Compo
                 IsLoading = true;
                 var filter = string.IsNullOrEmpty(e?.SearchValue) ? string.Empty : $"{SearchKey} {Op.Contains} {e?.SearchValue}";
 
-                var data = await Service.GetAll(new GetAllEndpointQuery(
+                var result = await Service.GetAll(new GetAllEndpointQuery(
                     SearchKey,
                     filter,
                     e?.VirtualizeCount ?? 0,
                     e?.VirtualizeOffset ?? 0));
 
-                TotalData = data.Size;
-                SearchedOriginalData = data.Data;
-                SearchedData = SearchedOriginalData
-                    .Where(x => !SelectedValues.Any(y => Compare(x, y)))
-                    .Select(x => Convert(x))
+                SearchedOriginalData = SelectedValues
+                    .Select(x => ToEntity(x))
+                    .Concat(result.Data.Where(x => !SelectedValues.Any(y => Compare(x, y))))
                     .ToList();
 
                 //SelectedValues = SearchedOriginalData
@@ -148,40 +166,70 @@ public partial class EntityAutoComplete<TEntity, TEntityResult, TOutput> : Compo
         });
     }
 
-    private async Task OnSelectedValueChanged(string e)
+    //private async Task OnSelectedValueChanged(string e)
+    //{
+    //    SelectedValue = SearchedData.FirstOrDefault(x => e == TextField(x));
+    //    await SelectedValueChanged.InvokeAsync(SelectedValue);
+    //    //StateHasChanged();
+    //}
+
+    //private async Task OnSelectedValuesChanged(ICollection<string> e)
+    //{
+    //    SelectedValues = SearchedOriginalData
+    //        .Select(x => Convert(x))
+    //        .Where(x => e.Any(y => y == ValueField(x)))
+    //        .ToList();
+    //    SelectedKeyValues = e.ToList();
+
+    //    SearchedData = SearchedOriginalData
+    //        .Where(x => !SelectedValues.Any(y => Compare(x, y)))
+    //        .Select(x => Convert(x))
+    //        .ToList();
+    //    await SelectedValuesChanged.InvokeAsync(SelectedValues);
+    //}
+
+    //private async Task OnSelectedTextChanged(string e)
+    //{
+    //    SelectedText = e;
+    //    await SelectedTextChanged.InvokeAsync(e);
+    //    //StateHasChanged();
+    //}
+
+    //private async Task OnSelectedTextsChanged(ICollection<string> e)
+    //{
+    //    SelectedTexts = e;
+    //    await SelectedTextsChanged.InvokeAsync(e);
+    //    //StateHasChanged();
+    //}
+
+
+    void IsValidValue(ValidatorEventArgs e)
     {
-        SelectedValue = SearchedData.FirstOrDefault(x => e == TextField(x));
-        await SelectedValueChanged.InvokeAsync(SelectedValue);
-        //StateHasChanged();
+        Console.WriteLine(e.Value);
+        e.Status = SelectedKeyValues.Any() ? ValidationStatus.Success : ValidationStatus.Error;
+
+        if (e.Status == ValidationStatus.Error)
+        {
+            e.ErrorText = "ERROR";
+        }
+        else
+        {
+            e.ErrorText = "OK";
+        }
     }
-
-    private async Task OnSelectedValuesChanged(ICollection<string> e)
+    async Task sIsValidValue(ValidatorEventArgs e, CancellationToken c)
     {
-        SelectedValues = SearchedOriginalData
-            .Select(x => Convert(x))
-            .Where(x => e.Any(y => y == ValueField(x)))
-            .ToList();
-        SelectedKeyValues = e.ToList();
+        Console.WriteLine(e.Value);
+        e.Status = SelectedKeyValues.Any() ? ValidationStatus.Success : ValidationStatus.Error;
 
-        SearchedData = SearchedOriginalData
-            .Where(x => !SelectedValues.Any(y => Compare(x, y)))
-            .Select(x => Convert(x))
-            .ToList();
-        await SelectedValuesChanged.InvokeAsync(SelectedValues);
-    }
-
-    private async Task OnSelectedTextChanged(string e)
-    {
-        SelectedText = e;
-        await SelectedTextChanged.InvokeAsync(e);
-        //StateHasChanged();
-    }
-
-    private async Task OnSelectedTextsChanged(ICollection<string> e)
-    {
-        SelectedTexts = e;
-        await SelectedTextsChanged.InvokeAsync(e);
-        //StateHasChanged();
+        if (e.Status == ValidationStatus.Error)
+        {
+            e.ErrorText = "ERROR";
+        }
+        else
+        {
+            e.ErrorText = "OK";
+        }
     }
 
     void KeyPressHandler(KeyboardEventArgs args)

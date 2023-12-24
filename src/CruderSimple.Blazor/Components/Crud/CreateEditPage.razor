@@ -8,7 +8,7 @@
         <LoadingIndicator @bind-Visible="@IsLoading">
             <Row>
                 <Column ColumnSize="ColumnSize.Is12">
-                    <Validations @ref="@ValidationsRef" Model="@Model" Mode="ValidationMode.Auto" ValidateOnLoad="false">
+                    <Validations @ref="@ValidationsRef" Model="@Model" Mode="ValidationMode.Manual" MissingFieldsErrorMessage="Error" ValidateOnLoad="false">
                         @ChildContent
                     </Validations>
                 </Column>

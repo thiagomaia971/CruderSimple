@@ -4,25 +4,23 @@
 @typeparam TOutput
 
 <Autocomplete @ref="@autoComplete"
-                TItem="TOutput"
+              TItem="TEntityResult"
                 TValue="string"
                 Data="@SearchedData"
                 TextField="@TextField"
-                ValueField="@ValueField"
+                ValueField="@((item) => item.Id)"
                 Placeholder="Search..."
                 HighlightSearch
                 MinLength="0"
-                CloseOnSelection="false"
+                CloseOnSelection
                 Virtualize
                 TotalItems="@TotalData"
                 Filter="AutocompleteFilter.Contains"
                 ReadData="@GetData"
                 SelectionMode="@SelectionMode"
                 @bind-SelectedValues="SelectedKeyValues"
-                
-                SelectedValueChanged="@OnSelectedValueChanged"
-                SelectedTextChanged="@OnSelectedTextChanged"
-                SelectedTextsChanged="@OnSelectedTextsChanged">
+                Validator="@IsValidValue"
+                AsyncValidator="@sIsValidValue">
     <NotFoundContent> Sorry... @context was not found! :( </NotFoundContent>
 </Autocomplete>
 testes
