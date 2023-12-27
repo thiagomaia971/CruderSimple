@@ -1,5 +1,3 @@
 ﻿namespace CruderSimple.MySql.Attributes;
 
-public class IncludeAttribute : Attribute
-{
-}
+public class IncludeAttribute : Attribute;

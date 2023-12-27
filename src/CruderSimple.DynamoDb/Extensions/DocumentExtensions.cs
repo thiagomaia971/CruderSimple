@@ -151,26 +151,10 @@ public static class DocumentExtensions
         Console.WriteLine($"Stops in: {stopWatch.ElapsedMilliseconds}ms");
         return entities;
     }
-
-    public static IEnumerable<PropertyInfo> GetPropertiesWithAttribute<T>(this object @object)
-        where T : Attribute 
-        => @object.GetType()
-            .GetProperties()
-            .Where(x => x.CustomAttributes.Any(x => x.AttributeType == typeof(T)))
-            .ToList();
     
-    public static IEnumerable<PropertyInfo> GetPropertiesWithoutAttribute<T>(this object @object)
-        where T : Attribute 
-        => @object.GetType()
-            .GetProperties()
-            .Where(x => x.CustomAttributes.All(x => x.AttributeType != typeof(T)))
-            .ToList();
-    
-
     public static T GetPropertyWithAttribute<T>(this object @object)
         where T : Attribute
         => ((T?) @object.GetType().GetCustomAttributes(true).FirstOrDefault(x => typeof(T).IsAssignableFrom(x.GetType())));
-
 
     public static string GetCollumnName(this PropertyInfo property)
     {

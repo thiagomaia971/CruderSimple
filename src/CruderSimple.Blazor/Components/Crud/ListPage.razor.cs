@@ -3,6 +3,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Timers;
 using Blazorise.DataGrid;
+using Blazorise.LoadingIndicator;
 using CruderSimple.Blazor.Interfaces.Services;
 using CruderSimple.Blazor.Services;
 using CruderSimple.Core.EndpointQueries;
@@ -21,6 +22,9 @@ public partial class ListPage<TEntity, TDto> : ComponentBase
     [Parameter] public RenderFragment Columns { get; set; }
     [Parameter] public RenderFragment Modal { get; set; }
     [Parameter] public string CustomSelect { get; set; }
+
+    [CascadingParameter]
+    public LoadingIndicator Loading { get; set; }
 
     [Inject] 
     public PermissionService PermissionService { get; set; }
@@ -41,14 +45,13 @@ public partial class ListPage<TEntity, TDto> : ComponentBase
     public int TotalData { get; set; }
     public int PageSize { get; set; }
     public DataGrid<TDto> DataGridRef { get; set; }
-    public bool IsLoading { get; set; }
     public string NewPage => $"{typeof(TEntity).Name}/";
 
     private async Task GetData(DataGridReadDataEventArgs<TDto> e)
     {
         if ( !e.CancellationToken.IsCancellationRequested )
         {
-            if (!IsLoading)
+            if (!Loading.Visible)
             {
                 DebounceService.Start(300, Search, e);
             }
@@ -57,25 +60,28 @@ public partial class ListPage<TEntity, TDto> : ComponentBase
 
     private async Task Search(DataGridReadDataEventArgs<TDto> e)
     {
-        if (IsLoading) 
+        if (Loading.Visible) 
             return;
 
-        IsLoading = true;
-        StateHasChanged();
-        var dataGridSearchValues = e.Columns.Where(x => x.SearchValue != null && !string.IsNullOrEmpty((string) x.SearchValue)).ToList();
-        var dataGridFields = e.Columns.Where(x => !string.IsNullOrEmpty(x.Field)).Select(x => x.Field).ToList();
-        
-        var select = GetQuerySelect(dataGridFields);
-        var filter = GetQueryFilter(dataGridSearchValues);
+        InvokeAsync(async () =>
+        {
+            await Loading.Show();
+            Task.Delay(100);
+            var dataGridSearchValues = e.Columns.Where(x => x.SearchValue != null && !string.IsNullOrEmpty((string)x.SearchValue)).ToList();
+            var dataGridFields = e.Columns.Where(x => !string.IsNullOrEmpty(x.Field)).Select(x => x.Field).ToList();
 
-        var data = await Service.GetAll(new GetAllEndpointQuery(select, filter, e.PageSize, e.Page));
+            var select = GetQuerySelect(dataGridFields);
+            var filter = GetQueryFilter(dataGridSearchValues);
 
-        TotalData = data.Size;
-        Data = data.Data;
-        await DataGridRef.Refresh();
+            var data = await Service.GetAll(new GetAllEndpointQuery(select, filter, e.PageSize, e.Page));
 
-        IsLoading = false;
-        StateHasChanged();
+            TotalData = data.Size;
+            Data = data.Data;
+            await DataGridRef.Refresh();
+
+            await Loading.Hide();
+            StateHasChanged();
+        });
     }
 
     private string GetQuerySelect(List<string> dataGridFields)

@@ -21,17 +21,9 @@ public static class Configuration
         services
             .AddMediatR(typeof(Configuration))
             .AddDynamodbMapper(configuration, environment)
-            .AddRepositories(typeof(IRepository<>), typeof(Repository<>))
+            .AddRepositories<IEntity>(typeof(IRepository<>), typeof(Repository<>))
             .AddScoped<MultiTenantScoped>();
         
         return services;
-    }
-    
-    public static WebApplication UseCruderSimpleServices(
-        this WebApplication app)
-    {
-        app.UseRequestDefinitions();
-        
-        return app;
     }
 }

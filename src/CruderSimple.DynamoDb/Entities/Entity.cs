@@ -62,17 +62,8 @@ public abstract class Entity : IEntity
     {
         var output = new OutputDto(
             Id,
-            CreatedAt,
-            UpdatedAt);
-        return output;
-    }
-
-    public virtual OutputDto ToOutput()
-    {
-        var output = new OutputDto(
-            Id,
-            CreatedAt,
-            UpdatedAt);
+            DateTime.Parse(CreatedAt),
+            string.IsNullOrEmpty(UpdatedAt) ? DateTime.Parse(UpdatedAt) : null);
         return output;
     }
 

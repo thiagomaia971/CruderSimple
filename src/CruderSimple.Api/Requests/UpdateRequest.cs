@@ -29,7 +29,7 @@ public static class UpdateRequest
                 var entity = await repository.FindById(request.id);
 
                 if (entity is null)
-                    return Result.CreateError("Recurso não encontrado", 404, ["Recurso não encontrado"]);
+                    return Result.CreateError("Recurso não encontrado", 404, "Recurso não encontrado");
 
                 var entityToSave = (TEntity) entity.FromInput(request.payload);
                 await repository.Update(entityToSave)

@@ -32,6 +32,9 @@ public static class CollectionExtensions
         where TEntity : IEntity
         where TInput : InputDto
     {
+        if (inputs is null)
+            return entities;
+        
         var inner = from xinput in inputs
             join xxinput in entities on xinput.Id equals xxinput.Id into joined
             from entity in joined.DefaultIfEmpty()

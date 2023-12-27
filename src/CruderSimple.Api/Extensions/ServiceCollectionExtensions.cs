@@ -59,7 +59,10 @@ namespace CruderSimple.Api.Extensions
             {
                 options.SerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
                 options.SerializerOptions.WriteIndented = true;
-                options.SerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+                options.SerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault;
+                options.SerializerOptions.IgnoreReadOnlyFields = true;
+                options.SerializerOptions.IgnoreReadOnlyProperties = true;
+                
             });
         }
     }

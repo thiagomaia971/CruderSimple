@@ -51,11 +51,16 @@ public partial class CreateEditPage<TEntity, TDto> : ComponentBase
     {
         if (!string.IsNullOrEmpty(Id))
         {
-            IsLoading = true;
-            var result = await Service.GetById(Id);
-            if (result.Success)
-                result.Data.DeepCloneTo(Model);
-            IsLoading = false; 
+            base.InvokeAsync(async () =>
+            {
+                IsLoading = true;
+                StateHasChanged();
+                var result = await Service.GetById(Id);
+                if (result.Success)
+                    Model = result.Data.DeepCloneTo(Model);
+                IsLoading = false;
+                StateHasChanged();
+            });
         }
     }
 
@@ -102,3 +107,4 @@ public partial class CreateEditPage<TEntity, TDto> : ComponentBase
     public void ToEdit()
         => NavigationManager.NavigateTo($"{NavigationManager.Uri}/edit");   
 }
+

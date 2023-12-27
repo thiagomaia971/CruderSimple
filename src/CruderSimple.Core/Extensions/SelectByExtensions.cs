@@ -17,23 +17,31 @@ namespace CruderSimple.Core.Extensions
         public static Expression<Func<TSource, TTarget>> BuildSelector<TSource, TTarget>(IEnumerable<string> members)
         {
             var parameter = Expression.Parameter(typeof(TSource), "e");
-            var body = NewObject(typeof(TTarget), parameter, members.Select(m => m.Split('.')));
+            var body = NewObject(typeof(TTarget), parameter, members.Select(m => m.Split('.').ToList()));
             return Expression.Lambda<Func<TSource, TTarget>>(body, parameter);
         }
 
-        static Expression NewObject(Type targetType, Expression source, IEnumerable<string[]> memberPaths, int depth = 0)
+        static Expression NewObject(Type targetType, Expression source, IEnumerable<List<string>> memberPaths, int depth = 0)
         {
             var bindings = new List<MemberBinding>();
             var target = Expression.Constant(null, targetType);
-            List<string[]> custom = memberPaths.ToList();
+            List<List<string>> custom = memberPaths.ToList();
+
+            var inner = memberPaths.Where(x => x.Count > 1).ToList();
+            foreach (var item in inner)
+            {
+                custom.Add(CreateDefaultSelect("Id", item));
+                custom.Add(CreateDefaultSelect("CreatedAt", item));
+                custom.Add(CreateDefaultSelect("UpdatedAt", item));
+            }
 
             if (depth == 0)
             {
-                custom = new List<string[]>
+                custom = new List<List<string>>
                 {
-                    { new string [] { "Id" } },
-                    { new string [] { "CreatedAt" } },
-                    { new string [] { "UpdatedAt" } },
+                    new() { "Id" },
+                    new() { "CreatedAt" },
+                    new() { "UpdatedAt" },
                 };
                 custom.AddRange(memberPaths);
             }
@@ -43,7 +51,7 @@ namespace CruderSimple.Core.Extensions
                 var memberName = memberGroup.Key;
                 var targetMember = Expression.PropertyOrField(target, memberName);
                 var sourceMember = Expression.PropertyOrField(source, memberName);
-                var childMembers = memberGroup.Where(path => depth + 1 < path.Length).ToList();
+                var childMembers = memberGroup.Where(path => depth + 1 < path.Count).ToList();
 
                 Expression targetValue = null;
                 if (!childMembers.Any())
@@ -52,12 +60,11 @@ namespace CruderSimple.Core.Extensions
                 {
                     if (IsEnumerableType(targetMember.Type, out var sourceElementType) &&
                         IsEnumerableType(targetMember.Type, out var targetElementType))
-                    {
-                        var sourceElementParam = Expression.Parameter(sourceElementType, "e");
+                    { var sourceElementParam = Expression.Parameter(sourceElementType, "e");
 
-                        //childMembers.Add(new string[] { memberName, "Id" });
-                        //childMembers.Add(new string[] { memberName, "CreatedAt" });
-                        //childMembers.Add(new string[] { memberName, "UpdatedAt" });
+                        // childMembers.Add(new string[] { memberName, "Id" });
+                        // childMembers.Add(new string[] { memberName, "CreatedAt" });
+                        // childMembers.Add(new string[] { memberName, "UpdatedAt" });
 
                         targetValue = NewObject(targetElementType, sourceElementParam, childMembers, depth + 1);
                         targetValue = Expression.Call(typeof(Enumerable), nameof(Enumerable.Select),
@@ -75,6 +82,15 @@ namespace CruderSimple.Core.Extensions
                 bindings.Add(Expression.Bind(targetMember.Member, targetValue));
             }
             return Expression.MemberInit(Expression.New(targetType), bindings);
+        }
+
+        private static List<string> CreateDefaultSelect(string property, List<string> item)
+        {
+            
+            var defaultList = item.Where(x => x != item.LastOrDefault()).ToList();
+            if (!defaultList.Contains(property))
+                defaultList.Add(property);
+            return defaultList;
         }
 
         static bool IsEnumerableType(Type type, out Type elementType)

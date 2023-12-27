@@ -1,4 +1,6 @@
-﻿namespace CruderSimple.Core.Extensions
+﻿using System.Reflection;
+
+namespace CruderSimple.Core.Extensions
 {
     public static class TypeExtensions
     {
@@ -9,5 +11,29 @@
                 }
             }
         }
+
+        public static IEnumerable<PropertyInfo> GetPropertiesWithInhiredType<T>(this T type)
+            => type.GetType()
+                .GetProperties()
+                .Where(c => type.GetType().IsAssignableFrom(c.PropertyType));
+        
+        public static IEnumerable<PropertyInfo> cGetPropertiesWithInhiredType<T>(this T type)
+            => type.GetType()
+                .GetProperties()
+                .Where(c => type.GetType().IsAssignableFrom(c.PropertyType));
+        
+        public static IEnumerable<PropertyInfo> GetPropertiesWithAttribute<T>(this object @object)
+            where T : Attribute 
+            => @object.GetType()
+                .GetProperties()
+                .Where(x => x.CustomAttributes.Any(x => x.AttributeType == typeof(T)))
+                .ToList();
+    
+        public static IEnumerable<PropertyInfo> GetPropertiesWithoutAttribute<T>(this object @object)
+            where T : Attribute 
+            => @object.GetType()
+                .GetProperties()
+                .Where(x => x.CustomAttributes.All(x => x.AttributeType != typeof(T)))
+                .ToList();
     }
 }

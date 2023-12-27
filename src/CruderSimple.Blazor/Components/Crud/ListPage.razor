@@ -4,39 +4,37 @@
 
 <Row>
     <Column ColumnSize="ColumnSize.Is12">
-        <LoadingIndicator @bind-Visible="@IsLoading">
-            <DataGrid @ref="DataGridRef"
-                        TItem="TDto"
-                        Data="Data"
-                        Hoverable
-                        ShowPager
-                        ShowPageSizes
-                        Responsive
-                        Editable
-                        Filterable
-                        Groupable
-                        Striped
-                        Sortable
-                        FilterMode="DataGridFilterMode.Menu"
-                        ReadData="@GetData"
-                        TotalItems="@TotalData">
-                <DataGridColumns>
-                    <DataGridColumn TItem="TDto" Field="Id" TextAlignment="TextAlignment.Start" Width="140px" Editable="@false" Filterable="@false" Sortable="@false" FilterMode="DataGridFilterMode.Default">
-                        <CaptionTemplate>
-                            <Tooltip Text="@PermissionService.CanWriteTooltip("Novo")">
-                                <Button Type="ButtonType.Link" To="@(NavigationManager.ToBaseRelativePath(NavigationManager.Uri)+"/new")" Color="Color.Success" Block Width="Width.Px(140)" Size="Size.Small" Disabled="@(!PermissionService.CanWrite)">
-                                    <Icon Name="IconName.Add" />
-                                    Novo
-                                </Button>
-                            </Tooltip>
-                        </CaptionTemplate>
-                        <DisplayTemplate>
-                            <ViewEditDeleteServiceButtons TEntity="TEntity" TDto="TDto" Item="@context" />
-                        </DisplayTemplate>
-                    </DataGridColumn>
-                    @Columns
-                </DataGridColumns>
-            </DataGrid>
-        </LoadingIndicator>
+        <DataGrid @ref="DataGridRef"
+                    TItem="TDto"
+                    Data="Data"
+                    Hoverable
+                    ShowPager
+                    ShowPageSizes
+                    Responsive
+                    Editable
+                    Filterable
+                    Groupable
+                    Striped
+                    Sortable
+                    FilterMode="DataGridFilterMode.Menu"
+                    ReadData="@GetData"
+                    TotalItems="@TotalData">
+            <DataGridColumns>
+                <DataGridColumn TItem="TDto" Field="Id" TextAlignment="TextAlignment.Start" Width="140px" Editable="@false" Filterable="@false" Sortable="@false" FilterMode="DataGridFilterMode.Default">
+                    <CaptionTemplate>
+                        <Tooltip Text="@PermissionService.CanWriteTooltip("Novo")">
+                            <Button Type="ButtonType.Link" To="@(NavigationManager.ToBaseRelativePath(NavigationManager.Uri)+"/new")" Color="Color.Success" Block Width="Width.Px(140)" Size="Size.Small" Disabled="@(!PermissionService.CanWrite)">
+                                <Icon Name="IconName.Add" />
+                                Novo
+                            </Button>
+                        </Tooltip>
+                    </CaptionTemplate>
+                    <DisplayTemplate>
+                        <ViewEditDeleteServiceButtons TEntity="TEntity" TDto="TDto" Item="@context" />
+                    </DisplayTemplate>
+                </DataGridColumn>
+                @Columns
+            </DataGridColumns>
+        </DataGrid>
     </Column>
 </Row>

@@ -1,4 +1,6 @@
-﻿namespace CruderSimple.Core.ViewModels;
+﻿using System.Runtime.Serialization;
+
+namespace CruderSimple.Core.ViewModels;
 
 public class OutputDto(string id, DateTime createdAt, DateTime? updatedAt) : BaseDto(id)
 {

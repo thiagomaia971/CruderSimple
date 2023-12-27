@@ -3,6 +3,7 @@ using Blazored.LocalStorage;
 using Blazorise;
 using Blazorise.Bootstrap;
 using Blazorise.Icons.FontAwesome;
+using Blazorise.LoadingIndicator;
 using CruderSimple.Blazor.Components;
 using CruderSimple.Blazor.Interfaces.Services;
 using CruderSimple.Blazor.Services;
@@ -26,7 +27,8 @@ public static class ServiceCollectionExtensions
                 options.Immediate = true;
             } )
             .AddBootstrapProviders()
-            .AddFontAwesomeIcons();
+            .AddFontAwesomeIcons()
+            .AddLoadingIndicator();
 
         services.AddScoped<IdentityAuthenticationStateProvider>();
         services.AddScoped<AuthenticationStateProvider>(s => s.GetRequiredService<IdentityAuthenticationStateProvider>());
@@ -101,7 +103,7 @@ public static class ServiceCollectionExtensions
     {
         var genericInterface = typeof(ICrudService<,>).MakeGenericType(entityType, inputDto);
         var genericImplementation = typeof(CrudService<,>).MakeGenericType(entityType, inputDto);
-        services.AddScoped(genericInterface, genericImplementation);
+        services.AddTransient(genericInterface, genericImplementation);
         Console.WriteLine($"Adding Scoped: <{genericInterface.Name},{genericImplementation.Name}>");
 
         var @interface = types.FirstOrDefault(x => genericInterface.IsAssignableFrom(x) && x.IsInterface);
@@ -109,7 +111,7 @@ public static class ServiceCollectionExtensions
             return;
 
         var implementation = types.FirstOrDefault(x => @interface.IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
-        services.AddScoped(@interface, implementation);
+        services.AddTransient(@interface, implementation);
         Console.WriteLine($"Adding Scoped: <{@interface.Name},{implementation.Name}>");
     }
 }

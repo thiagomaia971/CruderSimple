@@ -1,6 +1,7 @@
 ﻿using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.Model;
+using CruderSimple.Core.EndpointQueries;
 using CruderSimple.Core.Entities;
 using CruderSimple.Core.Interfaces;
 using CruderSimple.DynamoDb.Entities;
@@ -115,8 +116,15 @@ public class Repository<T>(IDynamoDBContext dynamoDbContext, IAmazonDynamoDB ama
             .ByInheritedType()
             .FindAsync();
 
-    public virtual async Task<IQueryable<T>> GetAll() 
-        => await CreateQuery()
+    public async Task<Pagination<T>> GetAll(GetAllEndpointQuery query = null)
+    {
+        var queryAsync = await CreateQuery()
             .ByGsi(x => x.InheritedType, _entityType)
             .QueryAsync();
+        return new Pagination<T>
+        {
+            Data = queryAsync,
+            Size = queryAsync.Count()
+        };
+    }
 }
