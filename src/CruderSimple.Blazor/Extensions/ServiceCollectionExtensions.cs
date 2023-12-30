@@ -38,6 +38,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<PermissionService>(permissionsService);
         services.AddSingleton<PageHistoryState>();
         services.AddScoped<DebounceService>();
+        services.AddSingleton<DimensionService>();
         services.AddCruderServices();
 
         services.AddAuthorizationCore(options =>

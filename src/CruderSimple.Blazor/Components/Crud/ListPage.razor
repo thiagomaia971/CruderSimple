@@ -1,6 +1,7 @@
 ﻿@typeparam TEntity
 @typeparam TDto
 @using Blazorise.DataGrid
+@using CruderSimple.Core.Extensions
 
 <Row>
     <Column ColumnSize="ColumnSize.Is12">
@@ -15,8 +16,12 @@
                     Filterable
                     Groupable
                     Striped
+                    Narrow
                     Sortable
-                  SortMode="DataGridSortMode.Single"
+                    Navigable
+                    FixedHeader
+                    Resizable
+                    SortMode="DataGridSortMode.Single"
                     FilterMode="DataGridFilterMode.Menu"
                     ReadData="@GetData"
                     TotalItems="@TotalData">
@@ -36,6 +41,18 @@
                 </DataGridColumn>
                 @Columns
             </DataGridColumns>
+            <EmptyTemplate>
+                Empty Template
+            </EmptyTemplate>
+            <EmptyFilterTemplate>
+                Empty Filter
+            </EmptyFilterTemplate>
+            <FilterMenuTemplate >
+                <ListPageFilterMenu TEntity="TEntity" TDto="TDto" Column="context.Column"/>
+            </FilterMenuTemplate>
+            <LoadingTemplate>
+                Carregando...
+            </LoadingTemplate>
         </DataGrid>
     </Column>
 </Row>

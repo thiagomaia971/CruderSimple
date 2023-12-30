@@ -42,11 +42,16 @@ public partial class ListPage<TEntity, TDto> : ComponentBase
     [Inject]
     public DebounceService DebounceService { get; set; }
 
+    [Inject]
+    public DimensionService DimensionService { get; set; }
+
     public IEnumerable<TDto> Data { get; set; }
     public int TotalData { get; set; }
     public int PageSize { get; set; }
     public DataGrid<TDto> DataGridRef { get; set; }
     public string NewPage => $"{typeof(TEntity).Name}/";
+    public DataGridColumnFilterMethod FilterMethod { get; set; }
+    public string SearchValue { get; set; }
 
     private async Task GetData(DataGridReadDataEventArgs<TDto> e)
     {
@@ -106,12 +111,29 @@ public partial class ListPage<TEntity, TDto> : ComponentBase
         {
             if (string.IsNullOrEmpty((string) columnInfo.SearchValue))
                 continue;
-            if (typeof(TDto).IsPropertyEnumerableType(columnInfo.Field))
-                filters.Add($"{columnInfo.Field}.Id {Op.AnyEquals} {columnInfo.SearchValue}");
-            else if (columnInfo.FilterMethod is null)
-                filters.Add($"{columnInfo.Field} {DataGridColumnFilterMethod.Contains} {columnInfo.SearchValue}");
-            else
-                filters.Add($"{columnInfo.Field} {columnInfo.FilterMethod.Value} {columnInfo.SearchValue}");
+
+            switch (columnInfo.ColumnType)
+            {
+                case DataGridColumnType.Text:
+                case DataGridColumnType.Numeric:
+                case DataGridColumnType.Check:
+                    filters.Add($"{columnInfo.Field} {(columnInfo.FilterMethod.HasValue ? columnInfo.FilterMethod.Value : DataGridColumnFilterMethod.Contains)} {columnInfo.SearchValue}");
+                    break;
+                case DataGridColumnType.Date:
+                    var values = columnInfo.SearchValue.ToString().Split("_");
+                    if (!string.IsNullOrEmpty(values[0]))
+                        filters.Add($"{columnInfo.Field} {Op.GreaterThanOrEqual} {values[0]}");
+                    if (!string.IsNullOrEmpty(values[1]))
+                        filters.Add($"{columnInfo.Field} {Op.LessThanOrEqual} {values[1]}");
+                    break;
+                case DataGridColumnType.MultiSelect:
+                case DataGridColumnType.Select:
+                    // TODO: implementar AnyContains e MultiSelect
+                    filters.Add($"{columnInfo.Field}.Id {Op.AnyEquals} {columnInfo.SearchValue}");
+                    break;
+                case DataGridColumnType.Command:
+                    break;
+            }
         }
         return string.Join(",", filters);
     }

@@ -77,10 +77,9 @@ code {
 }
 
 td:not(.text-left) {
-    padding-top: 18px !important;
+    height: 31px;
+    line-height: 31px;
 }
-
-
 
 .disabled {
     cursor: not-allowed;

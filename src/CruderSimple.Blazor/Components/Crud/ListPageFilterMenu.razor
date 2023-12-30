@@ -1,0 +1,109 @@
+﻿@using Blazorise.DataGrid
+@typeparam TEntity
+@typeparam TDto
+
+@if (!IsDate)
+{
+    <Column ColumnSize="ColumnSize.Is12">
+        <Field>
+            <Select Context="select" TValue="DataGridColumnFilterMethod" SelectedValue="@(Column.FilterMethod ?? DataGridColumnFilterMethod.Contains)" SelectedValueChanged="e => { Column.FilterMethod = e; }">
+                @if (IsNumeric)
+                {
+                    <SelectItem TValue="DataGridColumnFilterMethod" Value="@DataGridColumnFilterMethod.Equals">Igual</SelectItem>
+                    <SelectItem TValue="DataGridColumnFilterMethod" Value="@DataGridColumnFilterMethod.NotEquals">Diferente</SelectItem>
+                    <SelectItem TValue="DataGridColumnFilterMethod" Value="@DataGridColumnFilterMethod.GreaterThan">Maior que</SelectItem>
+                    <SelectItem TValue="DataGridColumnFilterMethod" Value="@DataGridColumnFilterMethod.GreaterThanOrEqual">Maior ou igual</SelectItem>
+                    <SelectItem TValue="DataGridColumnFilterMethod" Value="@DataGridColumnFilterMethod.LessThan">Menor que</SelectItem>
+                    <SelectItem TValue="DataGridColumnFilterMethod" Value="@DataGridColumnFilterMethod.LessThanOrEqual">Menor ou igual</SelectItem>
+                }
+                else if (IsSelect)
+                {
+                    <SelectItem TValue="DataGridColumnFilterMethod" Value="@DataGridColumnFilterMethod.Equals">Igual</SelectItem>
+                    @* <SelectItem TValue="DataGridColumnFilterMethod" Value="@DataGridColumnFilterMethod.Contains">Contém</SelectItem> *@
+                }
+                else
+                {
+                    <SelectItem TValue="DataGridColumnFilterMethod" Value="@DataGridColumnFilterMethod.Contains">Contém</SelectItem>
+                    <SelectItem TValue="DataGridColumnFilterMethod" Value="@DataGridColumnFilterMethod.StartsWith">Começa com</SelectItem>
+                    <SelectItem TValue="DataGridColumnFilterMethod" Value="@DataGridColumnFilterMethod.EndsWith">Termina com</SelectItem>
+                    <SelectItem TValue="DataGridColumnFilterMethod" Value="@DataGridColumnFilterMethod.Equals">Igual</SelectItem>
+                    <SelectItem TValue="DataGridColumnFilterMethod" Value="@DataGridColumnFilterMethod.NotEquals">Diferente</SelectItem>
+                }
+            </Select>
+        </Field>
+    </Column>
+}
+
+@if (IsSelect)
+{
+    <Column ColumnSize="ColumnSize.Is12">
+        <Field>
+            <Select TValue="string" SelectedValue="@Column.Filter.SearchValue?.ToString()" SelectedValueChanged="@((newValue) => Column.Filter.SearchValue = newValue)">
+                @foreach (var item in DataGridSelectColumn.Data)
+                {
+                    <SelectItem TValue="string" Value="@((string)DataGridSelectColumn.ValueField(item))">@DataGridSelectColumn.TextField(item)</SelectItem>
+                }
+            </Select>
+        </Field>
+    </Column>
+}
+else @if (IsDate)
+{
+    <Column ColumnSize="ColumnSize.Is6">
+        <Field>
+            <DatePicker TValue="DateTime?"
+                        Placeholder="Início"
+                        DisplayFormat="dd/MM/yyyy"
+                        Date="@(GetDate(true))"
+                        DateChanged="@((newValue) => DateChanged(true, newValue))"/>
+        </Field>
+    </Column>
+    <Column ColumnSize="ColumnSize.Is6">
+        <Field>
+            <DatePicker TValue="DateTime?"
+                        Placeholder="Fim"
+                        DisplayFormat="dd/MM/yyyy"
+                        Date="@(GetDate(false))"
+                        DateChanged="@((newValue) => DateChanged(false, newValue))"/>
+        </Field>
+    </Column>
+}
+else
+{
+    <Column ColumnSize="ColumnSize.Is12">
+        <Field>
+            <TextEdit Text="@Column.Filter.SearchValue?.ToString()" TextChanged="@((newValue) => Column.Filter.SearchValue = newValue)" />
+        </Field>
+    </Column>
+}
+
+<Column ColumnSize="ColumnSize.Is12" Flex="Flex.JustifyContent.End.AlignItems.Center" Gap="Gap.Is2">
+    <Button Clicked="@ParentDataGrid.FilterData" Color="Color.Primary">Filter</Button>
+    <Button Clicked="@(() => ParentDataGrid.ClearFilter(Column.Field))" Color="Color.Light">Clear</Button>
+</Column>
+
+@code {
+
+    [CascadingParameter] public DataGrid<TDto> ParentDataGrid { get; set; }
+
+    [Parameter] public DataGridColumn<TDto> Column { get; set; }
+
+    public bool IsNumeric => Column.ColumnType == DataGridColumnType.Numeric;
+    public bool IsDate => Column.ColumnType == DataGridColumnType.Date;
+    public bool IsSelect => Column.ColumnType == DataGridColumnType.Select;
+    public DataGridSelectColumn<TDto> DataGridSelectColumn => (DataGridSelectColumn<TDto>)Column;
+
+    private void DateChanged(bool start, DateTime? date)
+    {
+        var searchValueSplited = Column.Filter.SearchValue is null ? new string[2] : Column.Filter.SearchValue?.ToString().Split("_");
+        if (start)
+            searchValueSplited[0] = date.Value.ToString("O");
+        else 
+            searchValueSplited[1] = date.Value.ToString("O");
+
+        Column.Filter.SearchValue = string.Join("_", searchValueSplited);
+    }
+
+    private DateTime? GetDate(bool start) 
+    => Column.Filter.SearchValue is null ? null : DateTime.Parse(Column.Filter.SearchValue.ToString().Split("_")[start ? 0 : 1]);
+}
