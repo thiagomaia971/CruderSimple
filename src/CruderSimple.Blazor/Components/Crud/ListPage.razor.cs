@@ -8,6 +8,7 @@ using CruderSimple.Blazor.Interfaces.Services;
 using CruderSimple.Blazor.Services;
 using CruderSimple.Core.EndpointQueries;
 using CruderSimple.Core.Entities;
+using CruderSimple.Core.Extensions;
 using CruderSimple.Core.ViewModels;
 using Microsoft.AspNetCore.Components;
 
@@ -51,29 +52,23 @@ public partial class ListPage<TEntity, TDto> : ComponentBase
     {
         if ( !e.CancellationToken.IsCancellationRequested )
         {
-            if (!Loading.Visible)
-            {
-                DebounceService.Start(300, Search, e);
-            }
+            await Loading.Show();
+            StateHasChanged();
+            DebounceService.Start(300, Search, e);
         }
     }
 
     private async Task Search(DataGridReadDataEventArgs<TDto> e)
     {
-        if (Loading.Visible) 
-            return;
-
+        var xx = e.Columns.ToList();
         InvokeAsync(async () =>
         {
-            await Loading.Show();
-            Task.Delay(100);
-            var dataGridSearchValues = e.Columns.Where(x => x.SearchValue != null && !string.IsNullOrEmpty((string)x.SearchValue)).ToList();
-            var dataGridFields = e.Columns.Where(x => !string.IsNullOrEmpty(x.Field)).Select(x => x.Field).ToList();
+            var select = GetQuerySelect(e.Columns);
+            var filter = GetQueryFilter(e.Columns);
+            var orderByColumn = e.Columns.FirstOrDefault(x => x.SortIndex == 0);
+            var orderBy = orderByColumn is null ? null : $"{orderByColumn.SortField} {orderByColumn.SortDirection}";
 
-            var select = GetQuerySelect(dataGridFields);
-            var filter = GetQueryFilter(dataGridSearchValues);
-
-            var data = await Service.GetAll(new GetAllEndpointQuery(select, filter, e.PageSize, e.Page));
+            var data = await Service.GetAll(new GetAllEndpointQuery(select, filter, orderBy, e.PageSize, e.Page));
 
             TotalData = data.Size;
             Data = data.Data;
@@ -84,9 +79,16 @@ public partial class ListPage<TEntity, TDto> : ComponentBase
         });
     }
 
-    private string GetQuerySelect(List<string> dataGridFields)
+    private string GetQuerySelect(IEnumerable<DataGridColumnInfo> dataGridFields)
     {
-        var select = string.Join(",", dataGridFields);
+        var select = string.Join(",", dataGridFields
+            .Where(x => !string.IsNullOrEmpty(x.Field))
+            .Select(x =>
+            {
+                if (typeof(TDto).IsPropertyEnumerableType(x.Field))
+                    return $"{x.Field}.Id";
+                return x.Field;
+            }));
         
         if (!string.IsNullOrEmpty(CustomSelect))
             select += $",{CustomSelect}";
@@ -94,14 +96,19 @@ public partial class ListPage<TEntity, TDto> : ComponentBase
         return select;
     }
 
-    private string GetQueryFilter(List<DataGridColumnInfo> dataGridColumnInfos)
+    private string GetQueryFilter(IEnumerable<DataGridColumnInfo> dataGridColumnInfos)
     {
         var filters = new List<string>();
-        foreach (var columnInfo in dataGridColumnInfos)
+        foreach (var columnInfo in dataGridColumnInfos.Where(x =>
+                    x.SearchValue != null &&
+                    !string.IsNullOrEmpty((string)x.SearchValue) &&
+                    !string.IsNullOrEmpty(x.Field)))
         {
             if (string.IsNullOrEmpty((string) columnInfo.SearchValue))
                 continue;
-            if (columnInfo.FilterMethod is null)
+            if (typeof(TDto).IsPropertyEnumerableType(columnInfo.Field))
+                filters.Add($"{columnInfo.Field}.Id {Op.AnyEquals} {columnInfo.SearchValue}");
+            else if (columnInfo.FilterMethod is null)
                 filters.Add($"{columnInfo.Field} {DataGridColumnFilterMethod.Contains} {columnInfo.SearchValue}");
             else
                 filters.Add($"{columnInfo.Field} {columnInfo.FilterMethod.Value} {columnInfo.SearchValue}");

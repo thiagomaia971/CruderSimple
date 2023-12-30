@@ -80,10 +80,12 @@ public partial class MultipleEntityAutocomplete<TEntity, TEntityResult> : Compon
                 IsLoading = true;
                 StateHasChanged();
                 var filter = string.IsNullOrEmpty(e?.SearchValue) ? string.Empty : $"{SearchKey} {Op.Contains} {e?.SearchValue}";
+                var orderBy = $"{SearchKey} {SortDirection.Ascending}";
 
                 var result = await Service.GetAll(new GetAllEndpointQuery(
                     "*",
                     filter,
+                    orderBy,
                     e?.VirtualizeCount ?? 0,
                     e?.VirtualizeOffset ?? 0));
 
@@ -95,21 +97,6 @@ public partial class MultipleEntityAutocomplete<TEntity, TEntityResult> : Compon
             }
         });
     }
-
-    void IsValidValue(ValidatorEventArgs e)
-    {
-        Console.WriteLine(e.Value);
-        e.Status = SelectedKeyValues.Any() ? ValidationStatus.Success : ValidationStatus.Error;
-
-        if (e.Status == ValidationStatus.Error)
-        {
-            e.ErrorText = "ERROR";
-        }
-        else
-        {
-            e.ErrorText = "OK";
-        }
-    }
     async Task sIsValidValue(ValidatorEventArgs e, CancellationToken c)
     {
         Console.WriteLine(e.Value);
@@ -117,7 +104,7 @@ public partial class MultipleEntityAutocomplete<TEntity, TEntityResult> : Compon
 
         if (e.Status == ValidationStatus.Error)
         {
-            e.ErrorText = "ERROR";
+            e.ErrorText = "Selecione pelo menos um";
         }
         else
         {

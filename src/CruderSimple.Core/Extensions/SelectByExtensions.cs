@@ -58,13 +58,10 @@ namespace CruderSimple.Core.Extensions
                     targetValue = sourceMember;
                 else
                 {
-                    if (IsEnumerableType(targetMember.Type, out var sourceElementType) &&
-                        IsEnumerableType(targetMember.Type, out var targetElementType))
-                    { var sourceElementParam = Expression.Parameter(sourceElementType, "e");
-
-                        // childMembers.Add(new string[] { memberName, "Id" });
-                        // childMembers.Add(new string[] { memberName, "CreatedAt" });
-                        // childMembers.Add(new string[] { memberName, "UpdatedAt" });
+                    if (targetMember.Type.IsEnumerableType(out var sourceElementType) &&
+                        targetMember.Type.IsEnumerableType(out var targetElementType))
+                    { 
+                        var sourceElementParam = Expression.Parameter(sourceElementType, "e");
 
                         targetValue = NewObject(targetElementType, sourceElementParam, childMembers, depth + 1);
                         targetValue = Expression.Call(typeof(Enumerable), nameof(Enumerable.Select),
@@ -93,36 +90,6 @@ namespace CruderSimple.Core.Extensions
             return defaultList;
         }
 
-        static bool IsEnumerableType(Type type, out Type elementType)
-        {
-        
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
-            {
-                elementType = type.GetGenericArguments()[0];
-                return true;
-            }
-            elementType = null;
-            return false;
-            /*
-            foreach (var intf in type.GetInterfaces())
-            {
-                if (intf.IsGenericType && intf.GetGenericTypeDefinition() == typeof(IEnumerable<>))
-                {
-                    elementType = intf.GetGenericArguments()[0];
-                    return true;
-                }
-            }
-
-            elementType = null;
-            return false;*/
-        }
-
-        static bool IsSameCollectionType(Type type, Type genericType, Type elementType)
-        {
-            var result = genericType.MakeGenericType(elementType).IsAssignableFrom(type);
-            return result;
-        }
-
         static Expression CorrectEnumerableResult(Expression enumerable, Type elementType, Type memberType)
         {
             if (memberType == enumerable.Type)
@@ -131,10 +98,10 @@ namespace CruderSimple.Core.Extensions
             if (memberType.IsArray)
                 return Expression.Call(typeof(Enumerable), nameof(Enumerable.ToArray), new[] { elementType }, enumerable);
 
-            if (IsSameCollectionType(memberType, typeof(List<>), elementType)
-                || IsSameCollectionType(memberType, typeof(ICollection<>), elementType)
-                || IsSameCollectionType(memberType, typeof(IReadOnlyList<>), elementType)
-                || IsSameCollectionType(memberType, typeof(IReadOnlyCollection<>), elementType))
+            if (memberType.IsSameCollectionType(typeof(List<>), elementType)
+                || memberType.IsSameCollectionType(typeof(ICollection<>), elementType)
+                || memberType.IsSameCollectionType(typeof(IReadOnlyList<>), elementType)
+                || memberType.IsSameCollectionType(typeof(IReadOnlyCollection<>), elementType))
                 return Expression.Call(typeof(Enumerable), nameof(Enumerable.ToList), new[] { elementType }, enumerable);
 
             throw new NotImplementedException($"Not implemented transformation for type '{memberType.Name}'");

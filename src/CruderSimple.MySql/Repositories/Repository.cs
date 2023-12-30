@@ -3,6 +3,7 @@ using CruderSimple.Core.Entities;
 using CruderSimple.Core.Extensions;
 using CruderSimple.Core.Interfaces;
 using CruderSimple.MySql.Entities;
+using CruderSimple.MySql.Extensions;
 using CruderSimple.MySql.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,12 +19,16 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
 
     public virtual IRepositoryBase<TEntity> Add(TEntity entity)
     {
+        entity.SetAllMultiTenant(MultiTenant.MultiTenantType, MultiTenant.Id);
+        DbContext.AutoDetach(entity);
         DbContext.Add(entity);
         return this;
     }
 
     public virtual IRepositoryBase<TEntity> Update(TEntity entity)
     {
+        entity.SetAllMultiTenant(MultiTenant.MultiTenantType, MultiTenant.Id);
+        DbContext.AutoDetach(entity);
         DbContext.Update(entity);
         return this;
     }
@@ -34,10 +39,8 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
         return this;
     }
 
-    public virtual async Task Save()
-    {
-        await DbContext.SaveChangesAsync();
-    }
+    public virtual async Task Save() 
+        => await DbContext.SaveChangesAsync();
 
     public virtual Task<TEntity> FindById(string id) 
         => Query().FirstOrDefaultAsync(x => x.Id == id);

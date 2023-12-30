@@ -143,10 +143,12 @@ public partial class EntityAutoComplete<TEntity, TEntityResult, TOutput> : Compo
             {
                 IsLoading = true;
                 var filter = string.IsNullOrEmpty(e?.SearchValue) ? string.Empty : $"{SearchKey} {Op.Contains} {e?.SearchValue}";
+                var orderBy = $"{SearchKey} {SortDirection.Ascending}";
 
                 var result = await Service.GetAll(new GetAllEndpointQuery(
                     SearchKey,
                     filter,
+                    orderBy,
                     e?.VirtualizeCount ?? 0,
                     e?.VirtualizeOffset ?? 0));
 

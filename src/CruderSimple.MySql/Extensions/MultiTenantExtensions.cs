@@ -7,9 +7,10 @@ namespace CruderSimple.MySql.Extensions;
 
 public static class MultiTenantExtensions
 {
-    public static void SetAllMultiTenant<TTenantEntity>(this IEntity entity, string multiTenantValue, List<Type> typed = null)
-        where TTenantEntity : class, IEntity
+    public static void SetAllMultiTenant(this IEntity entity, Type tenantType, string multiTenantValue, List<Type> typed = null)
     {
+        if (string.IsNullOrEmpty(multiTenantValue))
+            return;
         if (typed is null)
             typed = new List<Type> { entity.GetType() };
         else
@@ -23,7 +24,7 @@ public static class MultiTenantExtensions
         var properties = entity.GetType().GetProperties()
             .Where(c =>
                 c.PropertyType.IsGenericType && 
-                typeof(TTenantEntity).IsAssignableFrom(c.PropertyType.GenericTypeArguments[0]) && 
+                tenantType.IsAssignableFrom(c.PropertyType.GenericTypeArguments[0]) && 
                 (c.PropertyType.GetGenericTypeDefinition() == typeof(IEnumerable<>) ||
                  c.PropertyType.GetGenericTypeDefinition() == typeof(List<>) ||
                  c.PropertyType.GetGenericTypeDefinition() == typeof(ICollection<>)))
@@ -42,7 +43,7 @@ public static class MultiTenantExtensions
                 if (v is not null)
                 {
                     var entryEntity = (IEntity) v;
-                    SetAllMultiTenant<TTenantEntity>(entryEntity, multiTenantValue, typed);   
+                    SetAllMultiTenant(entryEntity, tenantType, multiTenantValue, typed);   
                 }
             }
         }

@@ -51,7 +51,9 @@ namespace CruderSimple.Blazor.Services
                 queryString.Add("size", query.size.ToString());
             if (!string.IsNullOrEmpty(query.filter))
                 queryString.Add("filter", query.filter);
-            
+            if (!string.IsNullOrEmpty(query.orderBy))
+                queryString.Add("orderBy", query.orderBy);
+
             if (queryString.Count > 0)
                 url.Append($"?{queryString.ToString()}");
 

@@ -12,7 +12,9 @@ public enum Op
     LessThanOrEqual,
     Contains,
     StartsWith,
-    EndsWith
+    EndsWith,
+    AnyEquals,
+    AnyContains
 }
 
 public class Filter

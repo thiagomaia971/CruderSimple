@@ -1,6 +1,5 @@
 ﻿using System.Reflection;
 using CruderSimple.Core.Entities;
-using CruderSimple.Core.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CruderSimple.Core.Extensions;

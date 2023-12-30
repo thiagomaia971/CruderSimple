@@ -35,5 +35,26 @@ namespace CruderSimple.Core.Extensions
                 .GetProperties()
                 .Where(x => x.CustomAttributes.All(x => x.AttributeType != typeof(T)))
                 .ToList();
+
+        public static bool IsEnumerableType(this Type type, out Type elementType)
+        {
+            if (type.IsGenericType && (
+                type.GetGenericTypeDefinition() == typeof(IEnumerable<>) ||
+                type.GetGenericTypeDefinition() == typeof(ICollection<>) ||
+                type.GetGenericTypeDefinition() == typeof(IList<>) ||
+                type.GetGenericTypeDefinition() == typeof(List<>)))
+            {
+                elementType = type.GetGenericArguments()[0];
+                return true;
+            }
+            elementType = null;
+            return false;
+        }
+
+        public static bool IsSameCollectionType(this Type type, Type genericType, Type elementType)
+        {
+            var result = genericType.MakeGenericType(elementType).IsAssignableFrom(type);
+            return result;
+        }
     }
 }

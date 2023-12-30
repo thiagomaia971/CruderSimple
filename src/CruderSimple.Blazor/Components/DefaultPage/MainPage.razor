@@ -12,7 +12,7 @@
             <Row>
                 <Column ColumnSize="ColumnSize.Is12">
                     <Card Margin="@ThemeStyles.CardMargin" Shadow="@ThemeStyles.CardShadow" Style="min-height: 400px">
-                        <LoadingIndicator FullScreen>
+                        <LoadingIndicator>
                             @ChildContent
                         </LoadingIndicator>
                     </Card>
@@ -22,10 +22,6 @@
     </Layout>
 </Layout>
 @code {
-
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
-
-    public bool IsLoading { get; set; } = true;
-
 }
