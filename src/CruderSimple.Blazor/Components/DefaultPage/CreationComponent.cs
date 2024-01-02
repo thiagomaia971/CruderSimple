@@ -19,16 +19,22 @@ namespace CruderSimple.Blazor.Components.DefaultPage
         public RouteData RouteData { get; set; }
 
         public bool IsNew => string.IsNullOrEmpty(Id);
-        public bool IsEdit => !IsNew;
+        public bool IsView => !IsEdit;
+        public bool IsEdit => !IsNew && PageRoute.Contains("edit");
 
-        public string PageRoute { get; set; }
+        public string PageRoute => NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
 
-        public string PageName(string page) 
-            => (IsNew ? "Novo " : "Editar ") + page;
-
-        protected override async Task OnInitializedAsync()
+        public string PageName(string page)
         {
-            PageRoute = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+            var pageName = string.Empty;
+            if (IsNew) 
+                pageName += "Novo ";
+            if (IsEdit)
+                pageName += "Editar ";
+            if (IsView)
+                pageName += "Visualizar ";
+
+            return pageName + page;
         }
     }
 }

@@ -1,15 +1,18 @@
 ﻿using System.Net.Http.Json;
 using System.Text;
+using Blazorise;
 using CruderSimple.Blazor.Extensions;
 using CruderSimple.Blazor.Interfaces.Services;
 using CruderSimple.Core.EndpointQueries;
 using CruderSimple.Core.Entities;
 using CruderSimple.Core.ViewModels;
+using Newtonsoft.Json;
 
 namespace CruderSimple.Blazor.Services
 {
     public class RequestService
-        (IHttpClientFactory httpClientFactory)
+        (IHttpClientFactory httpClientFactory,
+        INotificationService notificationService)
         : IRequestService
     {
         public HttpClient HttpClient { get; set; }
@@ -23,6 +26,7 @@ namespace CruderSimple.Blazor.Services
             where TEntity : IEntity
             where TDto : BaseDto
         {
+            Console.WriteLine(JsonConvert.SerializeObject(entity));
             var result = await HttpClient.PostAsJsonAsync($"v1/{typeof(TEntity).Name}", entity);
             return await result.Content.ReadFromJsonAsync<Result<TDto>>();
 
@@ -71,8 +75,22 @@ namespace CruderSimple.Blazor.Services
             where TEntity : IEntity
             where TDto : BaseDto
         {
+            Console.WriteLine(JsonConvert.SerializeObject(entity));
             var result = await HttpClient.PutAsJsonAsync($"v1/{typeof(TEntity).Name}/{id}", entity);
-            return await result.Content.ReadFromJsonAsync<Result<TDto>>();
+            try
+            {
+                var resultContent = await result.Content.ReadFromJsonAsync<Result<TDto>>();
+                if (result.IsSuccessStatusCode)
+                    return resultContent;
+
+                await notificationService.Error(string.Join(",", resultContent.Errors));
+                Console.WriteLine(resultContent.StackTrace);
+                return resultContent;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
     }
 }

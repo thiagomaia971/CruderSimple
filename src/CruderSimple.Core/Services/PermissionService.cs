@@ -1,4 +1,4 @@
-﻿namespace CruderSimple.Blazor.Services
+﻿namespace CruderSimple.Core.Services
 {
     public class PermissionService
     {

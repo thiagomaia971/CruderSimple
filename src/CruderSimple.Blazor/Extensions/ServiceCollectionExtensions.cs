@@ -8,6 +8,8 @@ using CruderSimple.Blazor.Components;
 using CruderSimple.Blazor.Interfaces.Services;
 using CruderSimple.Blazor.Services;
 using CruderSimple.Core.Entities;
+using CruderSimple.Core.Services;
+using CruderSimple.Core.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -40,18 +42,19 @@ public static class ServiceCollectionExtensions
         services.AddScoped<DebounceService>();
         services.AddSingleton<DimensionService>();
         services.AddCruderServices();
+        services.AddPermissionsAuthorization();
 
-        services.AddAuthorizationCore(options =>
-        {
-            options.AddPolicy("CanRead", policy =>
-                policy.RequireAssertion(context => IsAuthorized(services, context, "READ"))
-            );
-    
-            options.AddPolicy("CanWrite", policy =>
-                policy.RequireAssertion(context => IsAuthorized(services, context, "WRITE"))
-            );
-        });
-        
+        //services.AddAuthorizationCore(options =>
+        //{
+        //    options.AddPolicy("CanRead", policy =>
+        //        policy.RequireAssertion(context => IsAuthorized(services, context, "READ"))
+        //    );
+
+        //    options.AddPolicy("CanWrite", policy =>
+        //        policy.RequireAssertion(context => IsAuthorized(services, context, "WRITE"))
+        //    );
+        //});
+
         return services;
     }
     

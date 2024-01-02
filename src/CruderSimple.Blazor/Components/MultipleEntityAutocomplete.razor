@@ -5,27 +5,34 @@
 <Autocomplete @ref="@autoComplete"
               TItem="TEntityResult"
               TValue="string"
-              Data="@SearchedOriginalData"
+              Data="@SearchedData"
               TotalItems="@TotalData"
               TextField="@((item) => item.GetValue)"
               ValueField="@((item) => item.GetKey)"
               Placeholder="Search..."
               HighlightSearch
               MinLength="0"
-              CloseOnSelection
-              Virtualize
-              Filter="AutocompleteFilter.Contains"
+              CloseOnSelection="false"
               ReadData="@GetData"
-              SelectionMode="AutocompleteSelectionMode.Multiple"
-              @bind-SelectedValues="SelectedKeyValues"
-              AsyncValidator="@sIsValidValue">
+              SelectionMode="AutocompleteSelectionMode.Checkbox"
+              SelectedValues="@(SelectedValues?.Select(c => c.GetKey).ToList() ?? new List<string>())"
+              SelectedValuesChanged="ValuesChanged"
+              AsyncValidator="@sIsValidValue"
+              SearchKeyDown="KeyPressHandler"
+              @onkeydown:preventDefault
+              Disabled="@(!PermissionService.CanWrite)">
     <NotFoundContent> Sorry... @context was not found! :( </NotFoundContent>
     <ItemContent>
-        <Div Flex="Flex.InlineFlex.JustifyContent.Between" Width="Width.Is100">
-            <Heading Margin="Margin.Is2.FromBottom">@context.Item.GetValue</Heading>
-            <Small>@context.Item.GetKey</Small>
-        </Div>
-        <Paragraph Margin="Margin.Is2.FromBottom">@context.Item.GetKey</Paragraph>
+        @if (ItemContent is null)
+        {
+            <Div Flex="Flex.InlineFlex.JustifyContent.Between" Width="Width.Is100">
+                <Heading Margin="Margin.Is2.FromBottom">@context.Item.GetValue</Heading>
+            </Div>
+            <Paragraph Margin="Margin.Is2.FromBottom">@context.Item.GetKey</Paragraph>
+        } else
+        {
+            @ItemContent(context)
+        }
     </ItemContent>
 </Autocomplete>
 <ValidationError>Invalid</ValidationError>

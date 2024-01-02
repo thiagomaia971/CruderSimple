@@ -1,12 +1,12 @@
 ﻿using System.Diagnostics;
 using CruderSimple.Api.Requests.Base;
 using MediatR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using CruderSimple.Core.Extensions;
 using Microsoft.AspNetCore.Http.Json;
 using System.Text.Json.Serialization;
 using CruderSimple.Core.ViewModels;
+using Microsoft.AspNetCore.Http;
 
 namespace CruderSimple.Api.Extensions
 {
@@ -16,17 +16,19 @@ namespace CruderSimple.Api.Extensions
         {
             var stopWatch = new Stopwatch();
             stopWatch.Start();
-
-            AddEndpoitns(services);
+            
+            services.AddMemoryCache();
+            AddEndpoints(services);
             AddCorsPolicy(services);
             ConfigJsonSerializer(services);
-
+            services.AddPermissionsAuthorization();
+            
             stopWatch.Stop();
             Console.WriteLine($"AddRequestDefinitions in: {stopWatch.ElapsedMilliseconds}ms");
             return services;
         }
 
-        private static void AddEndpoitns(IServiceCollection services)
+        private static void AddEndpoints(IServiceCollection services)
         {
             var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.ExportedTypes);
             var requestHandlers = types.GetTypesWithHelpAttribute<EndpointRequest>();

@@ -1,4 +1,5 @@
 ﻿@using Blazorise.DataGrid
+@using CruderSimple.Core.Extensions;
 @typeparam TEntity
 @typeparam TDto
 
@@ -38,8 +39,8 @@
 {
     <Column ColumnSize="ColumnSize.Is12">
         <Field>
-            <Select TValue="string" SelectedValue="@Column.Filter.SearchValue?.ToString()" SelectedValueChanged="@((newValue) => Column.Filter.SearchValue = newValue)">
-                @foreach (var item in DataGridSelectColumn.Data)
+            <Select TValue="string" SelectedValue="@(Column.Filter.SearchValue is null ? null : Column.Filter.SearchValue.ToString())" SelectedValueChanged="@((newValue) => Column.Filter.SearchValue = newValue)">
+                @foreach (var item in DataGridSelectColumn?.Data ?? new List<object>())
                 {
                     <SelectItem TValue="string" Value="@((string)DataGridSelectColumn.ValueField(item))">@DataGridSelectColumn.TextField(item)</SelectItem>
                 }
@@ -97,13 +98,20 @@ else
     {
         var searchValueSplited = Column.Filter.SearchValue is null ? new string[2] : Column.Filter.SearchValue?.ToString().Split("_");
         if (start)
-            searchValueSplited[0] = date.Value.ToString("O");
+            searchValueSplited[0] = date.Value.ToStartDate().ToString("O");
         else 
-            searchValueSplited[1] = date.Value.ToString("O");
+            searchValueSplited[1] = date.Value.ToEndDate().ToString("O");
 
         Column.Filter.SearchValue = string.Join("_", searchValueSplited);
     }
 
-    private DateTime? GetDate(bool start) 
-    => Column.Filter.SearchValue is null ? null : DateTime.Parse(Column.Filter.SearchValue.ToString().Split("_")[start ? 0 : 1]);
+    private DateTime? GetDate(bool start)
+    {
+        if (Column.Filter.SearchValue is null)
+            return null;
+        var values = Column.Filter.SearchValue.ToString().Split("_");
+        if (string.IsNullOrEmpty(values[start ? 0 : 1]))
+            return null;
+        return DateTime.Parse(values[start ? 0 : 1]);
+    }
 }

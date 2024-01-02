@@ -23,14 +23,14 @@
         @{
             if (IsView)
             {
-                <Tooltip Text="@PermissionService.CanWriteTooltip("Editar")" Inline>
-                    <Button Color="Color.Primary" Clicked="@ToEdit" Disabled="@(!PermissionService.CanWrite)">
+                <Tooltip Text="@PermissionService.CanWriteTooltip("Editar")" Inline Margin="Margin.Is1.OnX">
+                    <Button Color="Color.Primary" Clicked="@ToEdit" Loading="@IsLoading" Disabled="@(!PermissionService.CanWrite || IsLoading)">
                         Editar
                     </Button>
                 </Tooltip>
             }else
             {
-                <Button Color="Color.Primary" Type="ButtonType.Submit" Loading="@IsLoading" Disabled="@IsLoading" @onkeypress:preventDefault>
+                <Button Color="Color.Primary" Type="ButtonType.Submit" Loading="@IsLoading" Disabled="@(!PermissionService.CanWrite || IsLoading)" Margin="Margin.Is1.OnX">
                     Salvar
                 </Button>
             }

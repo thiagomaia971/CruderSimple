@@ -7,7 +7,8 @@
     <Column ColumnSize="ColumnSize.Is12">
         <DataGrid @ref="DataGridRef"
                     TItem="TDto"
-                    Data="Data"
+                    Class="datagrid-listpage"
+                    Data="@Data"
                     Hoverable
                     ShowPager
                     ShowPageSizes
@@ -21,38 +22,47 @@
                     Navigable
                     FixedHeader
                     Resizable
+                    Bordered
+                    FixedHeaderDataGridHeight="495px"
+                    FixedHeaderDataGridMaxHeight="495px"
                     SortMode="DataGridSortMode.Single"
                     FilterMode="DataGridFilterMode.Menu"
                     ReadData="@GetData"
-                    TotalItems="@TotalData">
+                    TotalItems="@TotalData"
+                    RowClicked="@SingleClicked">
             <DataGridColumns>
-                <DataGridColumn TItem="TDto" Field="Id" TextAlignment="TextAlignment.Start" Width="140px" Editable="@false" Filterable="@false" Sortable="@false" FilterMode="DataGridFilterMode.Default">
+                <DataGridColumn TItem="TDto" FixedPosition="TableColumnFixedPosition.Start" Field="Id" TextAlignment="TextAlignment.Start" Width="75px" Editable="@false" Filterable="@false" Sortable="@false" FilterMode="DataGridFilterMode.Default">
                     <CaptionTemplate>
                         <Tooltip Text="@PermissionService.CanWriteTooltip("Novo")">
-                            <Button Type="ButtonType.Link" To="@(NavigationManager.ToBaseRelativePath(NavigationManager.Uri)+"/new")" Color="Color.Success" Block Width="Width.Px(140)" Size="Size.Small" Disabled="@(!PermissionService.CanWrite)">
+                            <Button Type="ButtonType.Link" To="@(NavigationManager.ToBaseRelativePath(NavigationManager.Uri)+"/new")" Color="Color.Success" Block Width="Width.Px(75)" Size="Size.Small" Disabled="@(!PermissionService.CanWrite)" Style="margin-bottom: 10px">
                                 <Icon Name="IconName.Add" />
                                 Novo
                             </Button>
                         </Tooltip>
                     </CaptionTemplate>
                     <DisplayTemplate>
-                        <ViewEditDeleteServiceButtons TEntity="TEntity" TDto="TDto" Item="@context" />
+                        <ViewEditDeleteServiceButtons @ref="ViewEditDeleteButtons" TEntity="TEntity" TDto="TDto" Item="@context" />
                     </DisplayTemplate>
                 </DataGridColumn>
                 @Columns
             </DataGridColumns>
             <EmptyTemplate>
-                Empty Template
+                <Row Flex="Flex.JustifyContent.Center" Width="Width.Is100" Height="Height.Px(415)" Style="position: relative;">
+                    <Column ColumnSize="ColumnSize.Is4.OnWidescreen" Style="margin: 0; position: absolute; top: 45%; -ms-transform: translateY(-45%); transoform: translateY(-45%);">
+                        <Div TextAlignment="TextAlignment.Center">
+                            <Heading Size="HeadingSize.Is4" TextColor="TextColor.Danger">
+                                Nenhum registro encontrado
+                            </Heading>
+                            <Paragraph TextColor="TextColor.Muted" Margin="Margin.Is3.FromTop">
+                                Verifique se existe dados ou se os filtros estão corretos.
+                            </Paragraph>
+                        </Div>
+                    </Column>
+                </Row>
             </EmptyTemplate>
-            <EmptyFilterTemplate>
-                Empty Filter
-            </EmptyFilterTemplate>
             <FilterMenuTemplate >
                 <ListPageFilterMenu TEntity="TEntity" TDto="TDto" Column="context.Column"/>
             </FilterMenuTemplate>
-            <LoadingTemplate>
-                Carregando...
-            </LoadingTemplate>
         </DataGrid>
     </Column>
 </Row>

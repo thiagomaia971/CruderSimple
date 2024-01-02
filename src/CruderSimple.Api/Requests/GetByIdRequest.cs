@@ -28,7 +28,8 @@ public static class GetByIdRequest
                 if (single is null)
                     return Result.CreateError("Recurso não encontrado", 404, "Recurso não encontrado");
 
-                return Result.CreateSuccess(single.ToOutput<IOutputDto>());
+                var outputDto = single.ToOutput<IOutputDto>();
+                return Result.CreateSuccess(outputDto);
             }
             catch (Exception exception)
             {

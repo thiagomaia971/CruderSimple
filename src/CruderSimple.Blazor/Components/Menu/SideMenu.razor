@@ -51,6 +51,7 @@
             return;
 
         Routes = user.Routes
+            .Where(x => x.Visible)
             .GroupBy(x => x.Parent)
             .Select(x => new PageSide(x.Key, false, x.OrderBy(x => x.Position).ToList()))
             .ToList() ?? new List<PageSide>();

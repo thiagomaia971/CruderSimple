@@ -52,5 +52,5 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
         => Task.FromResult(Query().ApplyQuery(query));
 
     protected virtual IQueryable<TEntity> Query() 
-        => DbSet;
+        => DbSet.OrderBy(x => x.CreatedAt);
 }

@@ -8,5 +8,6 @@ namespace CruderSimple.Blazor.Components.DefaultPage
         public bool CanRead { get; set; }
         [CascadingParameter(Name = "CanWrite")]
         public bool CanWrite { get; set; }
+
     }
 }

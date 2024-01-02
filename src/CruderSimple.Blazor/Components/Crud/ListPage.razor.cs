@@ -9,6 +9,7 @@ using CruderSimple.Blazor.Services;
 using CruderSimple.Core.EndpointQueries;
 using CruderSimple.Core.Entities;
 using CruderSimple.Core.Extensions;
+using CruderSimple.Core.Services;
 using CruderSimple.Core.ViewModels;
 using Microsoft.AspNetCore.Components;
 
@@ -50,8 +51,14 @@ public partial class ListPage<TEntity, TDto> : ComponentBase
     public int PageSize { get; set; }
     public DataGrid<TDto> DataGridRef { get; set; }
     public string NewPage => $"{typeof(TEntity).Name}/";
-    public DataGridColumnFilterMethod FilterMethod { get; set; }
-    public string SearchValue { get; set; }
+    public ViewEditDeleteServiceButtons<TEntity, TDto> ViewEditDeleteButtons { get; set;}
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+            await SearchSelects();
+    }
 
     private async Task GetData(DataGridReadDataEventArgs<TDto> e)
     {
@@ -59,29 +66,44 @@ public partial class ListPage<TEntity, TDto> : ComponentBase
         {
             await Loading.Show();
             StateHasChanged();
-            DebounceService.Start(300, Search, e);
+            await Search(e);
+        }
+    }
+
+    private async Task SearchSelects()
+    {
+        var selects = DataGridRef.GetColumns().Where(x => x.ColumnType == DataGridColumnType.Select).ToList();
+        foreach (var select in selects)
+        {
+            var selectColumn = (DataGridSelectColumn<TDto>) select;
+            var field = (string)selectColumn.Attributes["Field"];
+            var attributeService = (dynamic) selectColumn.Attributes["Service"];
+            var defaultValue = (object) selectColumn.Attributes["Default"];
+            if (string.IsNullOrEmpty(field) || attributeService is null)
+                return;
+
+            var result = await attributeService.GetAll(new GetAllEndpointQuery(field, null, null, 0, 0));
+            var list = new List<object> { defaultValue };
+            list.AddRange((IEnumerable<object>)result.Data);
+            selectColumn.Data = list;
         }
     }
 
     private async Task Search(DataGridReadDataEventArgs<TDto> e)
     {
-        var xx = e.Columns.ToList();
-        InvokeAsync(async () =>
-        {
-            var select = GetQuerySelect(e.Columns);
-            var filter = GetQueryFilter(e.Columns);
-            var orderByColumn = e.Columns.FirstOrDefault(x => x.SortIndex == 0);
-            var orderBy = orderByColumn is null ? null : $"{orderByColumn.SortField} {orderByColumn.SortDirection}";
+        var select = GetQuerySelect(e.Columns);
+        var filter = GetQueryFilter(e.Columns);
+        var orderByColumn = e.Columns.FirstOrDefault(x => x.SortIndex == 0);
+        var orderBy = orderByColumn is null ? null : $"{orderByColumn.SortField} {orderByColumn.SortDirection}";
 
-            var data = await Service.GetAll(new GetAllEndpointQuery(select, filter, orderBy, e.PageSize, e.Page));
+        var data = await Service.GetAll(new GetAllEndpointQuery(select, filter, orderBy, e.PageSize, e.Page));
 
-            TotalData = data.Size;
-            Data = data.Data;
-            await DataGridRef.Refresh();
+        TotalData = data.Size;
+        Data = data.Data;
+        await DataGridRef.Refresh();
 
-            await Loading.Hide();
-            StateHasChanged();
-        });
+        await Loading.Hide();
+        StateHasChanged();
     }
 
     private string GetQuerySelect(IEnumerable<DataGridColumnInfo> dataGridFields)
@@ -139,5 +161,13 @@ public partial class ListPage<TEntity, TDto> : ComponentBase
     }
 
     protected Task GoBack() => PageHistorysState.GoBack();
+
+    public async Task SingleClicked(DataGridRowMouseEventArgs<TDto> e)
+    {
+        if (PermissionService.CanWrite)
+            ViewEditDeleteButtons.ToEdit();
+        else 
+            ViewEditDeleteButtons.ToView();
+    }
 
 }

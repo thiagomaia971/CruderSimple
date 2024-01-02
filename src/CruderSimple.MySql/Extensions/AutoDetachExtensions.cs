@@ -8,8 +8,13 @@ namespace CruderSimple.MySql.Extensions;
 
 public static class AutoDetachExtensions
 {
-    public static void AutoDetach(this DbContext dbContext, IEntity entity)
+    public static void AutoDetach(this DbContext dbContext, IEntity entity, List<string> detached = null)
     {
+        if (detached is null)
+            detached = new List<string>();
+        else
+            detached.Add($"{entity.GetType()}:{entity.Id}");
+        
         var autoDetachProperties = entity.GetPropertiesWithAttribute<AutoDetachAttribute>();
         foreach (var autoDetachProperty in autoDetachProperties)
         {
@@ -18,10 +23,12 @@ public static class AutoDetachExtensions
             else
             {
                 var list = (autoDetachProperty.GetValue(entity) as IEnumerable);
+                if (list is null)
+                    continue;
                 foreach (var v in list)
                 {
-                    if (v is not null)
-                        dbContext.AutoDetach((IEntity) v);
+                    if (v is not null && !detached.Contains($"{v.GetType()}:{((IEntity) v).Id}"))
+                        dbContext.AutoDetach((IEntity) v, detached);
                 }
             }
         }

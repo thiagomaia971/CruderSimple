@@ -2,9 +2,11 @@ using Blazorise;
 using CruderSimple.Blazor.Interfaces.Services;
 using CruderSimple.Blazor.Services;
 using CruderSimple.Core.Entities;
+using CruderSimple.Core.Services;
 using CruderSimple.Core.ViewModels;
 using Force.DeepCloner;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace CruderSimple.Blazor.Components.Crud;
 
@@ -17,12 +19,26 @@ public partial class CreateEditPage<TEntity, TDto> : ComponentBase
     [Parameter] 
     public RenderFragment ChildContent { get; set; }
 
+    private TDto _model { get; set; }
+
     [Parameter]
-    public TDto Model { get; set; }
+    public TDto Model { 
+        get => _model; 
+        set 
+        {
+            _model = value;
+            //ModelChanged.InvokeAsync(value);
+        }
+    }   
+
+    [Parameter]
+    public EventCallback<TDto> ModelChanged { get; set; }
 
     [Parameter]
     public string Id { get; set; }
 
+    [Parameter]
+    public Func<TDto, Task<TDto>> OnInitialized { get; set; }
 
     [Inject]
     public ICrudService<TEntity, TDto> Service { get; set; }
@@ -62,6 +78,9 @@ public partial class CreateEditPage<TEntity, TDto> : ComponentBase
                 StateHasChanged();
             });
         }
+
+        if (OnInitialized is not null)
+            Model = (await OnInitialized(Model)).DeepCloneTo(Model);
     }
 
     public async Task OnSubmit()
@@ -83,11 +102,6 @@ public partial class CreateEditPage<TEntity, TDto> : ComponentBase
                     await NotificationService.Success("Cadastrado com sucesso!", "Resultado");
                     GoBack();
                 }
-                else
-                {
-                    await NotificationService.Error(string.Join(",", result.Errors));
-                    Console.WriteLine(result.StackTrace);
-                }
 
             }
             catch (Exception ex)
@@ -100,6 +114,12 @@ public partial class CreateEditPage<TEntity, TDto> : ComponentBase
             }
         }
         IsLoading = false;
+    }
+
+    private void KeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Esc")
+            GoBack();
     }
 
     protected void GoBack() => NavigationManager.NavigateTo(NavigationManager.ToBaseRelativePath(NavigationManager.Uri).Split("/")[0]);

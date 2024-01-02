@@ -1,12 +1,16 @@
 using Blazorise;
 using Blazorise.Components;
+using Blazorise.Components.Autocomplete;
+using Blazorise.DataGrid;
 using CruderSimple.Blazor.Interfaces.Services;
 using CruderSimple.Core.EndpointQueries;
 using CruderSimple.Core.Entities;
 using CruderSimple.Core.Extensions;
+using CruderSimple.Core.Services;
 using CruderSimple.Core.ViewModels;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Newtonsoft.Json.Linq;
 using System.Linq.Expressions;
 
 namespace CruderSimple.Blazor.Components;
@@ -25,6 +29,9 @@ public partial class MultipleEntityAutocomplete<TEntity, TEntityResult> : Compon
     [Parameter]
     public EventCallback<List<TEntityResult>> SelectedValuesChanged { get; set; }
 
+    [Parameter]
+    public RenderFragment<ItemContext<TEntityResult, string>> ItemContent { get; set; }
+
     private List<TEntityResult> _selectedValues { get; set; } = new List<TEntityResult>();
 
     [Parameter]
@@ -37,35 +44,39 @@ public partial class MultipleEntityAutocomplete<TEntity, TEntityResult> : Compon
         }
     }
 
-    public List<string> _selectedKeyValues { get; set; } = new List<string>();
-
-    public List<string> SelectedKeyValues
-    {
-        get => _selectedKeyValues;
-        set
-        {
-            _selectedKeyValues = value;
-            SelectedValues = SearchedOriginalData.Where(x => value.Contains(x.GetKey)).ToList();
-            SelectedValuesChanged.InvokeAsync(SelectedValues);
-        }
-    }
-
     [Inject]
     public ICrudService<TEntity, TEntityResult> Service { get; set; }
 
+    [Inject]
+    public PermissionService PermissionService { get; set; }
 
-    public IEnumerable<TEntityResult> SearchedData => SearchedOriginalData.Where(x => !SelectedKeyValues.Contains(x.GetKey)).ToList();
+
+    public IEnumerable<TEntityResult> SearchedData
+    {
+        get
+        {
+            var list = new List<TEntityResult>();
+            if (Data is not null)
+                list.AddRange(Data);
+            if (SearchedOriginalData is not null) 
+                list.AddRange(SearchedOriginalData
+                    .Where(x => !(SelectedValues?.Any(y => y.GetKey == x.GetKey) ?? false)));
+            return list.Distinct().ToList();
+        }
+    }
+
     public IEnumerable<TEntityResult> SearchedOriginalData { get; set; } = new List<TEntityResult>();
     public Autocomplete<TEntityResult, string> autoComplete { get; set; }
     public int TotalData => SearchedData?.Count() ?? 0;
     public bool IsLoading { get; set; }
+    public bool ShouldPrevent { get; set; }
 
     protected override void OnParametersSet()
     {
         if (Data != null && Data.Any() && (SearchedOriginalData is null || !SearchedOriginalData.Any()))
         {
             SearchedOriginalData = Data;
-            SelectedKeyValues = Data.Select(x => x.GetKey).ToList();
+            SelectedValues = Data;
         }
         base.OnParametersSet();
     }
@@ -77,13 +88,11 @@ public partial class MultipleEntityAutocomplete<TEntity, TEntityResult> : Compon
         {
             if (!(e?.CancellationToken.IsCancellationRequested ?? false))
             {
-                IsLoading = true;
-                StateHasChanged();
                 var filter = string.IsNullOrEmpty(e?.SearchValue) ? string.Empty : $"{SearchKey} {Op.Contains} {e?.SearchValue}";
                 var orderBy = $"{SearchKey} {SortDirection.Ascending}";
 
                 var result = await Service.GetAll(new GetAllEndpointQuery(
-                    "*",
+                    SearchKey,
                     filter,
                     orderBy,
                     e?.VirtualizeCount ?? 0,
@@ -92,24 +101,25 @@ public partial class MultipleEntityAutocomplete<TEntity, TEntityResult> : Compon
                 SearchedOriginalData = result.Data
                     .ToList();
 
-                IsLoading = false;
                 StateHasChanged();
             }
         });
     }
+
+    public void ValuesChanged(IEnumerable<string> values)
+    {
+        SelectedValues = SearchedOriginalData.Where(x => values.Contains(x.GetKey)).ToList();
+        SelectedValuesChanged.InvokeAsync(SelectedValues);
+    }
+
     async Task sIsValidValue(ValidatorEventArgs e, CancellationToken c)
     {
-        Console.WriteLine(e.Value);
-        e.Status = SelectedKeyValues.Any() ? ValidationStatus.Success : ValidationStatus.Error;
+        e.Status = SelectedValues.Any() ? ValidationStatus.Success : ValidationStatus.Error;
 
         if (e.Status == ValidationStatus.Error)
-        {
             e.ErrorText = "Selecione pelo menos um";
-        }
         else
-        {
             e.ErrorText = "OK";
-        }
     }
 
     void KeyPressHandler(KeyboardEventArgs args)
@@ -117,10 +127,11 @@ public partial class MultipleEntityAutocomplete<TEntity, TEntityResult> : Compon
 
        if (args.Key == "Enter")
         {
+            ShouldPrevent = true;
             return;
         }
+        ShouldPrevent = false;
         var key = (string)args.Key;
-        autoComplete.Search += key;
+        //autoComplete.Search += key;
     }
 }
-public record AutocompleteDto(string Key, string Value);

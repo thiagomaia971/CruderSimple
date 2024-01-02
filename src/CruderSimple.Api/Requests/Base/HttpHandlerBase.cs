@@ -1,5 +1,7 @@
+using System.Text.Json;
 using CruderSimple.Api.Filters;
 using CruderSimple.Core.Entities;
+using CruderSimple.Core.Interfaces;
 using CruderSimple.Core.ViewModels;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
@@ -12,7 +14,8 @@ public abstract class HttpHandlerBase<TQuery, TEntity, TResult> : IHttpRequestHa
     where TQuery : CruderSimple.Core.EndpointQueries.IEndpointQuery
     where TEntity : IEntity
 {
-    public WebApplication AddEndpointDefinition(WebApplication app)
+    public WebApplication AddEndpointDefinition<TUser>(WebApplication app)
+        where TUser : IUser
     {
         var httpRequestAttribute = (EndpointRequest?)
             GetType().GetCustomAttributes(true).FirstOrDefault(x =>
@@ -27,7 +30,15 @@ public abstract class HttpHandlerBase<TQuery, TEntity, TResult> : IHttpRequestHa
             .WithOpenApi();
 
         if (httpRequestAttribute.RequireAuthorization)
-            routeBuilder = routeBuilder.RequireAuthorization(httpRequestAttribute.Roles ?? Array.Empty<string>());
+        {
+            var policies = new List<string>(httpRequestAttribute.Roles ?? Array.Empty<string>())
+            /*{
+                "CanRead",
+                "CanWrite"
+            }*/;
+            routeBuilder = routeBuilder.RequireAuthorization(policies.ToArray());
+            routeBuilder = routeBuilder.AddEndpointFilter<PermissionAuthorizationActionFilter<TUser>>();
+        }
         
         if (typeof(ITenantEntity).IsAssignableFrom(typeof(TEntity)))
             routeBuilder = routeBuilder.AddEndpointFilter<MultiTenantActionFilter>();
@@ -48,13 +59,11 @@ public abstract class HttpHandlerBase<TQuery, TEntity, TResult> : IHttpRequestHa
                 return Results.Created(string.Empty, result);
             case 400:
                 return Results.BadRequest(result);
-            case 401:
-                return Results.Unauthorized();
             case 404:
                 return Results.NotFound(result);
             case 500:
             default:
-                return Results.StatusCode(500);
+                return Results.Json(result, JsonSerializerOptions.Default, null, 500);
         }
     }
 
