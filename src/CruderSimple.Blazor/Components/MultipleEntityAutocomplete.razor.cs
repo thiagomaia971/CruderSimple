@@ -1,7 +1,6 @@
 using Blazorise;
 using Blazorise.Components;
 using Blazorise.Components.Autocomplete;
-using Blazorise.DataGrid;
 using CruderSimple.Blazor.Interfaces.Services;
 using CruderSimple.Core.EndpointQueries;
 using CruderSimple.Core.Entities;
@@ -10,8 +9,6 @@ using CruderSimple.Core.Services;
 using CruderSimple.Core.ViewModels;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
-using Newtonsoft.Json.Linq;
-using System.Linq.Expressions;
 
 namespace CruderSimple.Blazor.Components;
 
