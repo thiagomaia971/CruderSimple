@@ -31,6 +31,7 @@ public class PermissionAuthorizationActionFilter<TUser> : IEndpointFilter
 {
     private readonly IRepositoryBase<TUser> _repository;
     private readonly IMemoryCache _memoryCache;
+    private bool _disableCache = true;
     private int MillisecondsAbsoluteExpiration { get; set; } = 7200;
 
     public PermissionAuthorizationActionFilter(IRepositoryBase<TUser> repository, IMemoryCache memoryCache)
@@ -44,7 +45,7 @@ public class PermissionAuthorizationActionFilter<TUser> : IEndpointFilter
         var userId =
             (context.HttpContext.User.Identity as ClaimsIdentity).Claims.FirstOrDefault(x => x.Type == "UserId").Value;
         TUser user;
-        if (!_memoryCache.TryGetValue(userId, out user))
+        if (_disableCache || !_memoryCache.TryGetValue(userId, out user))
         {
             user = await _repository.FindById(userId);
             _memoryCache.Set(userId, user, new MemoryCacheEntryOptions

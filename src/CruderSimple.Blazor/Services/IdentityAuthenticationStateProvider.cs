@@ -42,7 +42,6 @@ public class IdentityAuthenticationStateProvider : AuthenticationStateProvider
     public async Task<LoginResult> GetUserInfo()
     {
         LoginResult loginResult = await localStorage.GetItemAsync<LoginResult>("identity");
-        Console.WriteLine($"Retrieve: {JsonSerializer.Serialize(loginResult)}");
         return loginResult;
     }
 

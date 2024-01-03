@@ -18,9 +18,9 @@
               SelectedValues="@(SelectedValues?.Select(c => c.GetKey).ToList() ?? new List<string>())"
               SelectedValuesChanged="ValuesChanged"
               AsyncValidator="@sIsValidValue"
-              SearchKeyDown="KeyPressHandler"
-              @onkeydown:preventDefault
-              Disabled="@(!PermissionService.CanWrite)">
+              @onkeydown:preventDefault="true"
+              @onkeypress="KeyPressHandler"
+              Disabled="@Disabled">
     <NotFoundContent> Sorry... @context was not found! :( </NotFoundContent>
     <ItemContent>
         @if (ItemContent is null)

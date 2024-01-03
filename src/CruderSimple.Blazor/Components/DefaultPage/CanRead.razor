@@ -17,7 +17,6 @@
         </AuthorizeView>
     </Authorized>
     <NotAuthorized>
-        IsAuth: @context.User.Identity?.IsAuthenticated
         @if (context.User.Identity?.IsAuthenticated == true)
         {
             <MainPage>

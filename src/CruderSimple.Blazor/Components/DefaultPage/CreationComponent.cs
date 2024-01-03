@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Components;
 
 namespace CruderSimple.Blazor.Components.DefaultPage
 {
-    public class CreationComponent : PermissionLayoutComponent
+    public class CreationComponent : ComponentBase
     {
         [Parameter]
         public string? Id { get; set; }

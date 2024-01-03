@@ -4,7 +4,7 @@
 @if ( View )
 {
     <Tooltip Text="@PermissionService.CanReadTooltip("Visualizar")" Inline>
-        <Button Size="Size.Small" Clicked="@ToView" Disabled="@(!PermissionService.CanRead)" Padding="Padding.Is1">
+        <Button Size="Size.Small" Clicked="@((_) => ToView())" Disabled="@(!PermissionService.CanRead)" Padding="Padding.Is1" @onclick:stopPropagation>
             <Icon Name="IconName.Eye" />
         </Button>
     </Tooltip>
@@ -13,7 +13,7 @@
 @if ( Edit )
 {
     <Tooltip Text="@PermissionService.CanWriteTooltip("Editar")" Inline>
-        <Button Size="Size.Small" Clicked="@ToEdit" Disabled="@(!PermissionService.CanWrite)" Padding="Padding.Is1">
+        <Button Size="Size.Small" Clicked="@((_) => ToEdit())" Disabled="@(!PermissionService.CanWrite)" Padding="Padding.Is1" @onclick:stopPropagation>
             <Icon Name="IconName.Edit" />
         </Button>
     </Tooltip>
@@ -22,7 +22,7 @@
 @if ( Delete )
 {
     <Tooltip Text="@PermissionService.CanWriteTooltip("Deletar")" Inline>
-        <Button Size="Size.Small" Clicked="@DeleteAsync" Disabled="@(!PermissionService.CanWrite)" Padding="Padding.Is1">
+        <Button Size="Size.Small" Clicked="@DeleteAsync" Disabled="@(!PermissionService.CanWrite)" Padding="Padding.Is1" @onclick:stopPropagation>
             <Icon Name="IconName.Delete" />
         </Button>
     </Tooltip>

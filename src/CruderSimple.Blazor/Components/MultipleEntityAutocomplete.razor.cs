@@ -21,6 +21,8 @@ public partial class MultipleEntityAutocomplete<TEntity, TEntityResult> : Compon
     [Parameter]
     public string SearchKey { get; set; }
     [Parameter]
+    public string CustomSelect { get; set; }
+    [Parameter]
     public List<TEntityResult> Data { get; set; }
 
     [Parameter]
@@ -40,6 +42,9 @@ public partial class MultipleEntityAutocomplete<TEntity, TEntityResult> : Compon
             _selectedValues = value;
         }
     }
+
+    [Parameter]
+    public bool Disabled { get; set; } = false;
 
     [Inject]
     public ICrudService<TEntity, TEntityResult> Service { get; set; }
@@ -85,11 +90,12 @@ public partial class MultipleEntityAutocomplete<TEntity, TEntityResult> : Compon
         {
             if (!(e?.CancellationToken.IsCancellationRequested ?? false))
             {
+                var select = $"{SearchKey}{(string.IsNullOrEmpty(CustomSelect) ? "" : ","+CustomSelect)}";
                 var filter = string.IsNullOrEmpty(e?.SearchValue) ? string.Empty : $"{SearchKey} {Op.Contains} {e?.SearchValue}";
                 var orderBy = $"{SearchKey} {SortDirection.Ascending}";
 
                 var result = await Service.GetAll(new GetAllEndpointQuery(
-                    SearchKey,
+                    select,
                     filter,
                     orderBy,
                     e?.VirtualizeCount ?? 0,
@@ -119,7 +125,7 @@ public partial class MultipleEntityAutocomplete<TEntity, TEntityResult> : Compon
             e.ErrorText = "OK";
     }
 
-    void KeyPressHandler(KeyboardEventArgs args)
+    async Task KeyPressHandler(KeyboardEventArgs args)
     {
 
        if (args.Key == "Enter")
@@ -129,6 +135,6 @@ public partial class MultipleEntityAutocomplete<TEntity, TEntityResult> : Compon
         }
         ShouldPrevent = false;
         var key = (string)args.Key;
-        //autoComplete.Search += key;
+        await autoComplete.SearchKeyDown.InvokeAsync(args);
     }
 }

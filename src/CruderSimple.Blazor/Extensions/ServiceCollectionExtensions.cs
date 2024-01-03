@@ -44,44 +44,7 @@ public static class ServiceCollectionExtensions
         services.AddCruderServices();
         services.AddPermissionsAuthorization();
 
-        //services.AddAuthorizationCore(options =>
-        //{
-        //    options.AddPolicy("CanRead", policy =>
-        //        policy.RequireAssertion(context => IsAuthorized(services, context, "READ"))
-        //    );
-
-        //    options.AddPolicy("CanWrite", policy =>
-        //        policy.RequireAssertion(context => IsAuthorized(services, context, "WRITE"))
-        //    );
-        //});
-
         return services;
-    }
-    
-    private static bool IsAuthorized(
-        IServiceCollection services, 
-        AuthorizationHandlerContext context, 
-        string permissionType)
-    {
-        if (context.Resource is RouteData rd)
-        {
-            var route = (string) rd.PageType.CustomAttributes
-                .FirstOrDefault(x => x.AttributeType == typeof(RouteAttribute))
-                .ConstructorArguments[0]
-                .Value;
-            var routeSplited = route.Split("/");
-            var routeEntity = string.IsNullOrEmpty(routeSplited[1]) ? "home" : routeSplited[1];
-            var permission = $"{routeEntity.ToUpper()}:{permissionType.ToUpper()}";
-            var permissions = context.User.Claims.FirstOrDefault(x => x.Type == "Permissions");
-            bool allowed = permissions?.Value.Contains(permission) ?? false;
-            if (permissionType == "WRITE")
-                services.BuildServiceProvider().GetService<PermissionService>().CanWrite = allowed;
-            else
-                services.BuildServiceProvider().GetService<PermissionService>().CanRead = allowed;
-            return allowed;
-        }
-
-        return false;
     }
 
     private static IServiceCollection AddCruderServices(this IServiceCollection services) 
@@ -89,7 +52,7 @@ public static class ServiceCollectionExtensions
         var types = Core.Extensions.ServiceCollectionExtensions.GetTypes();
         var entityTypes = Core.Extensions.ServiceCollectionExtensions.GetByType<IEntity>().ToList();
 
-        Console.WriteLine(string.Join(",", entityTypes.Select(x => x.Name)));
+        Console.WriteLine("entityTypes: " + string.Join(",", entityTypes.Select(x => x.Name)));
 
         foreach (var entityType in entityTypes)
         {
@@ -108,7 +71,6 @@ public static class ServiceCollectionExtensions
         var genericInterface = typeof(ICrudService<,>).MakeGenericType(entityType, inputDto);
         var genericImplementation = typeof(CrudService<,>).MakeGenericType(entityType, inputDto);
         services.AddTransient(genericInterface, genericImplementation);
-        Console.WriteLine($"Adding Scoped: <{genericInterface.Name},{genericImplementation.Name}>");
 
         var @interface = types.FirstOrDefault(x => genericInterface.IsAssignableFrom(x) && x.IsInterface);
         if (@interface is null)
@@ -116,6 +78,5 @@ public static class ServiceCollectionExtensions
 
         var implementation = types.FirstOrDefault(x => @interface.IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
         services.AddTransient(@interface, implementation);
-        Console.WriteLine($"Adding Scoped: <{@interface.Name},{implementation.Name}>");
     }
 }
