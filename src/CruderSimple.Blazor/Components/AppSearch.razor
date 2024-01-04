@@ -24,7 +24,7 @@
     protected override async Task OnInitializedAsync()
     {
         var user = await state.GetUserInfo();
-        Routes = user.Routes;
+        Routes = user.Routes.Where(x => x.Visible);
     }
     public void OnChange(LoginRouteResult value)
     {
