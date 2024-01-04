@@ -1,6 +1,7 @@
 ﻿using CruderSimple.Api.Requests.Base;
 using CruderSimple.Core.EndpointQueries;
 using CruderSimple.Core.Entities;
+using CruderSimple.Core.Extensions;
 using CruderSimple.Core.ViewModels;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -11,13 +12,13 @@ public static class DeleteRequest
 {
     public record Query([FromRoute] string id) : IEndpointQuery;
 
-    public class Handler<TQuery, TEntity, IOutputDto, IRepository>
-        (IRepository repository)
+    public class Handler<TQuery, TEntity, TDto, TRepository>
+        (TRepository repository)
         : HttpHandlerBase<TQuery, TEntity, Result>, IRequestHandler<TQuery, Result> 
         where TQuery : Query
         where TEntity : IEntity
-        where IOutputDto : OutputDto 
-        where IRepository : Core.Interfaces.IRepositoryBase<TEntity>
+        where TDto : BaseDto 
+        where TRepository : Core.Interfaces.IRepositoryBase<TEntity>
     {
         public override async Task<Result> Handle(TQuery request, CancellationToken cancellationToken)
         {
@@ -31,7 +32,7 @@ public static class DeleteRequest
                 await repository.Remove(entity)
                     .Save();
 
-                return Result.CreateSuccess(entity.ToOutput<IOutputDto>());
+                return Result.CreateSuccess(entity.ToOutput<TDto>());
             }
             catch (Exception exception)
             {

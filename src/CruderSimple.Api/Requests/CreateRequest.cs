@@ -1,6 +1,7 @@
 ﻿using CruderSimple.Api.Requests.Base;
 using CruderSimple.Core.EndpointQueries;
 using CruderSimple.Core.Entities;
+using CruderSimple.Core.Extensions;
 using CruderSimple.Core.Interfaces;
 using CruderSimple.Core.ViewModels;
 using MediatR;
@@ -11,16 +12,16 @@ namespace CruderSimple.Api.Requests;
 
 public static class CreateRequest 
 {   
-    public record Query<TInputDto>([FromBody] TInputDto payload) : IEndpointQuery where TInputDto : InputDto;
+    public record Query<TDto>([FromBody] TDto payload) : IEndpointQuery 
+        where TDto : BaseDto;
     
-    public class Handler<TQuery, TEntity, TInputDto, IOutputDto, IRepository>
-        (IRepository repository)
+    public class Handler<TQuery, TEntity, TDto, TRepository>
+        (TRepository repository)
         : HttpHandlerBase<TQuery, TEntity, Result>, IRequestHandler<TQuery, Result> 
-        where TQuery : Query<TInputDto>
+        where TQuery : Query<TDto>
         where TEntity : IEntity
-        where TInputDto : InputDto 
-        where IOutputDto : OutputDto 
-        where IRepository : IRepositoryBase<TEntity>
+        where TDto : BaseDto 
+        where TRepository : IRepositoryBase<TEntity>
     {
         public override async Task<Result> Handle(TQuery request, CancellationToken cancellationToken)
         {
@@ -32,13 +33,13 @@ public static class CreateRequest
                     var entityExist = await repository.FindBy("PrimaryKey", entity.GetPrimaryKey());
             
                     if (entityExist is not null)
-                        return Result.CreateSuccess(entityExist.ToOutput<IOutputDto>(), 201);
+                        return Result.CreateSuccess(entityExist.ToOutput<TDto>(), 201);
                 }
 
                 await repository.Add(entity)
                     .Save();
 
-                return Result.CreateSuccess(entity.ToOutput<IOutputDto>());
+                return Result.CreateSuccess(entity.ToOutput<TDto>());
             }
             catch (Exception exception)
             {

@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace CruderSimple.Api.Requests.Base;
 
 public abstract class HttpHandlerBase<TQuery, TEntity, TResult> : IHttpRequestHandler
-    where TQuery : CruderSimple.Core.EndpointQueries.IEndpointQuery
+    where TQuery : Core.EndpointQueries.IEndpointQuery
     where TEntity : IEntity
 {
     public WebApplication AddEndpointDefinition<TUser>(WebApplication app)

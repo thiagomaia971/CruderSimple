@@ -52,15 +52,15 @@ public abstract class Entity : IEntity
         EntityType = GetType().FullName;
     }
 
-    public virtual IEntity FromInput(InputDto input)
+    public virtual IEntity FromInput(BaseDto input)
     {
         Id = input.Id;
         return this;
     }
 
-    public OutputDto ConvertToOutput()
+    public BaseDto ConvertToOutput()
     {
-        var output = new OutputDto(
+        var output = new BaseDto(
             Id,
             DateTime.Parse(CreatedAt),
             string.IsNullOrEmpty(UpdatedAt) ? DateTime.Parse(UpdatedAt) : null);

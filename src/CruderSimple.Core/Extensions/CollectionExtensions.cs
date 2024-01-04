@@ -10,10 +10,10 @@ namespace CruderSimple.Core.Extensions;
 
 public static class CollectionExtensions
 {
-    public static ICollection<TEntity> FromInput<TEntity, TInput>(this ICollection<TEntity> entities,
-        ICollection<TInput> inputs)
+    public static ICollection<TEntity> FromInput<TEntity, TDto>(this ICollection<TEntity> entities,
+        ICollection<TDto> inputs)
         where TEntity : IEntity
-        where TInput : InputDto
+        where TDto : BaseDto
     {
         var inner = from xinput in inputs
             join xxinput in entities on xinput.Id equals xxinput.Id into joined
@@ -29,10 +29,10 @@ public static class CollectionExtensions
             .Cast<TEntity>()
             .ToList();
     }
-    public static IEnumerable<TEntity> FromInput<TEntity, TInput>(this IEnumerable<TEntity> entities,
-        ICollection<TInput> inputs)
+    public static IEnumerable<TEntity> FromInput<TEntity, TDto>(this IEnumerable<TEntity> entities,
+        ICollection<TDto> inputs)
         where TEntity : IEntity
-        where TInput : InputDto
+        where TDto : BaseDto
     {
         if (inputs is null)
             return entities;
@@ -51,10 +51,10 @@ public static class CollectionExtensions
             .Cast<TEntity>()
             .ToList();
     }
-    public static List<TEntity> FromInput<TEntity, TInput>(this List<TEntity> entities,
-        ICollection<TInput> inputs)
+    public static List<TEntity> FromInput<TEntity, TDto>(this List<TEntity> entities,
+        ICollection<TDto> inputs)
         where TEntity : IEntity
-        where TInput : InputDto
+        where TDto : BaseDto
     {
         var inner = from xinput in inputs
             join xxinput in entities on xinput.Id equals xxinput.Id into joined
