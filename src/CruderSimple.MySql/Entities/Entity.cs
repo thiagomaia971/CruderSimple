@@ -19,7 +19,7 @@ public abstract class Entity : IEntity
     [JsonProperty("UpdatedAt")]
     public DateTime? UpdatedAt { get; set; }
 
-    public virtual IEntity FromInput(InputDto input)
+    public virtual IEntity FromInput(BaseDto input)
     {
         Id = string.IsNullOrEmpty(input.Id) ? Guid.NewGuid().ToString() : input.Id;
         CreatedAt = CreatedAt == DateTime.MinValue ? DateTime.UtcNow : CreatedAt;
@@ -27,9 +27,9 @@ public abstract class Entity : IEntity
         return this;
     }
 
-    public virtual OutputDto ConvertToOutput()
+    public virtual BaseDto ConvertToOutput()
     {
-        var output = new OutputDto(
+        var output = new BaseDto(
             Id,
             CreatedAt,
             UpdatedAt);

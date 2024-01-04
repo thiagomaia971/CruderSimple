@@ -2,6 +2,7 @@
 using CruderSimple.Api.Requests.Base;
 using CruderSimple.Core.EndpointQueries;
 using CruderSimple.Core.Entities;
+using CruderSimple.Core.Extensions;
 using CruderSimple.Core.ViewModels;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -11,16 +12,16 @@ namespace CruderSimple.Api.Requests;
 
 public static class UpdateRequest
 {
-    public record Query<TInputDto>([FromRoute] string id, [FromBody] TInputDto payload) : IEndpointQuery;
+    public record Query<TDto>([FromRoute] string id, [FromBody] TDto payload) : IEndpointQuery
+        where TDto : BaseDto;
 
-    public class Handler<TQuery, TEntity, TInputDto, IOutputDto, IRepository>
-        (IRepository repository)
+    public class Handler<TQuery, TEntity, TDto, TRepository>
+        (TRepository repository)
         : HttpHandlerBase<TQuery, TEntity, Result>, IRequestHandler<TQuery, Result> 
-        where TQuery : Query<TInputDto>
+        where TQuery : Query<TDto>
         where TEntity : IEntity
-        where TInputDto : InputDto 
-        where IOutputDto : OutputDto 
-        where IRepository : Core.Interfaces.IRepositoryBase<TEntity>
+        where TDto : BaseDto 
+        where TRepository : Core.Interfaces.IRepositoryBase<TEntity>
     {        
         public override async Task<Result> Handle(TQuery request, CancellationToken cancellationToken)
         {
@@ -35,7 +36,7 @@ public static class UpdateRequest
                 await repository.Update(entityToSave)
                     .Save();
 
-                return Result.CreateSuccess(entityToSave.ToOutput<IOutputDto>());
+                return Result.CreateSuccess(entityToSave.ToOutput<TDto>());
             }
             catch (Exception exception)
             {
