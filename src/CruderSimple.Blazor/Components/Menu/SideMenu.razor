@@ -16,18 +16,18 @@
             @{
                 foreach (var item in Routes ?? new List<PageSide>())
                 {
-                    <BarLabel>@item.Name</BarLabel>
+                // <BarLabel>@item.Name</BarLabel>
                     <BarItem>
-                        <BarDropdown @bind-Visible="item.Toogle">
-                            <BarDropdownToggle>
-                                <BarIcon IconName="IconName.Home" IconSize="IconSize.Small" Margin="Margin.Is1.FromEnd" />
+                        <BarDropdown Visible="@ToggleItem(item)">
+                            <BarDropdownToggle >
+                                <BarIcon IconName="@Enum.Parse(typeof(IconName), item.Icon, true)" IconSize="IconSize.Small" Margin="Margin.Is1.FromEnd" />
                                 @item.Name
                             </BarDropdownToggle>
                             <BarDropdownMenu>
                                 @{
                                     foreach (var route in item.Routes)
                                     {
-                                        <BarDropdownItem To="@route.Url">
+                                        <BarDropdownItem To="@route.Url" Class="@(NavigationManager.Uri.Contains(route.Url) ? "active" : "")">
                                             @route.Name
                                         </BarDropdownItem>
                                     }
@@ -41,8 +41,19 @@
     </BarMenu>
 </Bar>
 @code{
+    [Inject]
+    public NavigationManager NavigationManager { get; set; }
     RenderFragment customIcon =@<img src="/_content/OdontoManagement.Shared/brand-logo.png" style="width:32px; height: 32px" />;
     public ICollection<PageSide>? Routes { get; set; } = new List<PageSide>();
+    public string CurrentRoute => NavigationManager.Uri;
+    public bool ToggleItem(PageSide item)
+    {
+        return item.Routes.Any(x => CurrentRoute.Contains(x.Url));
+    }
+    public string ToggleUrl(LoginRouteResult route)
+    {
+        return CurrentRoute.Contains(route.Url) ? "active" : "";
+    }
 
     protected async override Task OnInitializedAsync()
     {
@@ -51,16 +62,27 @@
             return;
 
         Routes = user.Routes
+            .Where(x => x.Visible)
             .GroupBy(x => x.Parent)
             .Select(x => new PageSide(x.Key, false, x.OrderBy(x => x.Position).ToList()))
             .ToList() ?? new List<PageSide>();
         Routes.Remove(Routes.First(x => x.Name == ""));
+        foreach (var parent in Routes)
+        {
+            var permissions = user.User.Permissions.Select(x => x.Split(":")[0].ToLower()).Distinct().ToList();
+            var toRemove = parent.Routes.Where(x => !permissions.Contains(x.Url.ToLower())).ToList();
+            foreach (var item in toRemove)
+            {
+                parent.Routes.Remove(item);
+            }
+        }
     }
 
-    public class PageSide(string name, bool toogle, IEnumerable<LoginRouteResult> routes)
+    public class PageSide(string name, bool toggle, ICollection<LoginRouteResult> routes)
     {
         public string Name { get; set; } = name;
-        public bool Toogle { get; set; } = toogle;
-        public IEnumerable<LoginRouteResult> Routes { get; set; } = routes;
+        public bool Toggle { get; set; } = toggle;
+        public string Icon { get; set; } = routes.FirstOrDefault().Icon;
+        public ICollection<LoginRouteResult> Routes { get; set; } = routes;
     }
 }

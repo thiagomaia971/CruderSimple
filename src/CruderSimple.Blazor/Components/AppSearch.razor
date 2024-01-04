@@ -2,7 +2,7 @@
 @inject IdentityAuthenticationStateProvider state
 @inject NavigationManager navigation
 
-<Autocomplete @ref=@autoComplete
+<Autocomplete @ref="@autoComplete"
               TItem="LoginRouteResult"
               TValue="LoginRouteResult"
               Data="@Routes"
@@ -10,11 +10,10 @@
               ValueField="@(( item ) => item)"
               Placeholder="Search..."
               HighlightSearch
+              MinLength="0"
               Filter="AutocompleteFilter.Contains"
               SelectedValueChanged="OnChange"
-              @onblur="OnBlur"
-              @onfocus="OnBlur"
-              @onclick="OnBlur">
+              SearchFocus="@OnBlur">
     <NotFoundContent> Sorry... @context was not found! :( </NotFoundContent>
 </Autocomplete>
 
@@ -25,7 +24,7 @@
     protected override async Task OnInitializedAsync()
     {
         var user = await state.GetUserInfo();
-        Routes = user.Routes;
+        Routes = user.Routes.Where(x => x.Visible);
     }
     public void OnChange(LoginRouteResult value)
     {
@@ -36,8 +35,8 @@
         else
             navigation.NavigateTo(value.Url);
     }
-    public void OnBlur()
+    public async Task OnBlur()
     {
-        autoComplete.OpenDropdown();
+        await autoComplete.OpenDropdown();
     }
 }

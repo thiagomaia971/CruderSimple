@@ -1,4 +1,5 @@
-﻿using CruderSimple.Core.Entities;
+﻿using CruderSimple.Core.EndpointQueries;
+using CruderSimple.Core.Entities;
 
 namespace CruderSimple.Core.Interfaces;
 
@@ -11,5 +12,5 @@ public interface IRepositoryBase<T>
     Task Save();
     Task<T> FindById(string id);
     Task<T> FindBy(string propertyName, string value);
-    Task<IQueryable<T>> GetAll();
+    Task<Pagination<T>> GetAll(GetAllEndpointQuery query = null);
 }

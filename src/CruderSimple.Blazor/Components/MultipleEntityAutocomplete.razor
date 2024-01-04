@@ -1,0 +1,38 @@
+﻿@using Newtonsoft.Json
+@typeparam TEntity
+@typeparam TEntityResult
+
+<Autocomplete @ref="@autoComplete"
+              TItem="TEntityResult"
+              TValue="string"
+              Data="@SearchedData"
+              TotalItems="@TotalData"
+              TextField="@((item) => item.GetValue)"
+              ValueField="@((item) => item.GetKey)"
+              Placeholder="Search..."
+              HighlightSearch
+              MinLength="0"
+              CloseOnSelection="false"
+              ReadData="@GetData"
+              SelectionMode="AutocompleteSelectionMode.Checkbox"
+              SelectedValues="@(SelectedValues?.Select(c => c.GetKey).ToList() ?? new List<string>())"
+              SelectedValuesChanged="ValuesChanged"
+              AsyncValidator="@sIsValidValue"
+              @onkeydown:preventDefault="true"
+              @onkeypress="KeyPressHandler"
+              Disabled="@Disabled">
+    <NotFoundContent> Sorry... @context was not found! :( </NotFoundContent>
+    <ItemContent>
+        @if (ItemContent is null)
+        {
+            <Div Flex="Flex.InlineFlex.JustifyContent.Between" Width="Width.Is100">
+                <Heading Margin="Margin.Is2.FromBottom">@context.Item.GetValue</Heading>
+            </Div>
+            <Paragraph Margin="Margin.Is2.FromBottom">@context.Item.GetKey</Paragraph>
+        } else
+        {
+            @ItemContent(context)
+        }
+    </ItemContent>
+</Autocomplete>
+<ValidationError>Invalid</ValidationError>

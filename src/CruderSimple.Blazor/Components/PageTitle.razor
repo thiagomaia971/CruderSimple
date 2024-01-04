@@ -12,7 +12,7 @@
                     @ChildContent
                 }
             </Div>
-            <Heading Size="HeadingSize.Is4" Class="page-title">
+            <Heading Size="HeadingSize.Is4" Class="page-title" Margin="Margin.Is0">
                 @Title
             </Heading>
         </Div>
@@ -24,4 +24,16 @@
     [Parameter] public Breadcrum[] BreadcrumbItems { get; set; }
 
     [Parameter] public RenderFragment ChildContent { get; set; }
+
+    public List<Breadcrum> MyBreadcrumb = new List<Breadcrum>();
+
+    [Inject]
+    public NavigationManager NavigationManager { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        MyBreadcrumb.AddRange(BreadcrumbItems.ToList());
+        MyBreadcrumb.Add(new Breadcrum(NavigationManager.ToBaseRelativePath(NavigationManager.Uri), Title));
+        BreadcrumbItems = MyBreadcrumb.ToArray();
+    }
 }

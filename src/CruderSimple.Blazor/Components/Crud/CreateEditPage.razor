@@ -1,0 +1,39 @@
+﻿@typeparam TEntity
+@typeparam TDto
+
+@using Microsoft.AspNetCore.Components.Forms
+
+<EditForm class="form-signin" OnValidSubmit="OnSubmit" Model="@Model">
+    <CardBody>
+        <LoadingIndicator @bind-Visible="@IsLoading">
+            <Row>
+                <Column ColumnSize="ColumnSize.Is12">
+                    <Validations @ref="@ValidationsRef" Model="@Model" Mode="ValidationMode.Auto" MissingFieldsErrorMessage="Error" ValidateOnLoad="false">
+                        <Blazorise.ValidationSummary Label="Segue os erros:" />
+                        @ChildContent
+                    </Validations>
+                </Column>
+            </Row>
+        </LoadingIndicator>
+    </CardBody>
+    <CardFooter>
+        <Button Color="Color.Warning" Clicked="GoBack">
+            Cancelar
+        </Button>
+        @{
+            if (IsView)
+            {
+                <Tooltip Text="@PermissionService.CanWriteTooltip("Editar")" Inline Margin="Margin.Is1.OnX">
+                    <Button Color="Color.Primary" Clicked="@ToEdit" Loading="@IsLoading" Disabled="@(!PermissionService.CanWrite || IsLoading)">
+                        Editar
+                    </Button>
+                </Tooltip>
+            }else
+            {
+                <Button Color="Color.Primary" Type="ButtonType.Submit" Loading="@IsLoading" Disabled="@(!PermissionService.CanWrite || IsLoading)" Margin="Margin.Is1.OnX">
+                    Salvar
+                </Button>
+            }
+        }
+    </CardFooter>
+</EditForm>

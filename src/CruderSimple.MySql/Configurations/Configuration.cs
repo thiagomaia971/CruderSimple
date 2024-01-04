@@ -1,5 +1,6 @@
 ﻿using CruderSimple.Core.Entities;
 using CruderSimple.Core.Extensions;
+using CruderSimple.Core.Interfaces;
 using CruderSimple.MySql.Interfaces;
 using CruderSimple.MySql.Repositories;
 using MediatR;
@@ -11,16 +12,21 @@ namespace CruderSimple.MySql.Configurations;
 
 public static class Configuration
 {
-    public static IServiceCollection AddCruderSimpleServices(
+    public static IServiceCollection AddCruderSimpleServices<TMultiTenant>(
         this IServiceCollection services,
         IConfiguration configuration,
-        IHostEnvironment environment)
+        IHostEnvironment environment,
+        Type multiTenantRepositoryInterface,
+        Type multiTenantRepositoryImplementation)
+        where TMultiTenant : IEntity
     {
         services
             .AddMediatR(typeof(Configuration))
             // .AddDynamodbMapper(configuration, environment)
-            .AddRepositories(typeof(IRepository<>), typeof(Repository<>))
-            .AddScoped<MultiTenantScoped>();
+            .AddRepositories<IEntity>(typeof(IRepositoryBase<>), typeof(Repository<>))
+            .AddRepositories<IEntity>(typeof(IRepository<>), typeof(Repository<>))
+            .AddRepositories<TMultiTenant>(multiTenantRepositoryInterface, multiTenantRepositoryImplementation)
+            .AddScoped<MultiTenantScoped>(_ => new MultiTenantScoped(typeof(TMultiTenant)));
         
         return services;
     }

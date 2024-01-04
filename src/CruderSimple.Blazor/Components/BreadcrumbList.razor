@@ -1,4 +1,4 @@
-﻿<Breadcrumb Background="Background.Transparent">
+﻿<Breadcrumb Background="Background.Transparent" Padding="Padding.Is0" Margin="Margin.Is0">
     @foreach (var item in Items ?? Enumerable.Empty<Breadcrum>())
     {
         <BreadcrumbItem Active="@(Items[Items.Length-1] == item)">

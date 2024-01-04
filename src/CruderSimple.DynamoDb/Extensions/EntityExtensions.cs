@@ -1,5 +1,6 @@
 ﻿using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.Model;
+using CruderSimple.Core.Extensions;
 using CruderSimple.DynamoDb.Entities;
 
 namespace CruderSimple.DynamoDb.Extensions;
