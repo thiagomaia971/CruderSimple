@@ -2,6 +2,7 @@
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using CruderSimple.Core.Attributes;
 using CruderSimple.Core.EndpointQueries;
 using CruderSimple.Core.Entities;
 using CruderSimple.Core.ViewModels;
@@ -235,5 +236,29 @@ public static class CollectionExtensions
                 }));
         }
         return source;
+    }
+
+    public static IQueryable<TEntity> ApplyMultiTenantFilter<TEntity>(
+        this IQueryable<TEntity> source,
+        string tenantId)
+    where TEntity : IEntity
+    {
+        if (string.IsNullOrEmpty(tenantId))
+            return source;
+        
+        var entityType = typeof(TEntity);
+        var multiTenantProperty = entityType.GetPropertiesWithAttribute<MultiTenantAttribute>().FirstOrDefault();
+        if (multiTenantProperty is null)
+            return source;
+        
+        var propertyName = multiTenantProperty.Name;
+        var target = Expression.Parameter(typeof(TEntity));
+        return source.Provider.CreateQuery<TEntity>(FilterExtensions.CreateWhereClause<TEntity>
+            (target, source.Expression, new Filter
+            {
+                PropertyName = propertyName,
+                Operation = Op.Equals,
+                Value = tenantId
+            }));
     }
 }

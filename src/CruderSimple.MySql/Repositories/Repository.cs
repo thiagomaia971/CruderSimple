@@ -49,8 +49,12 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
         => FindById(value);
 
     public virtual Task<Pagination<TEntity>> GetAll(GetAllEndpointQuery query = null) 
-        => Task.FromResult(Query().AsNoTracking().ApplyQuery(query));
+        => Task.FromResult(Query()
+            .AsNoTracking()
+            .ApplyQuery(query));
 
     protected virtual IQueryable<TEntity> Query() 
-        => DbSet.OrderBy(x => x.CreatedAt);
+        => DbSet
+            .ApplyMultiTenantFilter(multiTenant?.Id ?? string.Empty)
+            .OrderBy(x => x.CreatedAt);
 }
