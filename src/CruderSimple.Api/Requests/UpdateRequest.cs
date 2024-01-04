@@ -26,7 +26,7 @@ public static class UpdateRequest
         {
             try
             {
-                var entity = await repository.FindById(request.id);
+                var entity = Activator.CreateInstance<TEntity>();//await repository.FindById(request.id);
 
                 if (entity is null)
                     return Result.CreateError("Recurso não encontrado", 404, "Recurso não encontrado");
