@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using CruderSimple.Core.Attributes;
 using CruderSimple.Core.Entities;
 using CruderSimple.Core.Extensions;
 using CruderSimple.MySql.Attributes;
