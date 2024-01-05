@@ -1,4 +1,6 @@
-﻿@inject IdentityAuthenticationStateProvider state
+﻿@using Microsoft.Extensions.Configuration
+@inject IdentityAuthenticationStateProvider state
+@inject IConfiguration configuration
 
 <Bar Breakpoint="Breakpoint.Desktop" NavigationBreakpoint="Breakpoint.Tablet" ThemeContrast="ThemeContrast.Dark"
      Mode="BarMode.VerticalInline" CollapseMode="BarCollapseMode.Small">
@@ -7,7 +9,7 @@
         <BarItem>
             <BarLink To="">
                 <BarIcon IconName="customIcon" />
-                OdontoManagement
+                @configuration["APPLICATION_NAME"]
             </BarLink>
         </BarItem>
     </BarBrand>
@@ -43,7 +45,7 @@
 @code{
     [Inject]
     public NavigationManager NavigationManager { get; set; }
-    RenderFragment customIcon =@<img src="/_content/OdontoManagement.Shared/brand-logo.png" style="width:32px; height: 32px" />;
+    RenderFragment customIcon =@<img src="/_content/CruderSimple.Blazor/brand-logo.png" style="width:32px; height: 32px" />;
     public ICollection<PageSide>? Routes { get; set; } = new List<PageSide>();
     public string CurrentRoute => NavigationManager.Uri;
     public bool ToggleItem(PageSide item)
