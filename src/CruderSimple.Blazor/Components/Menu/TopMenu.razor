@@ -1,13 +1,15 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.Extensions.Configuration
 @inject NavigationManager navigationManager
 @inject AuthenticationStateProvider authenticationState
 @inject IdentityAuthenticationStateProvider authentication
+@inject IConfiguration configuration
 
 <Bar Breakpoint="Breakpoint.Desktop" Background="Background.Light" ThemeContrast="ThemeContrast.Light">
     <BarBrand>
         <BarItem>
             <BarLink To="">
-                OdontoManagement
+                @configuration["APPLICATION_NAME"]
             </BarLink>
         </BarItem>
     </BarBrand>
@@ -20,7 +22,7 @@
             <BarItem>
                 <BarDropdown RightAligned>
                     <BarDropdownToggle Display="Display.InlineBlock.OnTablet.None.OnMobile">
-                        <Image Class="avatar" Source="_content/OdontoManagement.Shared/img/avatars/avatar-6.jpg" Text="Avatar" Fluid Border="Border.RoundedCircle" Margin="Margin.Is1.FromEnd" Style="width:40px; height:40px;" />
+                        <Image Class="avatar" Source="_content/CruderSimple.Blazor/img/avatars/avatar-6.jpg" Text="Avatar" Fluid Border="Border.RoundedCircle" Margin="Margin.Is1.FromEnd" Style="width:40px; height:40px;" />
                          <Span TextColor="TextColor.Dark">@UserName</Span>
                         @*<Span TextColor="TextColor.Muted">Founder</Span>*@
                     </BarDropdownToggle>

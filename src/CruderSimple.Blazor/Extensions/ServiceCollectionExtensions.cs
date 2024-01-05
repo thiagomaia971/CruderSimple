@@ -58,10 +58,13 @@ public static class ServiceCollectionExtensions
         {
             var inputDto = types.FirstOrDefault(x => x.Name == $"{entityType.Name}Input");
             var outputDto = types.FirstOrDefault(x => x.Name == $"{entityType.Name}Output");
+            var dto = types.FirstOrDefault(x => x.Name == $"{entityType.Name}Dto");
             if (inputDto is not null)
                 AddCruderService(services, types, entityType, inputDto);
             if (outputDto is not null)
                 AddCruderService(services, types, entityType, outputDto);
+            if (dto is not null)
+                AddCruderService(services, types, entityType, dto);
         }
         return services;
     }

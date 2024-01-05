@@ -2,6 +2,7 @@
 using CruderSimple.Core.EndpointQueries;
 using CruderSimple.Core.Entities;
 using CruderSimple.Core.ViewModels;
+using Microsoft.Extensions.Configuration;
 
 namespace CruderSimple.Blazor.Services
 {
@@ -12,10 +13,12 @@ namespace CruderSimple.Blazor.Services
     {
         public IRequestService RequestService { get; }
 
-        public CrudService(IRequestService requestService)
+        public CrudService(IRequestService requestService, IConfiguration configuration)
         {
             RequestService = requestService;
-            RequestService.HttpClientName("OdontoManagement.Api");
+            if (string.IsNullOrEmpty(configuration["API_URL"]))
+                throw new ArgumentException("API_URL most be set in Environment Variables");
+            RequestService.HttpClientName(configuration["API_URL"]);
         }
 
         public async Task<Pagination<TDto>> GetAll(GetAllEndpointQuery query) 
