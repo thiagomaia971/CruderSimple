@@ -50,7 +50,7 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
 
     public virtual Task<Pagination<TEntity>> GetAll(GetAllEndpointQuery query = null) 
         => Task.FromResult(Query()
-            .AsNoTracking()
+            //.AsNoTracking()
             .ApplyQuery(query));
 
     protected virtual IQueryable<TEntity> Query() 
