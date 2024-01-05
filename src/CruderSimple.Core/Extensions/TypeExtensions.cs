@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using CruderSimple.Core.Entities;
+using System.Reflection;
 
 namespace CruderSimple.Core.Extensions
 {
@@ -17,10 +18,14 @@ namespace CruderSimple.Core.Extensions
                 .GetProperties()
                 .Where(c => type.GetType().IsAssignableFrom(c.PropertyType));
         
-        public static IEnumerable<PropertyInfo> cGetPropertiesWithInhiredType<T>(this T type)
-            => type.GetType()
+        public static IEnumerable<PropertyInfo> GetPropertiesFromInhiredType<T>(this object value)
+            => value.GetType()
                 .GetProperties()
-                .Where(c => type.GetType().IsAssignableFrom(c.PropertyType));
+                .Where(c => typeof(T).IsAssignableFrom(c.PropertyType) ||
+                            typeof(IEnumerable<>).MakeGenericType(typeof(T)).IsAssignableFrom(c.PropertyType) ||
+                            typeof(ICollection<>).MakeGenericType(typeof(T)).IsAssignableFrom(c.PropertyType) ||
+                            typeof(List<>).MakeGenericType(typeof(T)).IsAssignableFrom(c.PropertyType) ||
+                            typeof(IList<>).MakeGenericType(typeof(T)).IsAssignableFrom(c.PropertyType));
         
         public static IEnumerable<PropertyInfo> GetPropertiesWithAttribute<T>(this object @object)
             where T : Attribute 

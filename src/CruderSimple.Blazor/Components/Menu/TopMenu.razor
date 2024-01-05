@@ -1,29 +1,43 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.Extensions.Configuration
+@using static CruderSimple.Blazor.Components.BreadcrumbList
 @inject NavigationManager navigationManager
 @inject AuthenticationStateProvider authenticationState
 @inject IdentityAuthenticationStateProvider authentication
 @inject IConfiguration configuration
+@inherits CruderSimplePageBase
 
-<Bar Breakpoint="Breakpoint.Desktop" Background="Background.Light" ThemeContrast="ThemeContrast.Light">
+<Bar Breakpoint="Breakpoint.Desktop" Background="Background.Dark" ThemeContrast="ThemeContrast.Dark">
     <BarBrand>
-        <BarItem>
-            <BarLink To="">
-                @configuration["APPLICATION_NAME"]
-            </BarLink>
-        </BarItem>
     </BarBrand>
     <BarToggler />
     <BarMenu>
         <BarStart>
-            <AppSearch />
+            <BarItem>
+                <Heading 
+                    Size="HeadingSize.Is4" 
+                    Class="page-title" 
+                    Margin="Margin.Is3.FromEnd.Is0.FromBottom"
+                         Style="color: var(--b-bar-item-dark-hover-color, #fff); line-height: 38px; height: 38x">
+                    @PageTitle
+                </Heading>
+            </BarItem>
+            <BarItem>
+                <AppSearch />
+            </BarItem>
         </BarStart>
         <BarEnd>
             <BarItem>
                 <BarDropdown RightAligned>
+                    <BarItem Display="Display.InlineBlock">
+                        <CruderSimple.Blazor.Components.PageTitle Title="Usuários"
+                                                                  BreadcrumbItems="@(new Breadcrum[] {
+                                            new Breadcrum("/", "Test")})" />
+                    </BarItem>
+
                     <BarDropdownToggle Display="Display.InlineBlock.OnTablet.None.OnMobile">
                         <Image Class="avatar" Source="_content/CruderSimple.Blazor/img/avatars/avatar-6.jpg" Text="Avatar" Fluid Border="Border.RoundedCircle" Margin="Margin.Is1.FromEnd" Style="width:40px; height:40px;" />
-                         <Span TextColor="TextColor.Dark">@UserName</Span>
+                         <Span TextColor="TextColor.Light">@UserName</Span>
                         @*<Span TextColor="TextColor.Muted">Founder</Span>*@
                     </BarDropdownToggle>
                     <BarDropdownMenu>

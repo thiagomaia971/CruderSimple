@@ -247,12 +247,12 @@ public static class CollectionExtensions
             return source;
         
         var entityType = typeof(TEntity);
-        var multiTenantProperty = entityType.GetPropertiesWithAttribute<MultiTenantAttribute>().FirstOrDefault();
+        var multiTenantProperty = Activator.CreateInstance(entityType).GetPropertiesWithAttribute<MultiTenantAttribute>().FirstOrDefault();
         if (multiTenantProperty is null)
             return source;
         
         var propertyName = multiTenantProperty.Name;
-        var target = Expression.Parameter(typeof(TEntity));
+        var target = Expression.Parameter(entityType);
         return source.Provider.CreateQuery<TEntity>(FilterExtensions.CreateWhereClause<TEntity>
             (target, source.Expression, new Filter
             {

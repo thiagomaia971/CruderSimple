@@ -1,18 +1,22 @@
 ﻿@using Microsoft.Extensions.Configuration
 @inject IdentityAuthenticationStateProvider state
 @inject IConfiguration configuration
+@inherits CruderSimplePageBase
 
 <Bar Breakpoint="Breakpoint.Desktop" NavigationBreakpoint="Breakpoint.Tablet" ThemeContrast="ThemeContrast.Dark"
      Mode="BarMode.VerticalInline" CollapseMode="BarCollapseMode.Small">
     <BarToggler />
-    <BarBrand>
-        <BarItem>
-            <BarLink To="">
-                <BarIcon IconName="customIcon" />
-                @configuration["APPLICATION_NAME"]
-            </BarLink>
-        </BarItem>
-    </BarBrand>
+    @if(customIcon != null)
+    {
+        <BarBrand>
+            <BarItem>
+                <BarLink To="">
+                    <BarIcon IconName="customIcon" />
+                    @configuration["APPLICATION_NAME"]
+                </BarLink>
+            </BarItem>
+        </BarBrand>
+    }
     <BarMenu >
         <BarStart>
             @{
@@ -45,12 +49,13 @@
 @code{
     [Inject]
     public NavigationManager NavigationManager { get; set; }
-    RenderFragment customIcon =@<img src="/_content/CruderSimple.Blazor/brand-logo.png" style="width:32px; height: 32px" />;
+    RenderFragment customIcon;
+
     public ICollection<PageSide>? Routes { get; set; } = new List<PageSide>();
     public string CurrentRoute => NavigationManager.Uri;
     public bool ToggleItem(PageSide item)
     {
-        return item.Routes.Any(x => CurrentRoute.Contains(x.Url));
+        return !IsMobile && item.Routes.Any(x => CurrentRoute.Contains(x.Url));
     }
     public string ToggleUrl(LoginRouteResult route)
     {
@@ -59,6 +64,13 @@
 
     protected async override Task OnInitializedAsync()
     {
+        customIcon = builder =>
+        {
+            builder.OpenElement(0, "img");
+            builder.AddAttribute(1, "src", (string.IsNullOrEmpty(configuration["BRAND_ICON"]) ? "/_content/CruderSimple.Blazor/brand-logo.png" : configuration["BRAND_ICON"]));
+            builder.AddAttribute(2, "style", "width:32px; height: 32px");
+            builder.CloseElement();
+        };
         var user = await state.GetUserInfo();
         if (user == null)
             return;

@@ -10,27 +10,44 @@ public static class AutoDetachExtensions
 {
     public static void AutoDetach(this DbContext dbContext, IEntity entity, List<string> detached = null)
     {
+        if (detached is not null && detached.Contains($"{entity.GetType()}:{entity.Id}"))
+            return;
+        
         if (detached is null)
             detached = new List<string>();
         else
             detached.Add($"{entity.GetType()}:{entity.Id}");
         
-        var autoDetachProperties = entity.GetPropertiesWithAttribute<AutoDetachAttribute>();
-        foreach (var autoDetachProperty in autoDetachProperties)
+        var allEntities = entity.GetPropertiesFromInhiredType<IEntity>();
+
+        foreach (var innerEntityProperty in allEntities)
         {
-            if (autoDetachProperty.GetValue(entity) is IEntity ent)
-                dbContext.DetachLocal(ent, ent.Id);
+            var autoDetachAttribute =
+                innerEntityProperty.CustomAttributes.FirstOrDefault(x => x.AttributeType == typeof(AutoDetachAttribute));
+
+            if (innerEntityProperty.GetValue(entity) is IEntity innerEntity)
+            {
+                if (autoDetachAttribute is null)
+                    dbContext.AutoDetach(innerEntity, detached);
+                else
+                    dbContext.DetachLocal(innerEntity, innerEntity.Id);
+            }
             else
             {
-                var list = (autoDetachProperty.GetValue(entity) as IEnumerable);
+                var list = (innerEntityProperty.GetValue(entity) as IEnumerable);
                 if (list is null)
                     continue;
                 foreach (var v in list)
                 {
-                    if (v is not null && !detached.Contains($"{v.GetType()}:{((IEntity) v).Id}"))
+                    if (v is null)
+                        continue;
+                    if (autoDetachAttribute is null)
                         dbContext.AutoDetach((IEntity) v, detached);
+                    else 
+                        dbContext.DetachLocal((IEntity) v, ((IEntity) v).Id);
                 }
             }
         }
+        
     }
 }

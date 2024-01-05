@@ -1,5 +1,4 @@
-﻿using System;
-using Blazored.LocalStorage;
+﻿using Blazored.LocalStorage;
 using Blazorise;
 using Blazorise.Bootstrap;
 using Blazorise.Icons.FontAwesome;
@@ -10,8 +9,6 @@ using CruderSimple.Blazor.Services;
 using CruderSimple.Core.Entities;
 using CruderSimple.Core.Services;
 using CruderSimple.Core.Extensions;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -41,6 +38,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<PageHistoryState>();
         services.AddScoped<DebounceService>();
         services.AddSingleton<DimensionService>();
+        services.AddSingleton<PageParameter>();
         services.AddCruderServices();
         services.AddPermissionsAuthorization();
 
