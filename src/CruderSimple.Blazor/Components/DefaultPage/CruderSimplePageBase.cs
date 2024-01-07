@@ -3,6 +3,7 @@ using CruderSimple.Blazor.Services;
 using CruderSimple.Core.Services;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using System.Diagnostics.Metrics;
 using static CruderSimple.Blazor.Components.BreadcrumbList;
 
 namespace CruderSimple.Blazor.Components.DefaultPage;
@@ -18,14 +19,23 @@ public class CruderSimplePageBase : ComponentBase
     [Inject]
     protected NavigationManager NavigationManager { get; set; }
 
-    [Inject]
-    private PageParameter _pageParameter { get; set; }
+    //[Inject]
+    //public PageParameter _pageParameter { get; set; }
 
     [Inject]
     private IJSRuntime _jSRuntime { get; set; }
 
-    public string PageTitle { get => _pageParameter.PageTitle; set => _pageParameter.PageTitle = value; }
-    public Breadcrum[] Breadcrums { get => _pageParameter.Breadcrums; set => _pageParameter.Breadcrums = value; }
+    public string PageTitle
+    {
+        get => PageParameter.PageTitle; set
+        {
+            PageParameter.PageTitle = value;
+            //if (PageParameter.PageTitleChanged is not null)
+            //    PageParameter.PageTitleChanged();
+        }
+    }
+
+    public Breadcrum[] Breadcrums { get => PageParameter.Breadcrums; set => PageParameter.Breadcrums = value; }
 
     public bool CanRead => _permissionService.CanRead;
     public bool CanWrite => _permissionService.CanWrite;
@@ -39,7 +49,6 @@ public class CruderSimplePageBase : ComponentBase
     {
         if (firstRender)
             IsMobile = await _jSRuntime.InvokeAsync<bool>("isDevice");
-        Console.WriteLine("IsMobile:" + IsMobile);
     }
 
 }
