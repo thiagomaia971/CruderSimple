@@ -30,6 +30,7 @@ public static class ServiceCollectionExtensions
             .AddLoadingIndicator();
 
         services.AddScoped<IdentityAuthenticationStateProvider>();
+        services.AddScoped<IIdentityAuthenticationStateProvider, IdentityAuthenticationStateProvider>();
         services.AddScoped<AuthenticationStateProvider>(s => s.GetRequiredService<IdentityAuthenticationStateProvider>());
         services.AddScoped(typeof(IAuthorizeApi), typeof(TAuthorizeApi));
         services.AddTransient<IRequestService, RequestService>();
@@ -38,7 +39,8 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<PageHistoryState>();
         services.AddScoped<DebounceService>();
         services.AddSingleton<DimensionService>();
-        services.AddSingleton<PageParameter>();
+        //var pageParameter = new PageParameter();
+        //services.AddSingleton(pageParameter);
         services.AddCruderServices();
         services.AddPermissionsAuthorization();
 

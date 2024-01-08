@@ -1,10 +1,12 @@
-﻿using static CruderSimple.Blazor.Components.BreadcrumbList;
+﻿using CruderSimple.Blazor.Components;
+using static CruderSimple.Blazor.Components.BreadcrumbList;
 
 namespace CruderSimple.Blazor.Services
 {
-    public class PageParameter
+    public static class PageParameter
     {
-        public string PageTitle { get; set; }
-        public Breadcrum[] Breadcrums { get; set; }
+        public static Guid Guid { get; set; } = Guid.NewGuid();
+        public static string PageTitle { get; set; }
+        public static Breadcrum[] Breadcrums { get; set; }
     }
 }

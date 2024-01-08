@@ -14,17 +14,11 @@
     <BarMenu>
         <BarStart>
             <BarItem>
-                <Heading 
-                    Size="HeadingSize.Is4" 
-                    Class="page-title" 
-                    Margin="Margin.Is3.FromEnd.Is0.FromBottom"
-                         Style="color: var(--b-bar-item-dark-hover-color, #fff); line-height: 38px; height: 38x">
-                    @PageTitle
-                </Heading>
+                @TopBarStart
             </BarItem>
-            <BarItem>
+@*             <BarItem>
                 <AppSearch />
-            </BarItem>
+            </BarItem> *@
         </BarStart>
         <BarEnd>
             <BarItem>
@@ -59,11 +53,14 @@
     </BarMenu>
 </Bar>
 @code{
+    [Parameter]
+    public RenderFragment TopBarStart { get; set; }
     RenderFragment customIcon =@<img src="/brand-logo.png" style="width:32px; height: 32px" />;
     public string UserName { get; set; }
 
     protected async override Task OnInitializedAsync()
     {
+        var loginResult = await authentication.GetUserInfo();
         var user = await authenticationState.GetAuthenticationStateAsync();
         UserName = user?.User?.Identity?.Name ?? string.Empty;
     }

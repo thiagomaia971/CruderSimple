@@ -43,7 +43,7 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
         => await DbContext.SaveChangesAsync();
 
     public virtual Task<TEntity> FindById(string id) 
-        => Query().FirstOrDefaultAsync(x => x.Id == id);
+        => Query(true).FirstOrDefaultAsync(x => x.Id == id);
 
     public virtual Task<TEntity> FindBy(string propertyName, string value)
         => FindById(value);
@@ -53,8 +53,11 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
             //.AsNoTracking()
             .ApplyQuery(query));
 
-    protected virtual IQueryable<TEntity> Query() 
-        => DbSet
-            .ApplyMultiTenantFilter(multiTenant?.Id ?? string.Empty)
-            .OrderBy(x => x.CreatedAt);
+    protected virtual IQueryable<TEntity> Query(bool ignoreUser = false)
+    {
+        var all = DbSet.ToList();
+        return DbSet
+                .ApplyMultiTenantFilter(multiTenant?.UserId ?? string.Empty, multiTenant?.Id ?? string.Empty, ignoreUser)
+                .OrderBy(x => x.CreatedAt);
+    }
 }

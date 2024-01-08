@@ -2,29 +2,37 @@
 @inject IdentityAuthenticationStateProvider state
 @inject NavigationManager navigation
 
-<Autocomplete @ref="@autoComplete"
-              TItem="LoginRouteResult"
-              TValue="LoginRouteResult"
-              Data="@Routes"
-              TextField="@(( item ) => item.Name)"
-              ValueField="@(( item ) => item)"
-              Placeholder="Search..."
-              HighlightSearch
-              MinLength="0"
-              Filter="AutocompleteFilter.Contains"
-              SelectedValueChanged="OnChange"
-              SearchFocus="@OnBlur">
-    <NotFoundContent> Sorry... @context was not found! :( </NotFoundContent>
-</Autocomplete>
+<Div Padding="@Padding">
+    <Autocomplete @ref="@autoComplete"
+                  TItem="LoginRouteResult"
+                  TValue="LoginRouteResult"
+                  Data="@Routes"
+                  TextField="@(( item ) => item.Name)"
+                  ValueField="@(( item ) => item)"
+                  Placeholder="Search..."
+                  HighlightSearch
+                  MinLength="0"
+                  Filter="AutocompleteFilter.Contains"
+                  SelectedValueChanged="OnChange"
+                  SearchFocus="@OnBlur">
+        <NotFoundContent> Sorry... @context was not found! :( </NotFoundContent>
+    </Autocomplete>
+</Div>
 
 @code {
+    
+    // [Inject]
+    // public ClientConfiguration ClientConfiguration { get; set; }
+    
+    [Parameter]
+    public IFluentSpacing Padding { get; set; }
     public IEnumerable<LoginRouteResult> Routes { get; set; }
     public Autocomplete<LoginRouteResult, LoginRouteResult> autoComplete { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         var user = await state.GetUserInfo();
-        Routes = user.Routes.Where(x => x.Visible);
+        // Routes = user.Routes.Where(x => x.Visible);
     }
     public void OnChange(LoginRouteResult value)
     {

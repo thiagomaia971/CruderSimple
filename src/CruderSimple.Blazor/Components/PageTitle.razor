@@ -3,9 +3,9 @@
     <Column ColumnSize="ColumnSize.Is12">
         <Div Class="page-title-wrapper">
             <Div Float="Float.End">
-                @if ( BreadcrumbItems != null )
+                @if (MyBreadcrumb != null)
                 {
-                    <BreadcrumbList Items="@BreadcrumbItems" />
+                    <BreadcrumbList Items="@MyBreadcrumb.ToArray()" />
                 }
                 else if ( ChildContent != null )
                 {
@@ -25,15 +25,19 @@
 
     [Parameter] public RenderFragment ChildContent { get; set; }
 
-    public List<Breadcrum> MyBreadcrumb = new List<Breadcrum>();
+    public List<Breadcrum> MyBreadcrumb { get
+        {
+            var list = new List<Breadcrum>();
+            list.AddRange(BreadcrumbItems.ToList());
+            list.Add(new Breadcrum(NavigationManager.ToBaseRelativePath(NavigationManager.Uri), Title));
+            return list.ToList();
+        }
+    }
 
     [Inject]
     public NavigationManager NavigationManager { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
-        MyBreadcrumb.AddRange(BreadcrumbItems.ToList());
-        MyBreadcrumb.Add(new Breadcrum(NavigationManager.ToBaseRelativePath(NavigationManager.Uri), Title));
-        BreadcrumbItems = MyBreadcrumb.ToArray();
     }
 }

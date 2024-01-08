@@ -14,7 +14,7 @@ namespace CruderSimple.Blazor.Components;
 
 [CascadingTypeParameter( nameof( TEntity ) )]
 [CascadingTypeParameter( nameof( TEntityResult ) )]
-public partial class MultipleEntityAutocomplete<TEntity, TEntityResult> : ComponentBase
+public partial class EntityAutocomplete<TEntity, TEntityResult> : ComponentBase
     where TEntity : IEntity
     where TEntityResult : BaseDto
 {
@@ -23,34 +23,34 @@ public partial class MultipleEntityAutocomplete<TEntity, TEntityResult> : Compon
     [Parameter]
     public string CustomSelect { get; set; }
     [Parameter]
-    public List<TEntityResult> Data { get; set; }
+    public TEntityResult Data { get; set; }
 
     [Parameter]
-    public EventCallback<List<TEntityResult>> SelectedValuesChanged { get; set; }
+    public EventCallback<TEntityResult> SelectedValueChanged { get; set; }
 
     [Parameter]
     public RenderFragment<ItemContext<TEntityResult, string>> ItemContent { get; set; }
+
+    private TEntityResult _selectedValue { get; set; }
+
+    [Parameter]
+    public TEntityResult SelectedValue 
+    { 
+        get => _selectedValue; 
+        set 
+        {
+            _selectedValue = value;
+        }
+    }
+
+    [Parameter]
+    public bool Disabled { get; set; } = false;
     
     [Parameter] 
     public IFluentSizing Width { get; set; }
     
     [Parameter] 
     public IFluentSpacing Padding { get; set; }
-
-    private List<TEntityResult> _selectedValues { get; set; } = new List<TEntityResult>();
-
-    [Parameter]
-    public List<TEntityResult> SelectedValues 
-    { 
-        get => _selectedValues; 
-        set 
-        {
-            _selectedValues = value;
-        }
-    }
-
-    [Parameter]
-    public bool Disabled { get; set; } = false;
 
     [Inject]
     public ICrudService<TEntity, TEntityResult> Service { get; set; }
@@ -65,11 +65,13 @@ public partial class MultipleEntityAutocomplete<TEntity, TEntityResult> : Compon
         {
             var list = new List<TEntityResult>();
             if (Data is not null)
-                list.AddRange(Data);
-            if (SearchedOriginalData is not null) 
+                list.Add(Data);
+            if (SearchedOriginalData is not null)
+                list.AddRange(SearchedOriginalData);
+            if (SelectedValue is not null) 
                 list.AddRange(SearchedOriginalData
-                    .Where(x => !(SelectedValues?.Any(y => y.GetKey == x.GetKey) ?? false)));
-            return list.Distinct().ToList();
+                    .Where(x => SelectedValue.GetKey != x.GetKey));
+            return list.DistinctBy(c => c.GetKey).ToList();
         }
     }
 
@@ -81,10 +83,10 @@ public partial class MultipleEntityAutocomplete<TEntity, TEntityResult> : Compon
 
     protected override void OnParametersSet()
     {
-        if (Data != null && Data.Any() && (SearchedOriginalData is null || !SearchedOriginalData.Any()))
+        if (Data != null && (SearchedOriginalData is null || !SearchedOriginalData.Any()))
         {
-            SearchedOriginalData = Data;
-            SelectedValues = Data;
+            SearchedOriginalData = new List<TEntityResult>{Data};
+            SelectedValue = Data;
         }
         base.OnParametersSet();
     }
@@ -115,15 +117,15 @@ public partial class MultipleEntityAutocomplete<TEntity, TEntityResult> : Compon
         });
     }
 
-    public void ValuesChanged(IEnumerable<string> values)
+    public void ValueChanged(string values)
     {
-        SelectedValues = SearchedOriginalData.Where(x => values.Contains(x.GetKey)).ToList();
-        SelectedValuesChanged.InvokeAsync(SelectedValues);
+        SelectedValue = SearchedOriginalData.FirstOrDefault(x => values == x.GetKey);
+        SelectedValueChanged.InvokeAsync(SelectedValue);
     }
 
     async Task sIsValidValue(ValidatorEventArgs e, CancellationToken c)
     {
-        e.Status = SelectedValues.Any() ? ValidationStatus.Success : ValidationStatus.Error;
+        e.Status = SelectedValue is not null ? ValidationStatus.Success : ValidationStatus.Error;
 
         if (e.Status == ValidationStatus.Error)
             e.ErrorText = "Selecione pelo menos um";

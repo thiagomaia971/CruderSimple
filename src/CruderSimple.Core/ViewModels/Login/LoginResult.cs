@@ -2,8 +2,8 @@
 
 public class LoginResult
 {
+    public string UserId { get; set; }
+    public string UserName { get; set; }
     public string Token { get; set; }
     public DateTime Expiration { get; set; }
-    public LoginUserResult User { get; set; }
-    public IEnumerable<LoginRouteResult> Routes { get; set; }
 }

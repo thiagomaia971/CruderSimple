@@ -7,11 +7,10 @@ using Microsoft.AspNetCore.Components.Authorization;
 
 namespace CruderSimple.Blazor.Services;
 
-public class IdentityAuthenticationStateProvider : AuthenticationStateProvider
+public class IdentityAuthenticationStateProvider : AuthenticationStateProvider, IIdentityAuthenticationStateProvider
 {
     private readonly IAuthorizeApi _authorizeApi;
     private readonly ILocalStorageService localStorage;
-    public static LoginResult UserCache;
 
     public IdentityAuthenticationStateProvider(IAuthorizeApi authorizeApi, ILocalStorageService localStorage)
     {
@@ -19,12 +18,13 @@ public class IdentityAuthenticationStateProvider : AuthenticationStateProvider
         this.localStorage = localStorage;
     }
 
-    public async Task Login(LoginViewModel login)
+    public async Task<LoginResult> Login(LoginViewModel login)
     {
         var loginResult = await _authorizeApi.Login(login);
         Console.WriteLine($"Saving: {JsonSerializer.Serialize(loginResult)}");
         await localStorage.SetItemAsync("identity", loginResult);
-        NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
+        // NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
+        return loginResult;
     }
 
     //public async Task Register(UserInput userInput)
@@ -36,33 +36,43 @@ public class IdentityAuthenticationStateProvider : AuthenticationStateProvider
     public async Task Logout()
     {
         await localStorage.RemoveItemAsync("identity");
+        await localStorage.RemoveItemAsync("claims");
         NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
     }
+
+    public LoginResult UserInfoCached { get; set; }
 
     public async Task<LoginResult> GetUserInfo()
     {
         LoginResult loginResult = await localStorage.GetItemAsync<LoginResult>("identity");
         return loginResult;
     }
+    
+    public async Task ChangeClaims(params (string key, string value)[] claims)
+    {
+        await localStorage.RemoveItemAsync("claims");
+        await localStorage.SetItemAsync("claims", claims.ToDictionary(c => c.key, c => c.value));
+        NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
+    }
 
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
         var login = await GetUserInfo();
-        UserCache = login;
+        var claims = await localStorage.GetItemAsync<Dictionary<string, string>>("claims");
+        UserInfoCached = login;
 
         var identity = new ClaimsIdentity();
-
-        if (login is not null)
+        var claimsIdentity = new List<Claim>();
+        if (login is not null && claims is not null)
         {
-            var authClaims = new List<Claim>
-            {
-                new Claim("UserId", login.User.Id),
-                new Claim("TenantId", login.User.CompanyId),
-                new Claim(ClaimTypes.Name, login.User.Name),
-                new Claim(ClaimTypes.Role, string.Join(",", login.User.Roles)),
-                new Claim("Permissions", string.Join(",", login.User.Permissions))
-            };
-            identity = new ClaimsIdentity(authClaims, "Server authentication");
+            if (!claims.ContainsKey("UserId"))
+                claimsIdentity.Add(new Claim("UserId", login.UserId));
+            
+            if (!claims.ContainsKey(ClaimTypes.Name))
+                claimsIdentity.Add(new Claim(ClaimTypes.Name, login.UserName));
+            
+            claimsIdentity.AddRange(claims.Select(c => new Claim(c.Key, c.Value)));
+            identity = new ClaimsIdentity(claimsIdentity, "Server authentication");
         }
 
         return new AuthenticationState(new ClaimsPrincipal(identity));

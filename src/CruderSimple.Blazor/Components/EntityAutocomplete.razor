@@ -13,11 +13,11 @@
                   Placeholder="Search..."
                   HighlightSearch
                   MinLength="0"
-                  CloseOnSelection="false"
+                  CloseOnSelection
                   ReadData="@GetData"
-                  SelectionMode="AutocompleteSelectionMode.Checkbox"
-                  SelectedValues="@(SelectedValues?.Select(c => c.GetKey).ToList() ?? new List<string>())"
-                  SelectedValuesChanged="ValuesChanged"
+                  SelectionMode="AutocompleteSelectionMode.Default"
+                  SelectedValue="@(SelectedValue?.GetKey)"
+                  SelectedValueChanged="ValueChanged"
                   AsyncValidator="@sIsValidValue"
                   @onkeydown:preventDefault="ShouldPrevent"
                   @onkeypress="KeyPressHandler"
@@ -26,10 +26,7 @@
         <ItemContent>
             @if (ItemContent is null)
             {
-                <Div Flex="Flex.InlineFlex.JustifyContent.Between" Width="Blazorise.Width.Is100">
-                    <Heading Margin="Margin.Is2.FromBottom">@context.Item.GetValue</Heading>
-                </Div>
-                <Paragraph Margin="Margin.Is2.FromBottom">@context.Item.GetKey</Paragraph>
+                @context.Text
             } else
             {
                 @ItemContent(context)
@@ -37,5 +34,4 @@
         </ItemContent>
     </Autocomplete>
     <ValidationError>Invalid</ValidationError>
-
 </Div>
