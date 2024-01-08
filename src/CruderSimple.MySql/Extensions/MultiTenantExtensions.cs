@@ -20,7 +20,13 @@ public static class MultiTenantExtensions
         var allMultitenantProperties = entity.GetPropertiesWithAttribute<MultiTenantAttribute>();
         foreach (var multitenantProperty in allMultitenantProperties
                      .Where(c => c.PropertyType == typeof(string)))
-            multitenantProperty.SetValue(entity, multiTenantValue);
+        {
+            var currentValue = multitenantProperty.GetValue(entity) as string;
+            if (string.IsNullOrEmpty(currentValue))
+                multitenantProperty.SetValue(entity, multiTenantValue);
+            else
+                multiTenantValue = currentValue;
+        }
         
         var properties = entity.GetType().GetProperties()
             .Where(c =>

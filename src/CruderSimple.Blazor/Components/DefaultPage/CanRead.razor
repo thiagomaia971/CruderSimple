@@ -5,12 +5,12 @@
     <Authorized>
         <AuthorizeView Policy="CanWrite" Resource="routeData" Context="context2">
             <Authorized>
-                <MainPage>
+                <MainPage Routes="@Routes" TopBarStart="@BarStart">
                     @ChildContent
                 </MainPage>
             </Authorized>
             <NotAuthorized>
-                <MainPage>
+                <MainPage Routes="@Routes" TopBarStart="@BarStart">
                     @ChildContent
                 </MainPage>
             </NotAuthorized>
@@ -19,10 +19,10 @@
     <NotAuthorized>
         @if (context.User.Identity?.IsAuthenticated == true)
         {
-            <MainPage>
+            <MainPage Routes="@Routes" TopBarStart="@BarStart">
                 @if (AllowAnonymous)
                 {
-                    <MainPage>
+                    <MainPage Routes="@Routes" TopBarStart="@BarStart">
                         @ChildContent
                     </MainPage>
                 }else
@@ -47,6 +47,10 @@
 </AuthorizeView>
 
 @code {
+    [Parameter]
+    public RenderFragment BarStart { get; set; }
+    [Parameter]
+    public ICollection<SideMenu.PageSide>? Routes { get; set; } = new List<SideMenu.PageSide>();
     [CascadingParameter(Name = "AppRouteData")]
     RouteData? routeData { get; set; }
 

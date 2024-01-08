@@ -20,6 +20,10 @@
 </Div>
 
 @code {
+    
+    // [Inject]
+    // public ClientConfiguration ClientConfiguration { get; set; }
+    
     [Parameter]
     public IFluentSpacing Padding { get; set; }
     public IEnumerable<LoginRouteResult> Routes { get; set; }
@@ -28,7 +32,7 @@
     protected override async Task OnInitializedAsync()
     {
         var user = await state.GetUserInfo();
-        Routes = user.Routes.Where(x => x.Visible);
+        // Routes = user.Routes.Where(x => x.Visible);
     }
     public void OnChange(LoginRouteResult value)
     {

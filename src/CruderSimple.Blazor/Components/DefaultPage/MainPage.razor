@@ -1,13 +1,13 @@
 ﻿<Layout Sider="true">
     <LayoutSider>
         <LayoutSiderContent>
-            <SideMenu />
+            <SideMenu Routes="@Routes" TopBarStart="@TopBarStart" />
         </LayoutSiderContent>
     </LayoutSider>
     <Layout>
-        <LayoutHeader Fixed="true">
-            <TopMenu />
-        </LayoutHeader>
+        @* <LayoutHeader Fixed="true"> *@
+        @*     <TopMenu TopBarStart="@TopBarStart"/> *@
+        @* </LayoutHeader> *@
         <LayoutContent Padding="Padding.Is2.OnAll">
             <Row>
                 <Column ColumnSize="ColumnSize.Is12">
@@ -23,5 +23,11 @@
 </Layout>
 @code {
     [Parameter]
+    public RenderFragment TopBarStart { get; set; }
+    
+    [Parameter]
     public RenderFragment? ChildContent { get; set; }
+    
+    [Parameter]
+    public ICollection<SideMenu.PageSide>? Routes { get; set; } = new List<SideMenu.PageSide>();
 }

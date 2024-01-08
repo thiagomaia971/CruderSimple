@@ -30,6 +30,7 @@ public static class ServiceCollectionExtensions
             .AddLoadingIndicator();
 
         services.AddScoped<IdentityAuthenticationStateProvider>();
+        services.AddScoped<IIdentityAuthenticationStateProvider, IdentityAuthenticationStateProvider>();
         services.AddScoped<AuthenticationStateProvider>(s => s.GetRequiredService<IdentityAuthenticationStateProvider>());
         services.AddScoped(typeof(IAuthorizeApi), typeof(TAuthorizeApi));
         services.AddTransient<IRequestService, RequestService>();

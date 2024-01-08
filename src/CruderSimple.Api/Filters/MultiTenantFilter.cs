@@ -1,15 +1,11 @@
 ﻿using System.Security.Claims;
-using System.Text;
 using System.Text.Json;
-using CruderSimple.Api.Extensions;
 using CruderSimple.Core.Entities;
 using CruderSimple.Core.Interfaces;
 using CruderSimple.Core.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
 
 namespace CruderSimple.Api.Filters;
 
@@ -17,12 +13,19 @@ public class MultiTenantActionFilter([FromServices] MultiTenantScoped multiTenan
 {
     public ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
     {
+        var headers = context.HttpContext.Request.Headers;
         var claims = context.HttpContext.User.Identity as ClaimsIdentity;
-        if (claims.Claims.Any(x => x.Type == "TenantId"))
-        {
-            var userId = claims.Claims.First(x => x.Type == "TenantId").Value;
-            multiTenant.Id = userId;
-        }
+
+        if (headers.Any(c => c.Key == "tenantid"))
+            multiTenant.Id = headers["tenantid"];
+        else if (claims.Claims.Any(x => x.Type == "TenantId"))
+                multiTenant.Id = claims.Claims.First(x => x.Type == "TenantId").Value;
+        
+        if (headers.Any(c => c.Key == "userid"))
+            multiTenant.UserId= headers["userid"];
+        else if (claims.Claims.Any(x => x.Type == "UserId"))
+            multiTenant.UserId = claims.Claims.First(x => x.Type == "UserId").Value;
+
         return next(context);
     }
 }

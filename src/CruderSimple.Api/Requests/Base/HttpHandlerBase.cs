@@ -40,7 +40,7 @@ public abstract class HttpHandlerBase<TQuery, TEntity, TResult> : IHttpRequestHa
             routeBuilder = routeBuilder.AddEndpointFilter<PermissionAuthorizationActionFilter<TUser>>();
         }
         
-        if (typeof(ITenantEntity).IsAssignableFrom(typeof(TEntity)))
+        //if (typeof(ITenantEntity).IsAssignableFrom(typeof(TEntity)))
             routeBuilder = routeBuilder.AddEndpointFilter<MultiTenantActionFilter>();
         
         routeBuilder = ConfigureRoute(routeBuilder);
