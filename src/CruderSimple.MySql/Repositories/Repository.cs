@@ -42,8 +42,8 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
     public virtual async Task Save() 
         => await DbContext.SaveChangesAsync();
 
-    public virtual Task<TEntity> FindById(string id) 
-        => Query(true).FirstOrDefaultAsync(x => x.Id == id);
+    public virtual Task<TEntity> FindById(string id, string select = "*") 
+        => Query(true).SelectBy(select).FirstOrDefaultAsync(x => x.Id == id);
 
     public virtual Task<TEntity> FindBy(string propertyName, string value)
         => FindById(value);
@@ -55,7 +55,7 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
 
     protected virtual IQueryable<TEntity> Query(bool ignoreUser = false)
     {
-        var all = DbSet.ToList();
+        var entity = (Entity)Activator.CreateInstance<TEntity>();
         return DbSet
                 .ApplyMultiTenantFilter(multiTenant?.UserId ?? string.Empty, multiTenant?.Id ?? string.Empty, ignoreUser)
                 .OrderBy(x => x.CreatedAt);

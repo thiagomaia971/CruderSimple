@@ -72,15 +72,30 @@ public static class CollectionExtensions
             .ToList();
     }
 
+    // public static Pagination<TSource> ApplyInclude<TSource>(this DbSet<TSource> source)
+    // {
+    //     var entity = (IEntity)Activator.CreateInstance<TSource>();
+    //     return source.Include
+    //     return Pagination<TSource>.CreateSuccess(
+    //         page: query?.page ?? 1,
+    //         size: source.Count(),
+    //         data: source
+    //             .ApplyOrderBy(query)
+    //             .ApplyFilter(query)
+    //             .ApplyPagination(query)
+    //             .SelectBy(query?.select ?? "*"));
+    // }
+
     public static Pagination<TSource> ApplyQuery<TSource>(this IQueryable<TSource> source,
         GetAllEndpointQuery query = null)
     {
+        var beforePagination = source
+            .ApplyOrderBy(query)
+            .ApplyFilter(query);
         return Pagination<TSource>.CreateSuccess(
             page: query?.page ?? 1,
-            size: source.Count(),
-            data: source
-                    .ApplyOrderBy(query)
-                    .ApplyFilter(query)
+            size: beforePagination.Count(),
+            data: beforePagination
                     .ApplyPagination(query)
                     .SelectBy(query?.select ?? "*"));
     }

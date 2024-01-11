@@ -1,0 +1,125 @@
+﻿@typeparam TEntity
+@typeparam TDto
+@using Blazorise.DataGrid
+@using CruderSimple.Core.Extensions
+@using Newtonsoft.Json
+
+<Row>
+    <Column ColumnSize="ColumnSize.Is12">
+        <DataGrid @ref="DataGridRef"
+                    TItem="TDto"
+                    Class="datagrid-listpage"
+                    Data="@Data"
+                    Hoverable
+                    ShowPager
+                    ShowPageSizes
+                    Responsive
+                    EditMode="DataGridEditMode.Inline"
+                    CommandMode="DataGridCommandMode.Commands"
+                    RowInserting="InsertingAsync"
+                    RowUpdating="UpdatingAsync"
+                    RowRemoving="RemovingAsync"
+                    Editable
+                    Filterable
+                    Groupable
+                    Striped
+                    Narrow
+                    Sortable
+                    Navigable
+                    FixedHeader
+                    Resizable
+                    Bordered
+                    NewItemDefaultSetter="DefaultNewInstance"
+                    FixedHeaderDataGridHeight="500px"
+                    FixedHeaderDataGridMaxHeight="500px"
+                    SortMode="DataGridSortMode.Single"
+                    FilterMode="DataGridFilterMode.Menu"
+                    ReadData="@GetData"
+                    TotalItems="@TotalData"
+                    RowClicked="@SingleClicked">
+            <DataGridColumns>
+                <DataGridCommandColumn TItem="TDto" PreventRowClick FixedPosition="TableColumnFixedPosition.Start" Field="Id" TextAlignment="TextAlignment.Start" Width="75px">
+                    <NewCommandTemplate >
+                        <Tooltip Text="@PermissionService.CanWriteTooltip("Novo")">
+                            <Button Type="ButtonType.Link" Clicked="@context.Clicked" Color="Color.Success" Block Width="Width.Px(75)" Size="Size.Small" Disabled="@(!PermissionService.CanWrite)" Style="margin-bottom: 10px">
+                                <Icon Name="IconName.Add" />
+                                Novo
+                            </Button>
+                        </Tooltip>
+                    </NewCommandTemplate>
+
+                    <EditCommandTemplate>
+                        <Tooltip Text="@PermissionService.CanWriteTooltip("Editar")" Inline>
+                            <Button Size="Size.Small" Clicked="@context.Clicked" Disabled="@(!PermissionService.CanWrite)" Padding="Padding.Is1" Margin="Margin.Is2.FromStart" @onclick:stopPropagation>
+                                <Icon Name="IconName.Edit" />
+                            </Button>
+                        </Tooltip>
+                    </EditCommandTemplate>
+
+                    <DeleteCommandTemplate>
+                        <Tooltip Text="@PermissionService.CanWriteTooltip("Deletar")" Inline>
+                            <Button Size="Size.Small" Clicked="@context.Clicked" Disabled="@(!PermissionService.CanWrite)" Padding="Padding.Is1" @onclick:stopPropagation>
+                                <Icon Name="IconName.Delete" />
+                            </Button>
+                        </Tooltip>
+                    </DeleteCommandTemplate>
+
+                    <SaveCommandTemplate>
+                        <Tooltip Text="@PermissionService.CanWriteTooltip("Salvar")" Inline>
+                            <Button Size="Size.Small" Type="ButtonType.Submit" PreventDefaultOnSubmit Clicked="context.Clicked" Disabled="@(!PermissionService.CanWrite)" Padding="Padding.Is1" Margin="Margin.Is2.FromStart" @onclick:stopPropagation>
+                                <Icon Name="IconName.Check" />
+                            </Button>
+                        </Tooltip>
+                    </SaveCommandTemplate>
+
+                    <CancelCommandTemplate>
+                        <Tooltip Text="Cancelar" Inline>
+                            <Button Size="Size.Small" Clicked="@context.Clicked" Padding="Padding.Is1" @onclick:stopPropagation>
+                                <Icon Name="IconName.TimesCircle" />
+                            </Button>
+                        </Tooltip>
+                    </CancelCommandTemplate>
+                </DataGridCommandColumn>
+@*                 <DataGridColumn TItem="TDto" FixedPosition="TableColumnFixedPosition.Start" Field="Id" TextAlignment="TextAlignment.Start" Width="75px" Editable="@false" Filterable="@false" Sortable="@false" FilterMode="DataGridFilterMode.Default" PreventRowClick>
+                    <CaptionTemplate>
+                        <Tooltip Text="@PermissionService.CanWriteTooltip("Novo")">
+                            <Button Type="ButtonType.Link" To="@(NavigationManager.ToBaseRelativePath(NavigationManager.Uri)+"/new")" Color="Color.Success" Block Width="Width.Px(75)" Size="Size.Small" Disabled="@(!PermissionService.CanWrite)" Style="margin-bottom: 10px">
+                                <Icon Name="IconName.Add" />
+                                Novo
+                            </Button>
+                        </Tooltip>
+                    </CaptionTemplate>
+                    <DisplayTemplate>
+                        <GridEditCommandButtons 
+                            @ref="ViewEditDeleteButtons" 
+                            TEntity="TEntity" 
+                            TDto="TDto" 
+                            Item="@context" />
+                    </DisplayTemplate>
+                </DataGridColumn> *@
+                @Columns
+            </DataGridColumns>
+            <LoadingTemplate></LoadingTemplate>
+            <EmptyTemplate>
+                @if (!Loading.Visible)
+                {
+                    <Row Flex="Flex.JustifyContent.Center" Width="Width.Is100" Height="Height.Px(415)" Style="position: relative;">
+                        <Column ColumnSize="ColumnSize.Is4.OnWidescreen" Style="margin: 0; position: absolute; top: 45%; -ms-transform: translateY(-45%); transoform: translateY(-45%);">
+                            <Div TextAlignment="TextAlignment.Center">
+                                <Heading Size="HeadingSize.Is4" TextColor="TextColor.Danger">
+                                    Nenhum registro encontrado
+                                </Heading>
+                                <Paragraph TextColor="TextColor.Muted" Margin="Margin.Is3.FromTop">
+                                    Verifique se existe dados ou se os filtros estão corretos.
+                                </Paragraph>
+                            </Div>
+                        </Column>
+                    </Row>
+                }
+            </EmptyTemplate>
+            <FilterMenuTemplate >
+                <ListPageFilterMenu TEntity="TEntity" TDto="TDto" Column="context.Column"/>
+            </FilterMenuTemplate>
+        </DataGrid>
+    </Column>
+</Row>

@@ -1,6 +1,7 @@
 ﻿using System.Net.Http.Json;
 using System.Text;
 using Blazorise;
+using Blazorise.DataGrid;
 using CruderSimple.Blazor.Extensions;
 using CruderSimple.Blazor.Interfaces.Services;
 using CruderSimple.Core.EndpointQueries;
@@ -28,53 +29,83 @@ namespace CruderSimple.Blazor.Services
             where TEntity : IEntity
             where TDto : BaseDto
         {
-            await CreateHttpClient();
-            Console.WriteLine(JsonConvert.SerializeObject(entity));
-            var result = await HttpClient.PostAsJsonAsync($"v1/{typeof(TEntity).Name}/{url}", entity);
-            return await result.Content.ReadFromJsonAsync<Result<TDto>>();
-
+            return await HandleRequest(async () =>
+            {
+                await CreateHttpClient();
+                Console.WriteLine(JsonConvert.SerializeObject(entity));
+                var result = await HttpClient.PostAsJsonAsync($"v1/{typeof(TEntity).Name}/{url}", entity);
+                return await result.Content.ReadFromJsonAsync<Result<TDto>>();
+            });
         }
 
         public async Task<Result<TDto>> Delete<TEntity, TDto>(string id, string url = "")
             where TEntity : IEntity
             where TDto : BaseDto
         {
-            await CreateHttpClient();
-            var result = await HttpClient.DeleteFromJsonAsync<Result<TDto>>($"v1/{typeof(TEntity).Name}/{id}/{url}");
-            return result;
+            try
+            {
+
+                await CreateHttpClient();
+                var result = await HttpClient.DeleteFromJsonAsync<Result<TDto>>($"v1/{typeof(TEntity).Name}/{id}/{url}");
+                if (result.Success) return result;
+
+                await notificationService.Error(string.Join(",", result.Errors));
+                Console.WriteLine(result.StackTrace);
+                return result;
+            }
+            catch (Exception e)
+            {
+                await notificationService.Error(string.Join(",", e.Message));
+                throw e;
+            }
         }
 
         public async Task<Pagination<TDto>> GetAll<TEntity, TDto>(GetAllEndpointQuery query, string url = "")
             where TEntity : IEntity
             where TDto : BaseDto
         {
-            await CreateHttpClient();
-            var _url = new StringBuilder($"v1/{typeof(TEntity).Name}/{url}");
+            try
+            {
+                await CreateHttpClient();
+                var _url = new StringBuilder($"v1/{typeof(TEntity).Name}/{url}");
 
-            var queryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
-            if (!string.IsNullOrEmpty(query.select))
-                queryString.Add("select", query.select);
-            if (query.page > 0)
-                queryString.Add("page", query.page.ToString());
-            if (query.size > 0)
-                queryString.Add("size", query.size.ToString());
-            if (!string.IsNullOrEmpty(query.filter))
-                queryString.Add("filter", query.filter);
-            if (!string.IsNullOrEmpty(query.orderBy))
-                queryString.Add("orderBy", query.orderBy);
+                var queryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
+                if (!string.IsNullOrEmpty(query.select))
+                    queryString.Add("select", query.select);
+                if (query.page > 0)
+                    queryString.Add("page", query.page.ToString());
+                if (query.size > 0)
+                    queryString.Add("size", query.size.ToString());
+                if (!string.IsNullOrEmpty(query.filter))
+                    queryString.Add("filter", query.filter);
+                if (!string.IsNullOrEmpty(query.orderBy))
+                    queryString.Add("orderBy", query.orderBy);
 
-            if (queryString.Count > 0)
-                _url.Append($"?{queryString.ToString()}");
+                if (queryString.Count > 0)
+                    _url.Append($"?{queryString.ToString()}");
 
-            var result = await HttpClient.GetFromJsonAsync<Pagination<TDto>>(_url.ToString());
-            return result;
+                var result = await HttpClient.GetFromJsonAsync<Pagination<TDto>>(_url.ToString());
+                return result;
+            }
+            catch (Exception e)
+            {
+                await notificationService.Error(string.Join(",", e.Message));
+                throw e;
+            }
         }
 
-        public async Task<Result<TDto>> GetById<TEntity, TDto>(string id, string url = "")
+        public async Task<Result<TDto>> GetById<TEntity, TDto>(string id, string url = "", string select = "*")
             where TEntity : IEntity
         {
             await CreateHttpClient();
-            return await HttpClient.GetFromJsonAsync<Result<TDto>>($"v1/{typeof(TEntity).Name}/{id}/{url}");
+            var _url = new StringBuilder($"v1/{typeof(TEntity).Name}/{id}/{url}");
+            if (!string.IsNullOrEmpty(select))
+            {
+                var queryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
+                queryString.Add("select", select);
+                _url.Append($"?{queryString}");
+            }
+            return await HttpClient.GetFromJsonAsync<Result<TDto>>(_url.ToString());
         }
 
         public async Task<Result<TDto>> Update<TEntity, TDto>(string id, TDto entity, string url = "")
@@ -96,8 +127,25 @@ namespace CruderSimple.Blazor.Services
             }
             catch (Exception e)
             {
+                await notificationService.Error(string.Join(",", e.Message));
                 throw e;
             }
+        }
+
+        private async Task<Result<TDto>> HandleRequest<TDto>(Func<Task<Result<TDto>>> action) where TDto : BaseDto
+        {
+            Result<TDto> result = null;
+            try
+            {
+                result = await action();
+            }
+            catch (Exception e)
+            {
+                await notificationService.Error(string.Join(",", e.Message));
+                result = Result<TDto>.CreateError(e.StackTrace, e.Message);
+            }
+
+            return result;
         }
 
         private async Task CreateHttpClient()

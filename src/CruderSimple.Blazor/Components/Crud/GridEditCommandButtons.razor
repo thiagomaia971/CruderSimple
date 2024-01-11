@@ -1,0 +1,40 @@
+﻿@typeparam TEntity
+@typeparam TDto
+
+
+@if (Editing)
+{
+    @if (Edit)
+    {
+        <Tooltip Text="@PermissionService.CanWriteTooltip("Salvar")" Inline>
+            <Button Size="Size.Small" Clicked="@((_) => Save())" Disabled="@(!PermissionService.CanWrite)" Padding="Padding.Is1" @onclick:stopPropagation>
+                <Icon Name="IconName.Check" />
+            </Button>
+        </Tooltip>
+    }
+    <Tooltip Text="Cancelar" Inline>
+        <Button Size="Size.Small" Clicked="@CancelAsync" Padding="Padding.Is1" @onclick:stopPropagation>
+            <Icon Name="IconName.TimesCircle" />
+        </Button>
+    </Tooltip>
+}
+else
+{
+    @if (Edit)
+    {
+        <Tooltip Text="@PermissionService.CanWriteTooltip("Editar")" Inline>
+            <Button Size="Size.Small" Clicked="@((_) => ToEdit(_))" Disabled="@(!PermissionService.CanWrite)" Padding="Padding.Is1" @onclick:stopPropagation>
+                <Icon Name="IconName.Edit" />
+            </Button>
+        </Tooltip>
+    }
+
+    @if (Delete)
+    {
+        <Tooltip Text="@PermissionService.CanWriteTooltip("Deletar")" Inline>
+            <Button Size="Size.Small" Clicked="@DeleteAsync" Disabled="@(!PermissionService.CanWrite)" Padding="Padding.Is1" @onclick:stopPropagation>
+                <Icon Name="IconName.Delete" />
+            </Button>
+        </Tooltip>
+    }
+}

@@ -11,7 +11,7 @@ namespace CruderSimple.Api.Requests;
 
 public static class GetByIdRequest
 {
-    public record Query([FromRoute] string id) : IEndpointQuery;
+    public record Query([FromRoute] string id, [FromQuery] string select) : IEndpointQuery;
 
     public class Handler<TQuery, TEntity, TDto, TRepository>
         (TRepository repository)
@@ -25,7 +25,7 @@ public static class GetByIdRequest
         {
             try
             {
-                var single = await repository.FindById(request.id);
+                var single = await repository.FindById(request.id, request.select);
                 if (single is null)
                     return Result.CreateError("Recurso não encontrado", 404, "Recurso não encontrado");
 

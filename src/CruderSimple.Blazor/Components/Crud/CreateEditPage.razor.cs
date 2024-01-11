@@ -18,6 +18,7 @@ public partial class CreateEditPage<TEntity, TDto> : ComponentBase
 {
     [Parameter] 
     public RenderFragment ChildContent { get; set; }
+    [Parameter] public string CustomSelect { get; set; }
 
     private TDto _model { get; set; }
 
@@ -71,7 +72,7 @@ public partial class CreateEditPage<TEntity, TDto> : ComponentBase
             {
                 IsLoading = true;
                 StateHasChanged();
-                var result = await Service.GetById(Id);
+                var result = await Service.GetById(Id, CustomSelect);
                 if (result.Success)
                     Model = result.Data.DeepCloneTo(Model);
                 IsLoading = false;

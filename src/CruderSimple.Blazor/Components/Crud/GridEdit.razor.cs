@@ -1,4 +1,11 @@
+using System.Collections.Generic;
+using System.Net.Http.Headers;
 using System.Reflection.Metadata;
+using System.Runtime.CompilerServices;
+using System.Text;
+using System.Threading;
+using System.Timers;
+using System.Transactions;
 using Blazored.LocalStorage;
 using Blazorise;
 using Blazorise.DataGrid;
@@ -12,18 +19,22 @@ using CruderSimple.Core.Services;
 using CruderSimple.Core.ViewModels;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using Newtonsoft.Json;
 
 namespace CruderSimple.Blazor.Components.Crud;
 
 [CascadingTypeParameter( nameof( TEntity ) )]
 [CascadingTypeParameter( nameof( TDto ) )]
-public partial class ListPage<TEntity, TDto> : ComponentBase
+public partial class GridEdit<TEntity, TDto> : ComponentBase
     where TEntity : IEntity
     where TDto : BaseDto
 {
     [Parameter] public RenderFragment Columns { get; set; }
     [Parameter] public RenderFragment Modal { get; set; }
     [Parameter] public string CustomSelect { get; set; }
+    [Parameter] public string FilterKey { get; set; }
+    [Parameter] public string FilterValue { get; set; }
+    [Parameter] public Action<TDto> DefaultNewInstance { get;set; }
 
     [CascadingParameter]
     public LoadingIndicator Loading { get; set; }
@@ -34,27 +45,25 @@ public partial class ListPage<TEntity, TDto> : ComponentBase
     [Inject]
     public ICrudService<TEntity, TDto> Service { get; set; }
 
-    [Inject]
-    public NavigationManager NavigationManager { get; set; }
+    //[Inject] public NavigationManager NavigationManager { get; set; }
 
     [Inject]
     public PageHistoryState PageHistorysState { get; set; }
 
-    [Inject]
-    public DebounceService DebounceService { get; set; }
-
-    [Inject]
-    public DimensionService DimensionService { get; set; }
-    [Inject] public IJSRuntime JSRuntime { get; set; }
+    //[Inject] public DebounceService DebounceService { get; set; }
+    //[Inject] public DimensionService DimensionService { get; set; }
+    //[Inject] public IJSRuntime JSRuntime { get; set; }
     [Inject] private ILocalStorageService LocalStorage { get; set;}
+    [Inject] public INotificationService NotificationService { get; set; }
+    [Inject] public Blazorise.IMessageService UiMessageService { get; set; }
 
     public IEnumerable<TDto> Data { get; set; }
     public int TotalData { get; set; }
     public DataGrid<TDto> DataGridRef { get; set; }
-    public string NewPage => $"{typeof(TEntity).Name}/";
-    public ViewEditDeleteServiceButtons<TEntity, TDto> ViewEditDeleteButtons { get; set;}
+    //public string NewPage => $"{typeof(TEntity).Name}/";
+    //public GridEditCommandButtons<TEntity, TDto> ViewEditDeleteButtons { get; set;}
     public bool IsFirstRender { get; set; } = true;
-
+    //public TDto SelectedItem { get; private set; }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -141,6 +150,7 @@ public partial class ListPage<TEntity, TDto> : ComponentBase
     private string GetQueryFilter(IEnumerable<DataGridColumnInfo> dataGridColumnInfos)
     {
         var filters = new List<string>();
+        filters.Add($"{FilterKey} {Op.Equals} {FilterValue}");
         foreach (var columnInfo in dataGridColumnInfos.Where(x =>
                     x.SearchValue != null &&
                     !string.IsNullOrEmpty(x.Field)))
@@ -183,7 +193,7 @@ public partial class ListPage<TEntity, TDto> : ComponentBase
 
     private async Task LoadColumns()
     {
-        var data = await LocalStorage.GetItemAsync<ListPageLocalStorage<TDto>>($"ListPage:{typeof(TEntity).Name}.{typeof(TDto).Name}");
+        var data = await LocalStorage.GetItemAsync<ListPageLocalStorage<TDto>>($"GridEdit{typeof(TEntity).Name}.{typeof(TDto).Name}");
         var columns = DataGridRef.GetColumns();
 
         if (data is not null)
@@ -227,44 +237,65 @@ public partial class ListPage<TEntity, TDto> : ComponentBase
             x.Width)
         ).ToList();
         var data = new ListPageLocalStorage<TDto>(DataGridRef.CurrentPage, DataGridRef.PageSize, columns);
-        await LocalStorage.SetItemAsync($"ListPage:{typeof(TEntity).Name}.{typeof(TDto).Name}", data);
+        await LocalStorage.SetItemAsync($"GridEdit{typeof(TEntity).Name}.{typeof(TDto).Name}", data);
+    }
+
+    public async Task SingleClicked(DataGridRowMouseEventArgs<TDto> e)
+    {
+        await DataGridRef.Select(e.Item);
+        await DataGridRef.Edit(e.Item);
+    }
+
+    public async Task InsertingAsync(CancellableRowChange<TDto> context)
+    {
+        if (await UiMessageService.Confirm("Salvar esse item?", "Salvar"))
+        {
+            await Loading.Show();
+            Console.WriteLine(JsonConvert.SerializeObject(context));
+            var result = await Service.Create(context.NewItem);
+            if (result.Success)
+                await NotificationService.Success("Adicionado com sucesso!");
+            else
+                context.Cancel = true;
+            await Loading.Hide();
+        }
+        else
+            context.Cancel = true;
+    }
+
+    public async Task UpdatingAsync(CancellableRowChange<TDto> context)
+    {
+        if (await UiMessageService.Confirm("Salvar esse item?", "Salvar"))
+        {
+            await Loading.Show();
+            Console.WriteLine(JsonConvert.SerializeObject(context));
+            var result = await Service.Update(context.NewItem.Id, context.NewItem);
+            if (result.Success)
+                await NotificationService.Success("Atualizado com sucesso!");
+            else
+                context.Cancel = true;
+            await Loading.Hide();
+        }
+        else
+            context.Cancel = true;
+    }
+
+    public async Task RemovingAsync(CancellableRowChange<TDto> context)
+    {
+        if (await UiMessageService.Confirm("Deletar esse item?", "Deletar"))
+        {
+            await Loading.Show();
+            var result = await Service.Delete(context.NewItem.Id);
+            if (result.Success)
+                await NotificationService.Success("Deletado com sucesso!");
+            else
+                context.Cancel = true;
+            await Loading.Hide();
+        }
+        else
+            context.Cancel = true;
     }
 
     protected Task GoBack() => PageHistorysState.GoBack();
 
-    public async Task SingleClicked(DataGridRowMouseEventArgs<TDto> e)
-    {
-        ViewEditDeleteButtons.Item = e.Item;
-        if (PermissionService.CanWrite)
-            ViewEditDeleteButtons.ToEdit(e.MouseEventArgs.CtrlKey);
-        else 
-            ViewEditDeleteButtons.ToView(e.MouseEventArgs.CtrlKey);
-    }
-
-    public async Task CopyToClipboard(DataGridRowMouseEventArgs<TDto> e)
-    {
-        ViewEditDeleteButtons.Item = e.Item;
-        await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", "asdas");
-    }
-}
-
-public record ListPageLocalStorage<TDto>(
-    int CurrentPage,
-    int PageSize,
-    List<ListPageColumnLocalStorage<TDto>> Columns)
-    where TDto : BaseDto;
-
-public record ListPageColumnLocalStorage<TDto>(
-    string Caption,
-    string Field,
-    ListPageFilter Filter,
-    SortDirection CurrentSortDirection,
-    int SortOrder,
-    string Width)
-    where TDto : BaseDto;
-
-public class ListPageFilter
-{
-    public string SearchValue { get; set; }
-    public DataGridColumnFilterMethod FilterMethod { get; set; }
 }
