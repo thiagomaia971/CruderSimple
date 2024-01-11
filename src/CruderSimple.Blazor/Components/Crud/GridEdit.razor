@@ -36,7 +36,8 @@
                     FilterMode="DataGridFilterMode.Menu"
                     ReadData="@GetData"
                     TotalItems="@TotalData"
-                    RowClicked="@SingleClicked">
+                    RowClicked="@SingleClicked"
+                  DetailRowStartsVisible="false">
             <DataGridColumns>
                 <DataGridCommandColumn TItem="TDto" PreventRowClick FixedPosition="TableColumnFixedPosition.Start" Field="Id" TextAlignment="TextAlignment.Start" Width="75px">
                     <NewCommandTemplate >
@@ -99,6 +100,9 @@
                 </DataGridColumn> *@
                 @Columns
             </DataGridColumns>
+            <DetailRowTemplate>
+                <Span>Test row template</Span>
+            </DetailRowTemplate>
             <LoadingTemplate></LoadingTemplate>
             <EmptyTemplate>
                 @if (!Loading.Visible)

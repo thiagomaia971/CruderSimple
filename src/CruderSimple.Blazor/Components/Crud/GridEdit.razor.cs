@@ -63,7 +63,7 @@ public partial class GridEdit<TEntity, TDto> : ComponentBase
     //public string NewPage => $"{typeof(TEntity).Name}/";
     //public GridEditCommandButtons<TEntity, TDto> ViewEditDeleteButtons { get; set;}
     public bool IsFirstRender { get; set; } = true;
-    //public TDto SelectedItem { get; private set; }
+    public TDto SelectedItem { get; private set; }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -242,6 +242,8 @@ public partial class GridEdit<TEntity, TDto> : ComponentBase
 
     public async Task SingleClicked(DataGridRowMouseEventArgs<TDto> e)
     {
+        SelectedItem = e.Item;
+        await DataGridRef.ToggleDetailRow(SelectedItem, true);
         await DataGridRef.Select(e.Item);
         await DataGridRef.Edit(e.Item);
     }
