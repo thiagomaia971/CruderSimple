@@ -53,11 +53,8 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
             //.AsNoTracking()
             .ApplyQuery(query));
 
-    protected virtual IQueryable<TEntity> Query(bool ignoreUser = false)
-    {
-        var entity = (Entity)Activator.CreateInstance<TEntity>();
-        return DbSet
-                .ApplyMultiTenantFilter(multiTenant?.UserId ?? string.Empty, multiTenant?.Id ?? string.Empty, ignoreUser)
-                .OrderBy(x => x.CreatedAt);
-    }
+    protected virtual IQueryable<TEntity> Query(bool ignoreUser = false) 
+        => DbSet
+            .ApplyMultiTenantFilter(multiTenant?.UserId ?? string.Empty, multiTenant?.Id ?? string.Empty, ignoreUser)
+            .OrderBy(x => x.CreatedAt);
 }
