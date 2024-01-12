@@ -105,7 +105,7 @@ public class Repository<T>(IDynamoDBContext dynamoDbContext, IAmazonDynamoDB ama
             .CreateQuery(_dynamoDbContext, multiTenantUserId);
     }
 
-    public virtual async Task<T> FindById(string id) 
+    public virtual async Task<T> FindById(string id, string select = "*") 
         => await CreateQuery()
             .ById(id)
             .FindAsync();

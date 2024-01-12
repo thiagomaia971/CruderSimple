@@ -58,7 +58,7 @@ public abstract class Entity : IEntity
         return this;
     }
 
-    public BaseDto ConvertToOutput()
+    public BaseDto ConvertToOutput(IDictionary<string, bool> cached = null)
     {
         var output = new BaseDto(
             Id,
