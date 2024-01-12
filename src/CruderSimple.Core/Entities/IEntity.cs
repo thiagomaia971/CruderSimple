@@ -6,6 +6,6 @@ public interface IEntity
 {
     public string Id { get; set; }
     public IEntity FromInput(BaseDto input);
-    BaseDto ConvertToOutput();
+    BaseDto ConvertToOutput(IDictionary<string, bool> cached = null);
     public string GetPrimaryKey();
 }

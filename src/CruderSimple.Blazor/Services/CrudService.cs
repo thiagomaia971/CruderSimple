@@ -24,8 +24,8 @@ namespace CruderSimple.Blazor.Services
         public async Task<Pagination<TDto>> GetAll(GetAllEndpointQuery query) 
             => await RequestService.GetAll<TItem, TDto>(query);
 
-        public async Task<Result<TDto>> GetById(string id)
-            => await RequestService.GetById<TItem, TDto>(id);
+        public async Task<Result<TDto>> GetById(string id, string select)
+            => await RequestService.GetById<TItem, TDto>(id, string.Empty, select);
 
         public async Task<Result<TDto>> Create(TDto entity)
             => await RequestService.Create<TItem, TDto>(entity);

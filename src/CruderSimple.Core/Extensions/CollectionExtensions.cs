@@ -75,12 +75,13 @@ public static class CollectionExtensions
     public static Pagination<TSource> ApplyQuery<TSource>(this IQueryable<TSource> source,
         GetAllEndpointQuery query = null)
     {
+        var beforePagination = source
+            .ApplyOrderBy(query)
+            .ApplyFilter(query);
         return Pagination<TSource>.CreateSuccess(
             page: query?.page ?? 1,
-            size: source.Count(),
-            data: source
-                    .ApplyOrderBy(query)
-                    .ApplyFilter(query)
+            size: beforePagination.Count(),
+            data: beforePagination
                     .ApplyPagination(query)
                     .SelectBy(query?.select ?? "*"));
     }

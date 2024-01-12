@@ -27,8 +27,13 @@ public abstract class Entity : IEntity
         return this;
     }
 
-    public virtual BaseDto ConvertToOutput()
+    public virtual BaseDto ConvertToOutput(IDictionary<string, bool> cached = null)
     {
+        if (cached is null)
+            cached = new Dictionary<string, bool>();
+        if (cached.ContainsKey(Id))
+            return null;
+        cached.Add(Id, true);
         var output = new BaseDto(
             Id,
             CreatedAt,

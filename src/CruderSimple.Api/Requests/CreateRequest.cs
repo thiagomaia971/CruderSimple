@@ -39,7 +39,8 @@ public static class CreateRequest
                 await repository.Add(entity)
                     .Save();
 
-                return Result.CreateSuccess(entity.ToOutput<TDto>());
+                var findById = await repository.FindById(entity.Id);
+                return Result.CreateSuccess(findById.ToOutput<TDto>());
             }
             catch (Exception exception)
             {

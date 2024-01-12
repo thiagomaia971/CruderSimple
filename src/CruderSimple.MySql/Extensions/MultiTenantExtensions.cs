@@ -30,28 +30,38 @@ public static class MultiTenantExtensions
         
         var properties = entity.GetType().GetProperties()
             .Where(c =>
-                c.PropertyType.IsGenericType && 
+                tenantType.IsAssignableFrom(c.PropertyType) ||
+                (c.PropertyType.IsGenericType && 
                 tenantType.IsAssignableFrom(c.PropertyType.GenericTypeArguments[0]) && 
                 (c.PropertyType.GetGenericTypeDefinition() == typeof(IEnumerable<>) ||
                  c.PropertyType.GetGenericTypeDefinition() == typeof(List<>) ||
-                 c.PropertyType.GetGenericTypeDefinition() == typeof(ICollection<>)))
+                 c.PropertyType.GetGenericTypeDefinition() == typeof(ICollection<>))))
             .ToList();
             
         foreach (var multitenantProperty in properties)
         {
-            var value = (multitenantProperty.GetValue(entity) as IEnumerable);
-            if (value is null)
-                continue;
-            if (typed.Contains(value.GetType().GenericTypeArguments[0]))
-                continue;
-            
-            foreach (var v in value)
+            if (multitenantProperty.GetValue(entity) is IEnumerable valueList)
             {
-                if (v is not null)
+                if (valueList is null)
+                    continue;
+                if (typed.Contains(valueList.GetType().GenericTypeArguments[0]))
+                    continue;
+            
+                foreach (var v in valueList)
                 {
-                    var entryEntity = (IEntity) v;
-                    SetAllMultiTenant(entryEntity, tenantType, multiTenantValue, typed);   
-                }
+                    if (v is not null)
+                    {
+                        var entryEntity = (IEntity) v;
+                        SetAllMultiTenant(entryEntity, tenantType, multiTenantValue, typed);   
+                    }
+                }   
+            }
+            else if (multitenantProperty.GetValue(entity) is IEntity valueEntity)
+            {
+                if (valueEntity is null)
+                    continue;
+                SetAllMultiTenant(valueEntity, tenantType, multiTenantValue, typed);   
+ 
             }
         }
     }

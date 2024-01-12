@@ -10,7 +10,7 @@ public interface IRepositoryBase<T>
     IRepositoryBase<T> Update(T entity);
     IRepositoryBase<T> Remove(T entity);
     Task Save();
-    Task<T> FindById(string id);
+    Task<T> FindById(string id, string select = "*");
     Task<T> FindBy(string propertyName, string value);
     Task<Pagination<T>> GetAll(GetAllEndpointQuery query = null);
 }

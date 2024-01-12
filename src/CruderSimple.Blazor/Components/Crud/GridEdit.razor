@@ -3,6 +3,7 @@
 @inherits CruderGridBase<TEntity, TDto>
 @using Blazorise.DataGrid
 @using CruderSimple.Core.Extensions
+@using Newtonsoft.Json
 
 <Row>
     <Column ColumnSize="ColumnSize.Is12">
@@ -14,30 +15,34 @@
                     ShowPager
                     ShowPageSizes
                     Responsive
-                    Editable
+                    EditMode="DataGridEditMode.Inline"
                     CommandMode="DataGridCommandMode.Commands"
+                    RowInserting="InsertingAsync"
+                    RowUpdating="UpdatingAsync"
                     RowRemoving="RemovingAsync"
+                    Editable
                     Filterable
                     Groupable
-                    Striped
                     Narrow
                     Sortable
                     Navigable
                     FixedHeader
                     Resizable
                     Bordered
-                    FixedHeaderDataGridHeight="462px"
-                    FixedHeaderDataGridMaxHeight="462px"
+                    NewItemDefaultSetter="DefaultNewInstance"
+                    FixedHeaderDataGridHeight="420px"
+                    FixedHeaderDataGridMaxHeight="420px"
                     SortMode="DataGridSortMode.Single"
                     FilterMode="DataGridFilterMode.Menu"
                     ReadData="@GetData"
                     TotalItems="@TotalData"
-                    RowClicked="@SingleClicked">
+                    RowClicked="@SingleClicked"
+                    >
             <DataGridColumns>
-                <DataGridCommandColumn TItem="TDto" PreventRowClick FixedPosition="TableColumnFixedPosition.Start" Field="Id" TextAlignment="TextAlignment.Start" Gap="Gap.Is0" Width="80px" SaveCommandAllowed="false">
+                <DataGridCommandColumn TItem="TDto" PreventRowClick FixedPosition="TableColumnFixedPosition.Start" Field="Id" TextAlignment="TextAlignment.Start" Gap="Gap.Is0" Width="80px">
                     <NewCommandTemplate>
                         <Tooltip Text="@PermissionService.CanWriteTooltip("Novo")">
-                            <Button Type="ButtonType.Link" Clicked="@((_) => ToNew(_.CtrlKey))" Color="Color.Success" Block Width="Width.Is100" Size="Size.Small" Disabled="@(!PermissionService.CanWrite)">
+                            <Button Type="ButtonType.Link" Clicked="@context.Clicked" Color="Color.Success" Block Width="Width.Is100" Size="Size.Small" Disabled="@(!PermissionService.CanWrite)">
                                 <Icon Name="IconName.Add" />
                                 Novo
                             </Button>
@@ -45,21 +50,11 @@
                     </NewCommandTemplate>
 
                     <EditCommandTemplate>
-                        @if (PermissionService.CanWrite)
-                        {
-                            <Tooltip Text="@PermissionService.CanWriteTooltip("Editar")" Inline>
-                                <Button Size="Size.Small" Clicked="@((_) => ToEdit(context.Item, _.CtrlKey))" Disabled="@(!PermissionService.CanWrite)" Padding="Padding.Is1" Margin="Margin.Is2.FromStart" @onclick:stopPropagation>
-                                    <Icon Name="IconName.Edit" />
-                                </Button>
-                            </Tooltip>
-                        }else
-                        {
-                            <Tooltip Text="@PermissionService.CanReadTooltip("Visualizar")" Inline>
-                                <Button Size="Size.Small" Clicked="@((_) => ToView(context.Item, _.CtrlKey))" Disabled="@(!PermissionService.CanRead)" Padding="Padding.Is1" Margin="Margin.Is2.FromStart" @onclick:stopPropagation>
-                                    <Icon Name="IconName.Eye" />
-                                </Button>
-                            </Tooltip>
-                        }
+                        <Tooltip Text="@PermissionService.CanWriteTooltip("Editar")" Inline>
+                            <Button Size="Size.Small" Clicked="@context.Clicked" Disabled="@(!PermissionService.CanWrite)" Padding="Padding.Is1" Margin="Margin.Is2.FromStart" @onclick:stopPropagation>
+                                <Icon Name="IconName.Edit" />
+                            </Button>
+                        </Tooltip>
                     </EditCommandTemplate>
 
                     <DeleteCommandTemplate>
@@ -69,8 +64,23 @@
                             </Button>
                         </Tooltip>
                     </DeleteCommandTemplate>
+
+                    <SaveCommandTemplate>
+                        <Tooltip Text="@PermissionService.CanWriteTooltip("Salvar")" Inline>
+                            <Button Size="Size.Small" Type="ButtonType.Submit" PreventDefaultOnSubmit Clicked="context.Clicked" Disabled="@(!PermissionService.CanWrite)" Padding="Padding.Is1" Margin="Margin.Is2.FromStart.Is1.FromTop" @onclick:stopPropagation>
+                                <Icon Name="IconName.Check" />
+                            </Button>
+                        </Tooltip>
+                    </SaveCommandTemplate>
+
+                    <CancelCommandTemplate>
+                        <Tooltip Text="Cancelar" Inline>
+                            <Button Size="Size.Small" Clicked="@context.Clicked" Padding="Padding.Is1" Margin="Margin.Is1.FromTop" @onclick:stopPropagation>
+                                <Icon Name="IconName.TimesCircle" />
+                            </Button>
+                        </Tooltip>
+                    </CancelCommandTemplate>
                 </DataGridCommandColumn>
-                <DataGridDateColumn TItem="TDto" Field="CreatedAt" Caption="Data de Criação" DisplayFormat="{0:dd/MM/yyyy HH:mm:ss}" Editable Filterable Width="150px" SortDirection="SortDirection.Ascending" />
                 @Columns
             </DataGridColumns>
             <LoadingTemplate></LoadingTemplate>

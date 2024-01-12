@@ -12,7 +12,7 @@ namespace CruderSimple.Blazor.Interfaces.Services
             where TEntity : IEntity
             where TDto : BaseDto;
 
-        public Task<Result<TDto>> GetById<TEntity, TDto>(string id, string url = "")
+        public Task<Result<TDto>> GetById<TEntity, TDto>(string id, string url = "", string select = "*")
             where TEntity : IEntity;
 
         public Task<Result<TDto>> Create<TEntity, TDto> (TDto entity, string url = "")
