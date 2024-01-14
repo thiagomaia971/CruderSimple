@@ -34,10 +34,12 @@ public partial class EntityAutocomplete<TEntity, TEntityResult> : ComponentBase
     public EventCallback<TEntityResult> SelectedValueChanged { get; set; }
 
     [Parameter]
-    public RenderFragment<ItemContext<TEntityResult, string>> ItemContent { get; set; }
+    public Func<string, Task> SelectedStringValueChanged { get; set; }
+    [Parameter]
+    public Func<(string Key, object Value), Task> SelectedObjectValueChanged { get; set; }
 
     [Parameter]
-    public object CrudService { get; set; }
+    public RenderFragment<ItemContext<TEntityResult, string>> ItemContent { get; set; }
 
     private TEntityResult _selectedValue { get; set; }
 
@@ -163,6 +165,10 @@ public partial class EntityAutocomplete<TEntity, TEntityResult> : ComponentBase
     {
         SelectedValue = SearchedOriginalData.FirstOrDefault(x => values == x.GetKey);
         SelectedValueChanged.InvokeAsync(SelectedValue);
+        if (SelectedStringValueChanged is not null)
+            SelectedStringValueChanged(values);
+        if (SelectedObjectValueChanged is not null)
+            SelectedObjectValueChanged((values, SelectedValue));
     }
 
     async Task sIsValidValue(ValidatorEventArgs e, CancellationToken c)

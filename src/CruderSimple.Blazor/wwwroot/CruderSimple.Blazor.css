@@ -152,3 +152,12 @@ td:not(.text-left) {
 .card-body {
     padding: 9px !important;
 }
+
+.list-page-filter-menu .dropdown-menu {
+    left: 0px !important;
+    top: 38px !important;
+}
+
+.list-page-filter-menu .dropdown-menu a {
+    padding: 10px;
+}

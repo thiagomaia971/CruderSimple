@@ -3,6 +3,8 @@ using CruderSimple.Core.Entities;
 using CruderSimple.Core.Extensions;
 using CruderSimple.Core.ViewModels;
 using Microsoft.AspNetCore.Components;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace CruderSimple.Blazor.Components.Grids;
 
@@ -54,15 +56,35 @@ public partial class ListPageFilterMenu<TEntity, TDto> : ComponentBase
         }
     }
 
+    public object SelectItem
+    {
+        get =>
+            ((ListPageFilter)Column.Filter.SearchValue)?.SelectItem;
+        set
+        {
+            if (Column.Filter.SearchValue is null)
+                InitializeSearchValue();
+            ((ListPageFilter)Column.Filter.SearchValue).SelectItem = value;
+        }
+    }
+
     public bool IsNumeric => Column.ColumnType == DataGridColumnType.Numeric;
     public bool IsDate => Column.ColumnType == DataGridColumnType.Date;
     public bool IsSelect => Column.ColumnType == DataGridColumnType.Select;
-    public DataGridSelectColumn<TDto> DataGridSelectColumn => (DataGridSelectColumn<TDto>)Column;
-    public int MyProperty { get; set; }
+    public DataGridSelectColumn<TDto> DataGridSelectColumn => Column as DataGridSelectColumn<TDto>;
+    public RenderFragment SelectRender { get; set; }
+    public object SelectValue { get; set; }
 
     protected override Task OnInitializedAsync()
     {
         return base.OnInitializedAsync();
+    }
+
+    protected override Task OnParametersSetAsync()
+    {
+        if (Column != null && Column.Filter != null && Column.Filter.SearchValue != null && SelectRender == null)
+            SelectRender = GenerateSelectComponent();
+        return base.OnParametersSetAsync();
     }
 
     private void InitializeSearchValue()
@@ -103,12 +125,15 @@ public partial class ListPageFilterMenu<TEntity, TDto> : ComponentBase
     private async Task Clear()
     {
         Column.Filter.SearchValue = null;
+        SelectRender = GenerateSelectComponent();
         await ParentDataGrid.Refresh();
         await ParentDataGrid.Reload();
     }
 
-    private RenderFragment GenerateSelectComponent(string getData, Action<string> setData)
+    private RenderFragment GenerateSelectComponent()
     {
+        if (DataGridSelectColumn is null)
+            return null;
         var service = DataGridSelectColumn.Attributes["Service"];
         if (service is null)
         {
@@ -118,18 +143,34 @@ public partial class ListPageFilterMenu<TEntity, TDto> : ComponentBase
 
         var entity = service.GetType().GenericTypeArguments[0];
         var entityDto = service.GetType().GenericTypeArguments[1];
-        // TODO: resolver get e set do Select
+
+        Console.WriteLine("Generate Select Component");
+        Console.WriteLine(JsonConvert.SerializeObject(SelectItem));
+        Console.WriteLine(JsonConvert.SerializeObject(((ListPageFilter)Column.Filter.SearchValue).SelectItem));
+
         var entityAutoComplete = typeof(EntityAutocomplete<,>).MakeGenericType(entity, entityDto);
         RenderFragment renderFragment = (builder) => { 
             builder.OpenComponent(0, entityAutoComplete);
             builder.AddAttribute(1, "SearchKey", DataGridSelectColumn.Attributes["SearchKey"]);
             if (DataGridSelectColumn.Attributes.ContainsKey("Select"))
-                builder.AddAttribute(1, "CustomSelect", DataGridSelectColumn.Attributes["Select"]);
-            builder.AddAttribute(2, "SelectedValue", getData);
-            builder.AddAttribute(3, "SelectedValueChanged", new EventCallback(this, setData));
+                builder.AddAttribute(2, "CustomSelect", DataGridSelectColumn.Attributes["Select"]);
+            builder.AddAttribute(3, "Data", JsonConvert.DeserializeObject(JsonConvert.SerializeObject(SelectItem), entityDto));
+            builder.AddAttribute(4, "SelectedValue", JsonConvert.DeserializeObject(JsonConvert.SerializeObject(SelectItem), entityDto));
+
+            builder.AddAttribute(5, "SelectedObjectValueChanged", async ((string Key, object Value) value) =>
+            {
+                SearchValue = value.Key;
+                SelectItem = value.Value;
+                await Filter();
+            });
+
+            builder.AddAttribute(4, "SelectedStringValueChanged", async (string value) =>
+            {
+                SearchValue = value;
+                await Filter();
+            });
             builder.CloseComponent();
         };
-
         return renderFragment;
     }
 }

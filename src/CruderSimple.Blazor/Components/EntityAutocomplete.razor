@@ -19,6 +19,7 @@
                   SelectedValue="@(SelectedValue?.GetKey)"
                   SelectedValueChanged="ValueChanged"
                   AsyncValidator="@sIsValidValue"
+                  @onclick:preventDefault
                   @onkeydown:preventDefault="ShouldPrevent"
                   @onkeypress="KeyPressHandler"
                   Disabled="@Disabled">

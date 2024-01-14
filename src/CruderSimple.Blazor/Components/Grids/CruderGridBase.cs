@@ -157,11 +157,8 @@ namespace CruderSimple.Blazor.Components.Grids
                         var property = itemType.GetProperty(selectColumn.Field);
                         var field = (string)selectColumn.Attributes["Field"];
 
-                        Console.WriteLine("Field: " + field);
-
                         if (property.PropertyType.IsEnumerableType(out _))
                         {
-                            Console.WriteLine("IsEnumerable");
                             if (field != null)
                                 filters.Add($"{field} {Op.AnyEquals} {searchValues[0]}");
                             else
@@ -169,7 +166,6 @@ namespace CruderSimple.Blazor.Components.Grids
                         }
                         else
                         {
-                            Console.WriteLine("Not Enumerable");
                             if (field != null)
                                 filters.Add($"{field} {Op.Equals} {searchValues[0]}");
                             else
@@ -216,6 +212,7 @@ namespace CruderSimple.Blazor.Components.Grids
                     string.IsNullOrEmpty(columnToSort.SortField) ? columnToSort.Field : columnToSort.SortField,
                     columnToSort.SortDirection);
 
+            Console.WriteLine("Columns Loaded");
             await DataGridRef.Refresh();
         }
 
@@ -272,6 +269,7 @@ namespace CruderSimple.Blazor.Components.Grids
     public class ListPageFilter
     {
         public string SearchValue { get; set; }
+        public object SelectItem { get; set; }
         public DataGridColumnFilterMethod FilterMethod { get; set; }
     }
 }
