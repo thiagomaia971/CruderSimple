@@ -9,6 +9,9 @@ using CruderSimple.Core.Services;
 using CruderSimple.Core.ViewModels;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Newtonsoft.Json;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace CruderSimple.Blazor.Components;
 
@@ -23,6 +26,8 @@ public partial class EntityAutocomplete<TEntity, TEntityResult> : ComponentBase
     [Parameter]
     public string CustomSelect { get; set; }
     [Parameter]
+    public string OrderBy { get; set; }
+    [Parameter]
     public TEntityResult Data { get; set; }
 
     [Parameter]
@@ -30,6 +35,9 @@ public partial class EntityAutocomplete<TEntity, TEntityResult> : ComponentBase
 
     [Parameter]
     public RenderFragment<ItemContext<TEntityResult, string>> ItemContent { get; set; }
+
+    [Parameter]
+    public object CrudService { get; set; }
 
     private TEntityResult _selectedValue { get; set; }
 
@@ -58,6 +66,11 @@ public partial class EntityAutocomplete<TEntity, TEntityResult> : ComponentBase
     [Inject]
     public PermissionService PermissionService { get; set; }
 
+    [Inject]
+    public DebounceService DebounceService { get; set; }
+
+    public bool IsFirstRender { get; set; } = true;
+
 
     public IEnumerable<TEntityResult> SearchedData
     {
@@ -75,9 +88,9 @@ public partial class EntityAutocomplete<TEntity, TEntityResult> : ComponentBase
         }
     }
 
-    public IEnumerable<TEntityResult> SearchedOriginalData { get; set; } = new List<TEntityResult>();
+    public List<TEntityResult> SearchedOriginalData { get; set; } = new List<TEntityResult>();
     public Autocomplete<TEntityResult, string> autoComplete { get; set; }
-    public int TotalData => SearchedData?.Count() ?? 0;
+    public int TotalData { get;set;}
     public bool IsLoading { get; set; }
     public bool ShouldPrevent { get; set; }
 
@@ -93,28 +106,57 @@ public partial class EntityAutocomplete<TEntity, TEntityResult> : ComponentBase
 
     private async Task GetData(AutocompleteReadDataEventArgs e )
     {
-
-        InvokeAsync(async () =>
+        if (IsFirstRender)
         {
-            if (!(e?.CancellationToken.IsCancellationRequested ?? false))
-            {
-                var select = $"{SearchKey}{(string.IsNullOrEmpty(CustomSelect) ? "" : ","+CustomSelect)}";
-                var filter = string.IsNullOrEmpty(e?.SearchValue) ? string.Empty : $"{SearchKey} {Op.Contains} {e?.SearchValue}";
-                var orderBy = $"{SearchKey} {SortDirection.Ascending}";
+            IsFirstRender = false;
+            return;
+        }
 
-                var result = await Service.GetAll(new GetAllEndpointQuery(
+        DebounceService.Start(300, async () =>
+        {
+            var select = CreateSelect();
+            var filter = CreateFilter(e);
+            var orderBy = CreateOrderBy();
+
+            var result = await Service.GetAll(new GetAllEndpointQuery(
                     select,
                     filter,
                     orderBy,
-                    e?.VirtualizeCount ?? 0,
-                    e?.VirtualizeOffset ?? 0));
+                    e.VirtualizeCount,
+                    0,
+                    e.VirtualizeOffset));
 
-                SearchedOriginalData = result.Data
-                    .ToList();
+            TotalData = result.Size;
+            SearchedOriginalData = result.Data.ToList();
 
-                StateHasChanged();
-            }
+            StateHasChanged();
         });
+    }
+
+    private string CreateSelect()
+    {
+        return $"{SearchKey}{(string.IsNullOrEmpty(CustomSelect) ? "" : "," + CustomSelect)}";
+    }
+
+    private string CreateFilter(AutocompleteReadDataEventArgs e)
+    {
+        if (string.IsNullOrEmpty(e?.SearchValue))
+            return string.Empty;
+        Console.WriteLine("SearchKey: "+SearchKey);
+        var filter = new List<string>();
+        var searchKeys = SearchKey.Split(",");
+        foreach ( var key in searchKeys )
+            filter.Add($"{key} {Op.Contains} {e?.SearchValue}");
+        string result = string.Join(" OR ", filter);
+        Console.WriteLine("Filter: " + result);
+        return result;
+    }
+
+    private string CreateOrderBy()
+    {
+        if (string.IsNullOrEmpty(OrderBy))
+            return $"{SearchKey.Split(",")[0]} {SortDirection.Ascending}";
+        return $"{OrderBy} {SortDirection.Ascending}";
     }
 
     public void ValueChanged(string values)

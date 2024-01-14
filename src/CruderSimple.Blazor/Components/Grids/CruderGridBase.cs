@@ -10,13 +10,14 @@ using CruderSimple.Core.Extensions;
 using CruderSimple.Core.Services;
 using CruderSimple.Core.ViewModels;
 using Microsoft.AspNetCore.Components;
+using System.Reflection;
 
-namespace CruderSimple.Blazor.Components.Crud
+namespace CruderSimple.Blazor.Components.Grids
 {
     public class CruderGridBase<TEntity, TDto> : ComponentBase
     where TEntity : IEntity
     where TDto : BaseDto
-    { 
+    {
         [Parameter] public RenderFragment Columns { get; set; }
         [Parameter] public string CustomSelect { get; set; }
 
@@ -39,9 +40,9 @@ namespace CruderSimple.Blazor.Components.Crud
         {
             if (firstRender)
             {
-                await Loading.Show();
-                await SearchSelects();
-                await Loading.Hide();
+                //await Loading.Show();
+                //await SearchSelects();
+                //await Loading.Hide();
             }
         }
 
@@ -74,9 +75,12 @@ namespace CruderSimple.Blazor.Components.Crud
                 var selectColumn = (DataGridSelectColumn<TDto>)select;
                 var field = (string)selectColumn.Attributes["Field"];
                 var attributeService = (dynamic)selectColumn.Attributes["Service"];
-                var defaultValue = (object)selectColumn.Attributes["Default"];
+                var defaultValue = selectColumn.Attributes["Default"];
+
                 if (string.IsNullOrEmpty(field) || attributeService is null)
                     return;
+
+                Console.WriteLine("Realizar o get ao serviço");
 
                 var result = await attributeService.GetAll(new GetAllEndpointQuery(field, null, null, 0, 0));
                 var list = new List<object> { defaultValue };
@@ -146,17 +150,36 @@ namespace CruderSimple.Blazor.Components.Crud
                     case DataGridColumnType.MultiSelect:
                     case DataGridColumnType.Select:
                         // TODO: implementar AnyContains e MultiSelect
+                        // Field is a IEntity or Enumerable<IEntity>
 
                         var selectColumn = (DataGridSelectColumn<TDto>)DataGridRef.GetColumns().FirstOrDefault(x => x.Field == columnInfo.Field);
-                        var field = (string)selectColumn.Attributes["KeySearch"];
-                        if (field != null)
-                            filters.Add($"{field} {Op.AnyEquals} {searchValues[0]}");
+                        var itemType = selectColumn.GetType().GenericTypeArguments[0];
+                        var property = itemType.GetProperty(selectColumn.Field);
+                        var field = (string)selectColumn.Attributes["Field"];
+
+                        Console.WriteLine("Field: " + field);
+
+                        if (property.PropertyType.IsEnumerableType(out _))
+                        {
+                            Console.WriteLine("IsEnumerable");
+                            if (field != null)
+                                filters.Add($"{field} {Op.AnyEquals} {searchValues[0]}");
+                            else
+                                filters.Add($"{columnInfo.Field}.Id {Op.AnyEquals} {searchValues[0]}");
+                        }
                         else
-                            filters.Add($"{columnInfo.Field}.Id {Op.AnyEquals} {searchValues[0]}");
+                        {
+                            Console.WriteLine("Not Enumerable");
+                            if (field != null)
+                                filters.Add($"{field} {Op.Equals} {searchValues[0]}");
+                            else
+                                filters.Add($"{selectColumn.Field}.Id {Op.Equals} {searchValues[0]}");
+                        }
                         break;
                     case DataGridColumnType.Command:
                         break;
                 }
+                Console.WriteLine(filters.Last());
             }
             return string.Join(",", filters);
         }

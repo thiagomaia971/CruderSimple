@@ -1,5 +1,4 @@
-﻿@using Newtonsoft.Json
-@typeparam TEntity
+﻿@typeparam TEntity
 @typeparam TEntityResult
 
 <Div Width="@Width" Padding="@Padding">
@@ -14,6 +13,7 @@
                   HighlightSearch
                   MinLength="0"
                   CloseOnSelection
+                  Virtualize
                   ReadData="@GetData"
                   SelectionMode="AutocompleteSelectionMode.Default"
                   SelectedValue="@(SelectedValue?.GetKey)"

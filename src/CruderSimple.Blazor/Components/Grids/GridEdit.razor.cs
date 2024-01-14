@@ -6,7 +6,7 @@ using CruderSimple.Core.ViewModels;
 using Microsoft.AspNetCore.Components;
 using Newtonsoft.Json;
 
-namespace CruderSimple.Blazor.Components.Crud;
+namespace CruderSimple.Blazor.Components.Grids;
 
 [CascadingTypeParameter( nameof( TEntity ) )]
 [CascadingTypeParameter( nameof( TDto ) )]
@@ -20,6 +20,11 @@ public partial class GridEdit<TEntity, TDto> : CruderGridBase<TEntity, TDto>
 
     protected override string GetQueryFilter(IEnumerable<DataGridColumnInfo> dataGridColumnInfos, List<string> filters = null) 
         => base.GetQueryFilter(dataGridColumnInfos, [$"{FilterKey} {Op.Equals} {FilterValue}"]);
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    { 
+        await base.OnAfterRenderAsync(firstRender);
+    }
 
     public async Task SingleClicked(DataGridRowMouseEventArgs<TDto> e)
     {

@@ -5,10 +5,10 @@ using CruderSimple.Core.ViewModels;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
-namespace CruderSimple.Blazor.Components.Crud;
+namespace CruderSimple.Blazor.Components.Grids;
 
-[CascadingTypeParameter( nameof( TEntity ) )]
-[CascadingTypeParameter( nameof( TDto ) )]
+[CascadingTypeParameter(nameof(TEntity))]
+[CascadingTypeParameter(nameof(TDto))]
 public partial class ListPage<TEntity, TDto> : CruderGridBase<TEntity, TDto>
     where TEntity : IEntity
     where TDto : BaseDto

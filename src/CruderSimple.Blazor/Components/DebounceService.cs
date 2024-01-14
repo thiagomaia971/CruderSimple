@@ -1,14 +1,20 @@
-﻿using Blazorise.DataGrid;
-using CruderSimple.Core.EndpointQueries;
-using System.Timers;
+﻿using System.Timers;
 using Microsoft.AspNetCore.Components;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace CruderSimple.Blazor.Components
 {
     public class DebounceService : ComponentBase
     {
         private System.Timers.Timer _timer { get; set; }
+
+        public void Start(int milliseconds, Func<Task> action)
+        {
+            DisposeTimer();
+            _timer = new System.Timers.Timer(milliseconds);
+            _timer.Elapsed += async (sender, _e) => await TimerElapsed(sender, _e, action);
+            _timer.Enabled = true;
+            _timer.Start();
+        }
 
         public void Start<T>(int milliseconds, Func<T, Task> action, T @event)
         {
@@ -28,6 +34,12 @@ namespace CruderSimple.Blazor.Components
         private async Task TimerElapsed<T>(object? sender, ElapsedEventArgs _e, Func<T, Task> action, T @event)
         {
             await action.Invoke(@event);
+            DisposeTimer();
+        }
+
+        private async Task TimerElapsed(object? sender, ElapsedEventArgs _e, Func<Task> action)
+        {
+            await action.Invoke();
             DisposeTimer();
         }
     }

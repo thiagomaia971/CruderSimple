@@ -110,11 +110,21 @@ public static class CollectionExtensions
     {
         if (query is null)
             return source;
-        var size = query.size > 0 ? query.size : 10;
-        var page = ((query.page > 0 ? query.page : 1) - 1) * size;
+        
+        var size =  query.size > 0 ? query.size : 10;
+        var page = query.skip > 0 ? query.skip : ((query.page > 0 ? query.page : 1) - 1) * size;
         return source
             .Skip(page)
             .Take(size);
+        
+        // if (query.size == -1)
+        //     return source;
+        //
+        // var size = query.size > 0 ? query.size : 10;
+        // var page = ((query.page > 0 ? query.page : 1) - 1) * size;
+        // return source
+        //     .Skip(page)
+        //     .Take(size);
     }
 
     public static IQueryable<TSource> ApplyFilter<TSource>(
@@ -157,10 +167,16 @@ public static class CollectionExtensions
     {
         if (filter.Contains(key))
         {
-            var propertyName = filter.Split(key)[0];
-            var value = filter.Split(key)[1];
-            var query = CreateQuery(propertyName, value, operation);
-            source = source.Where(query);
+            // Handle OR situation
+            var filterSplitedByOr = filter.Split(" OR ");
+            var queryStringBuilder = new List<string>();
+            foreach (var expression in filterSplitedByOr)
+            {
+                var propertyName = expression.Split(key)[0];
+                var value = expression.Split(key)[1];
+                queryStringBuilder.Add(CreateQuery(propertyName, value, operation));
+            }
+            source = source.Where(string.Join(" OR ", queryStringBuilder));
         }
         
         return source;

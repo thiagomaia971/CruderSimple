@@ -72,10 +72,12 @@ namespace CruderSimple.Blazor.Services
                 var queryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
                 if (!string.IsNullOrEmpty(query.select))
                     queryString.Add("select", query.select);
-                if (query.page > 0)
+                if (query.page != 0)
                     queryString.Add("page", query.page.ToString());
-                if (query.size > 0)
+                if (query.size != 0)
                     queryString.Add("size", query.size.ToString());
+                if (query.skip != 0)
+                    queryString.Add("skip", query.skip.ToString());
                 if (!string.IsNullOrEmpty(query.filter))
                     queryString.Add("filter", query.filter);
                 if (!string.IsNullOrEmpty(query.orderBy))

@@ -1,43 +1,39 @@
 ﻿@typeparam TEntity
 @typeparam TDto
 @inherits CruderGridBase<TEntity, TDto>
-@using Blazorise.DataGrid
-@using CruderSimple.Core.Extensions
-@using Newtonsoft.Json
 
 <Row>
     <Column ColumnSize="ColumnSize.Is12">
         <DataGrid @ref="DataGridRef"
-                    TItem="TDto"
-                    Class="datagrid-listpage"
-                    Data="@Data"
-                    Hoverable
-                    ShowPager
-                    ShowPageSizes
-                    Responsive
-                    EditMode="DataGridEditMode.Inline"
-                    CommandMode="DataGridCommandMode.Commands"
-                    RowInserting="InsertingAsync"
-                    RowUpdating="UpdatingAsync"
-                    RowRemoving="RemovingAsync"
-                    Editable
-                    Filterable
-                    Groupable
-                    Narrow
-                    Sortable
-                    Navigable
-                    FixedHeader
-                    Resizable
-                    Bordered
-                    NewItemDefaultSetter="DefaultNewInstance"
-                    FixedHeaderDataGridHeight="420px"
-                    FixedHeaderDataGridMaxHeight="420px"
-                    SortMode="DataGridSortMode.Single"
-                    FilterMode="DataGridFilterMode.Menu"
-                    ReadData="@GetData"
-                    TotalItems="@TotalData"
-                    RowClicked="@SingleClicked"
-                    >
+                  TItem="TDto"
+                  Class="datagrid-listpage"
+                  Data="@Data"
+                  Hoverable
+                  ShowPager
+                  ShowPageSizes
+                  Responsive
+                  EditMode="DataGridEditMode.Inline"
+                  CommandMode="DataGridCommandMode.Commands"
+                  RowInserting="InsertingAsync"
+                  RowUpdating="UpdatingAsync"
+                  RowRemoving="RemovingAsync"
+                  Editable
+                  Filterable
+                  Groupable
+                  Narrow
+                  Sortable
+                  Navigable
+                  FixedHeader
+                  Resizable
+                  Bordered
+                  NewItemDefaultSetter="DefaultNewInstance"
+                  FixedHeaderDataGridHeight="420px"
+                  FixedHeaderDataGridMaxHeight="420px"
+                  SortMode="DataGridSortMode.Single"
+                  FilterMode="DataGridFilterMode.Menu"
+                  ReadData="@GetData"
+                  TotalItems="@TotalData"
+                  RowClicked="@SingleClicked">
             <DataGridColumns>
                 <DataGridCommandColumn TItem="TDto" PreventRowClick FixedPosition="TableColumnFixedPosition.Start" Field="Id" TextAlignment="TextAlignment.Start" Gap="Gap.Is0" Width="80px">
                     <NewCommandTemplate>
@@ -101,8 +97,8 @@
                     </Row>
                 }
             </EmptyTemplate>
-            <FilterMenuTemplate >
-                <ListPageFilterMenu TEntity="TEntity" TDto="TDto" Column="context.Column"/>
+            <FilterMenuTemplate>
+                <ListPageFilterMenu TEntity="TEntity" TDto="TDto" Column="context.Column" />
             </FilterMenuTemplate>
         </DataGrid>
     </Column>
