@@ -45,17 +45,6 @@
                 {
                     @SelectRender
                 }
-    @*             <EntityAutocomplete 
-                                    TEntity="TEntity" 
-                                    TEntityResult="TDto" 
-                                    CrudService="@SelectColumnCrudService" /> *@
-    @* 
-                <Select TValue="string" SelectedValue="@(SearchValue)" SelectedValueChanged="@((newValue) => SearchValue = newValue)">
-                    @foreach (var item in DataGridSelectColumn?.Data ?? new List<object>())
-                    {
-                        <SelectItem TValue="string" Value="@((string)DataGridSelectColumn.ValueField(item))">@DataGridSelectColumn.TextField(item)</SelectItem>
-                    }
-                </Select> *@
             </Field>
         </Column>
     }

@@ -1,6 +1,7 @@
 using Blazorise;
 using Blazorise.Components;
 using Blazorise.Components.Autocomplete;
+using Blazorise.DataGrid;
 using CruderSimple.Blazor.Interfaces.Services;
 using CruderSimple.Core.EndpointQueries;
 using CruderSimple.Core.Entities;
@@ -10,6 +11,7 @@ using CruderSimple.Core.ViewModels;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Newtonsoft.Json;
+using System.Buffers;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -62,7 +64,6 @@ public partial class EntityAutocomplete<TEntity, TEntityResult> : ComponentBase
     public DebounceService DebounceService { get; set; }
 
     public bool IsFirstRender { get; set; } = true;
-    public TEntityResult SelectedItemBackup { get; set; }
     public bool Focused { get; set; }
 
 
@@ -100,25 +101,12 @@ public partial class EntityAutocomplete<TEntity, TEntityResult> : ComponentBase
 
     private async Task SearchFocus(FocusEventArgs e)
     {
-        Console.WriteLine("Focused"); 
         Focused = true;
     }
 
     private async Task SearchChanged(KeyboardEventArgs e)
     {
-        Console.WriteLine("SearchChanged: " + e.Type);
         Focused = false;
-    }
-
-    private async Task SearchBlur(FocusEventArgs e)
-    {
-        Console.WriteLine("SearchBlur");
-        if (Focused && autoComplete.SelectedValue is null)
-        {
-            autoComplete.SelectedValue = SelectedItemBackup?.GetKey;
-            autoComplete.SelectedText = SelectedItemBackup?.GetValue;
-
-        }
     }
 
     private async Task GetData(AutocompleteReadDataEventArgs e )
@@ -129,19 +117,11 @@ public partial class EntityAutocomplete<TEntity, TEntityResult> : ComponentBase
                 return;
             }
 
-            if (Focused)
-            {
-                SelectedItemBackup = SelectedValue;
-                autoComplete.SelectedValue = string.Empty;
-                autoComplete.SelectedText = string.Empty;
-                //await autoComplete.Clear();
-            }
             await Search(e);
     }
 
     private async Task Search(AutocompleteReadDataEventArgs e)
     {
-        Console.WriteLine("Start GetData");
         var select = CreateSelect();
         var filter = CreateFilter(e);
         var orderBy = CreateOrderBy();
@@ -156,7 +136,6 @@ public partial class EntityAutocomplete<TEntity, TEntityResult> : ComponentBase
 
         TotalData = result.Size;
         SearchedOriginalData = result.Data.ToList();
-        Console.WriteLine("End GetData");
         StateHasChanged();
     }
 
@@ -167,16 +146,15 @@ public partial class EntityAutocomplete<TEntity, TEntityResult> : ComponentBase
 
     private string CreateFilter(AutocompleteReadDataEventArgs e)
     {
-        Console.WriteLine("Is Focused: " + Focused);
         if (Focused || string.IsNullOrEmpty(e?.SearchValue))
             return string.Empty;
-        Console.WriteLine("SearchKey: "+SearchKey);
+        
         var filter = new List<string>();
         var searchKeys = SearchKey.Split(",");
         foreach ( var key in searchKeys )
             filter.Add($"{key} {Op.Contains} {e?.SearchValue}");
         string result = string.Join(" OR ", filter);
-        Console.WriteLine("Filter: " + result);
+
         return result;
     }
 
@@ -227,4 +205,33 @@ public partial class EntityAutocomplete<TEntity, TEntityResult> : ComponentBase
         var key = (string)args.Key;
         await autoComplete.SearchKeyDown.InvokeAsync(args);
     }
+}
+
+public static class EntityAutocompleteUtils
+{
+
+    public static RenderFragment CreateComponent(Type entity, Type entityDto, object selectItem, MulticastDelegate selectedValueChanged, bool required, Dictionary<string, object> attributes)
+    {
+        var entityAutoComplete = typeof(EntityAutocomplete<,>).MakeGenericType(entity, entityDto);
+        RenderFragment renderFragment = (builder) => {
+            builder.OpenComponent(0, entityAutoComplete);
+            builder.AddAttribute(1, "SearchKey", attributes["SearchKey"]);
+            if (attributes.ContainsKey("Select"))
+                builder.AddAttribute(2, "CustomSelect", attributes["Select"]);
+
+            if (selectItem is not null)
+            {
+
+                builder.AddAttribute(3, "Data", JsonConvert.DeserializeObject(JsonConvert.SerializeObject(selectItem), entityDto));
+                builder.AddAttribute(4, "SelectedValue", JsonConvert.DeserializeObject(JsonConvert.SerializeObject(selectItem), entityDto));
+            }
+
+            builder.AddAttribute(5, "SelectedObjectValueChanged", selectedValueChanged);
+
+            builder.AddAttribute(7, "Required", required);
+            builder.CloseComponent();
+        };
+        return renderFragment;
+    }
+
 }

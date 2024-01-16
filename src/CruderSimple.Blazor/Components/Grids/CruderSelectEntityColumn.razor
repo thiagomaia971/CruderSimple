@@ -6,14 +6,24 @@
                       TItem="TItem"
                       Field="@ColumnField"
                       Caption="@ColumnCaption"
-                      Editable
-                      Filterable
-                      Sortable
+                      Editable="@Editable"
+                      Filterable="@Filterable"
+                      Sortable="@Sortable"
                       Attributes="@Attributes"
                       ValueField="(x) => ((TDto)x).GetKey" 
                       TextField="(x) => ((TDto)x).GetValue"
                       SortField="@(string.IsNullOrEmpty(GridSort) ? null : GridSort)">
     <DisplayTemplate>
-        @DisplayTemplate(context)
+        @if (DisplayTemplate != null)
+        {
+            DisplayTemplate(context);
+        }
+        else
+        {
+            <Span>@GetGridName(context)</Span>
+        }
     </DisplayTemplate>
+    <EditTemplate>
+        @CreateSelectComponent(context)
+    </EditTemplate>
 </DataGridSelectColumn>

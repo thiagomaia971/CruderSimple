@@ -91,16 +91,14 @@ public static class CollectionExtensions
         if (query is null || string.IsNullOrEmpty(query.orderBy))
             return source;
 
-        var target = Expression.Parameter(typeof(TSource));
         if (query.orderBy.Contains("Ascending"))
         {
-            var propertyName = query.orderBy.Split(" Ascending")[0];
-            return source.OrderBy(propertyName);
+            return source.OrderBy(query.orderBy.Split(" Ascending")[0]);
         }
         else if (query.orderBy.Contains("Descending"))
         {
             var propertyName = query.orderBy.Split(" Descending")[0];
-            return source.OrderByDescending(propertyName);
+            return source.OrderBy($"{propertyName} desc");
         }
 
         return source;

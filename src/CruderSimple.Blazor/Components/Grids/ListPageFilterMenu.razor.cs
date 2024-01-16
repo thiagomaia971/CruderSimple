@@ -80,6 +80,7 @@ public partial class ListPageFilterMenu<TEntity, TDto> : ComponentBase
         { 
             if (SelectRender is null)
                 SelectRender = GenerateSelectComponent(); 
+            StateHasChanged();
         };
 
         return base.OnInitializedAsync();
@@ -133,6 +134,7 @@ public partial class ListPageFilterMenu<TEntity, TDto> : ComponentBase
     {
         if (DataGridSelectColumn is null)
             return null;
+
         var service = DataGridSelectColumn.Attributes["Service"];
         if (service is null)
         {
@@ -143,27 +145,22 @@ public partial class ListPageFilterMenu<TEntity, TDto> : ComponentBase
         var entity = service.GetType().GenericTypeArguments[0];
         var entityDto = service.GetType().GenericTypeArguments[1];
 
-        var entityAutoComplete = typeof(EntityAutocomplete<,>).MakeGenericType(entity, entityDto);
-        RenderFragment renderFragment = (builder) => { 
-            builder.OpenComponent(0, entityAutoComplete);
-            builder.AddAttribute(1, "SearchKey", DataGridSelectColumn.Attributes["SearchKey"]);
-            if (DataGridSelectColumn.Attributes.ContainsKey("Select"))
-                builder.AddAttribute(2, "CustomSelect", DataGridSelectColumn.Attributes["Select"]);
+        var render = EntityAutocompleteUtils.CreateComponent(
+            entity, 
+            entityDto, 
+            SelectItem, 
+            SelectChanged, 
+            false, 
+            DataGridSelectColumn.Attributes);
+        return render;
+    }
 
-            builder.AddAttribute(3, "Data", JsonConvert.DeserializeObject(JsonConvert.SerializeObject(SelectItem), entityDto));
-
-            builder.AddAttribute(5, "SelectedObjectValueChanged", async ((string Key, object Value) value) =>
-            {
-                if (string.IsNullOrEmpty(value.Key))
-                    return;
-                SearchValue = value.Key;
-                SelectItem = value.Value;
-                await Filter();
-            });
-
-            builder.AddAttribute(7, "Required", false);
-            builder.CloseComponent();
-        };
-        return renderFragment;
+    public async Task SelectChanged((string Key, object Value) value)
+    {
+        if (string.IsNullOrEmpty(value.Key))
+            return;
+        SearchValue = value.Key;
+        SelectItem = value.Value;
+        await Filter();
     }
 }

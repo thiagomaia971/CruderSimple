@@ -17,6 +17,7 @@ public partial class GridEdit<TEntity, TDto> : CruderGridBase<TEntity, TDto>
     [Parameter] public string FilterKey { get; set; }
     [Parameter] public string FilterValue { get; set; }
     [Parameter] public Action<TDto> DefaultNewInstance { get;set; }
+    public override string StorageKey => $"{base.StorageKey}:{FilterValue}";
 
     protected override string GetQueryFilter(IEnumerable<DataGridColumnInfo> dataGridColumnInfos, List<string> filters = null) 
         => base.GetQueryFilter(dataGridColumnInfos, [$"{FilterKey} {Op.Equals} {FilterValue}"]);
@@ -37,7 +38,6 @@ public partial class GridEdit<TEntity, TDto> : CruderGridBase<TEntity, TDto>
         if (await UiMessageService.Confirm("Salvar esse item?", "Salvar"))
         {
             await Loading.Show();
-            Console.WriteLine(context.ToJson());
             var result = await Service.Create(context.NewItem);
             if (result.Success)
                 await NotificationService.Success("Adicionado com sucesso!");
@@ -54,7 +54,6 @@ public partial class GridEdit<TEntity, TDto> : CruderGridBase<TEntity, TDto>
         if (await UiMessageService.Confirm("Salvar esse item?", "Salvar"))
         {
             await Loading.Show();
-            Console.WriteLine(context.ToJson());
             var result = await Service.Update(context.NewItem.Id, context.NewItem);
             if (result.Success)
                 await NotificationService.Success("Atualizado com sucesso!");
