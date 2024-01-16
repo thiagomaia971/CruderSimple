@@ -25,10 +25,15 @@ public partial class SelectEntityColumn<TItem, TEntity, TDto> : ComponentBase
     [Parameter] public string ColumnCaption { get; set; }
 
     /// <summary>
-    /// Property used to search on Select component inside of Filter
+    /// Property used to search on Grid component inside of Filter
     /// </summary>
     [Parameter] public string GridSearchKey { get; set; }
 
+    /// <summary>
+    /// Property used to sort on Grid component
+    /// </summary>
+    [Parameter] public string GridSort { get; set; }
+    
     /// <summary>
     /// Selects properties to search on Select component request inside of Filter
     /// </summary>

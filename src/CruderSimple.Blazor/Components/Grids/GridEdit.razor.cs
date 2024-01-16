@@ -37,7 +37,7 @@ public partial class GridEdit<TEntity, TDto> : CruderGridBase<TEntity, TDto>
         if (await UiMessageService.Confirm("Salvar esse item?", "Salvar"))
         {
             await Loading.Show();
-            Console.WriteLine(JsonConvert.SerializeObject(context));
+            Console.WriteLine(context.ToJson());
             var result = await Service.Create(context.NewItem);
             if (result.Success)
                 await NotificationService.Success("Adicionado com sucesso!");
@@ -54,7 +54,7 @@ public partial class GridEdit<TEntity, TDto> : CruderGridBase<TEntity, TDto>
         if (await UiMessageService.Confirm("Salvar esse item?", "Salvar"))
         {
             await Loading.Show();
-            Console.WriteLine(JsonConvert.SerializeObject(context));
+            Console.WriteLine(context.ToJson());
             var result = await Service.Update(context.NewItem.Id, context.NewItem);
             if (result.Success)
                 await NotificationService.Success("Atualizado com sucesso!");

@@ -11,6 +11,8 @@
                   ValueField="@((item) => item.GetKey)"
                   Placeholder="Search..."
                   HighlightSearch
+                  Debounce="true"
+                  DebounceInterval="300"
                   MinLength="0"
                   CloseOnSelection
                   Virtualize
@@ -22,6 +24,9 @@
                   @onclick:preventDefault
                   @onkeydown:preventDefault="ShouldPrevent"
                   @onkeypress="KeyPressHandler"
+                  SearchFocus="@SearchFocus"
+                  SearchBlur="@SearchBlur"
+                  SearchKeyDown="SearchChanged"
                   Disabled="@Disabled">
         <NotFoundContent> Sorry... @context was not found! :( </NotFoundContent>
         <ItemContent>

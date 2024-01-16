@@ -52,8 +52,6 @@ public static class ServiceCollectionExtensions
         var types = Core.Extensions.ServiceCollectionExtensions.GetTypes();
         var entityTypes = Core.Extensions.ServiceCollectionExtensions.GetByType<IEntity>().ToList();
 
-        Console.WriteLine("entityTypes: " + string.Join(",", entityTypes.Select(x => x.Name)));
-
         foreach (var entityType in entityTypes)
         {
             var inputDto = types.FirstOrDefault(x => x.Name == $"{entityType.Name}Input");

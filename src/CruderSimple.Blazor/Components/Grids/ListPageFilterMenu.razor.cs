@@ -59,12 +59,12 @@ public partial class ListPageFilterMenu<TEntity, TDto> : ComponentBase
     public object SelectItem
     {
         get =>
-            ((ListPageFilter)Column.Filter.SearchValue)?.SelectItem;
+            JsonConvert.DeserializeObject(((ListPageFilter)Column.Filter.SearchValue)?.SelectItem ?? "{}");
         set
         {
             if (Column.Filter.SearchValue is null)
                 InitializeSearchValue();
-            ((ListPageFilter)Column.Filter.SearchValue).SelectItem = value;
+            ((ListPageFilter)Column.Filter.SearchValue).SelectItem = JsonConvert.SerializeObject(value);
         }
     }
 
@@ -73,18 +73,16 @@ public partial class ListPageFilterMenu<TEntity, TDto> : ComponentBase
     public bool IsSelect => Column.ColumnType == DataGridColumnType.Select;
     public DataGridSelectColumn<TDto> DataGridSelectColumn => Column as DataGridSelectColumn<TDto>;
     public RenderFragment SelectRender { get; set; }
-    public object SelectValue { get; set; }
 
     protected override Task OnInitializedAsync()
     {
-        return base.OnInitializedAsync();
-    }
+        ParentDataGrid.FilteredDataChanged = (_) => 
+        { 
+            if (SelectRender is null)
+                SelectRender = GenerateSelectComponent(); 
+        };
 
-    protected override Task OnParametersSetAsync()
-    {
-        if (Column != null && Column.Filter != null && Column.Filter.SearchValue != null && SelectRender == null)
-            SelectRender = GenerateSelectComponent();
-        return base.OnParametersSetAsync();
+        return base.OnInitializedAsync();
     }
 
     private void InitializeSearchValue()
@@ -124,10 +122,11 @@ public partial class ListPageFilterMenu<TEntity, TDto> : ComponentBase
 
     private async Task Clear()
     {
+        SelectItem = null;
         Column.Filter.SearchValue = null;
-        SelectRender = GenerateSelectComponent();
         await ParentDataGrid.Refresh();
         await ParentDataGrid.Reload();
+        SelectRender = GenerateSelectComponent();
     }
 
     private RenderFragment GenerateSelectComponent()
@@ -144,31 +143,25 @@ public partial class ListPageFilterMenu<TEntity, TDto> : ComponentBase
         var entity = service.GetType().GenericTypeArguments[0];
         var entityDto = service.GetType().GenericTypeArguments[1];
 
-        Console.WriteLine("Generate Select Component");
-        Console.WriteLine(JsonConvert.SerializeObject(SelectItem));
-        Console.WriteLine(JsonConvert.SerializeObject(((ListPageFilter)Column.Filter.SearchValue).SelectItem));
-
         var entityAutoComplete = typeof(EntityAutocomplete<,>).MakeGenericType(entity, entityDto);
         RenderFragment renderFragment = (builder) => { 
             builder.OpenComponent(0, entityAutoComplete);
             builder.AddAttribute(1, "SearchKey", DataGridSelectColumn.Attributes["SearchKey"]);
             if (DataGridSelectColumn.Attributes.ContainsKey("Select"))
                 builder.AddAttribute(2, "CustomSelect", DataGridSelectColumn.Attributes["Select"]);
+
             builder.AddAttribute(3, "Data", JsonConvert.DeserializeObject(JsonConvert.SerializeObject(SelectItem), entityDto));
-            builder.AddAttribute(4, "SelectedValue", JsonConvert.DeserializeObject(JsonConvert.SerializeObject(SelectItem), entityDto));
 
             builder.AddAttribute(5, "SelectedObjectValueChanged", async ((string Key, object Value) value) =>
             {
+                if (string.IsNullOrEmpty(value.Key))
+                    return;
                 SearchValue = value.Key;
                 SelectItem = value.Value;
                 await Filter();
             });
 
-            builder.AddAttribute(4, "SelectedStringValueChanged", async (string value) =>
-            {
-                SearchValue = value;
-                await Filter();
-            });
+            builder.AddAttribute(7, "Required", false);
             builder.CloseComponent();
         };
         return renderFragment;

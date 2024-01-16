@@ -19,7 +19,6 @@ public static class ServiceCollectionExtensions
     {
         var types = GetTypes();
         var entityTypes = GetByType<TEntity>();
-        Console.WriteLine("EntityTypes: "+ string.Join(",", entityTypes.Select(x => x.Name)));
 
         foreach (var entityType in entityTypes)
         {

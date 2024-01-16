@@ -36,16 +36,6 @@ namespace CruderSimple.Blazor.Components.Grids
         public bool IsFirstRender { get; set; } = true;
         public string StorageKey => $"{GetType().Name}<{typeof(TEntity).Name},{typeof(TDto).Name}>";
 
-        protected override async Task OnAfterRenderAsync(bool firstRender)
-        {
-            if (firstRender)
-            {
-                //await Loading.Show();
-                //await SearchSelects();
-                //await Loading.Hide();
-            }
-        }
-
         protected virtual async Task GetData(DataGridReadDataEventArgs<TDto> e)
         {
             if (!e.CancellationToken.IsCancellationRequested)
@@ -64,28 +54,6 @@ namespace CruderSimple.Blazor.Components.Grids
 
                 await Loading.Hide();
                 StateHasChanged();
-            }
-        }
-
-        protected virtual async Task SearchSelects()
-        {
-            var selects = DataGridRef.GetColumns().Where(x => x.ColumnType == DataGridColumnType.Select).ToList();
-            foreach (var select in selects)
-            {
-                var selectColumn = (DataGridSelectColumn<TDto>)select;
-                var field = (string)selectColumn.Attributes["Field"];
-                var attributeService = (dynamic)selectColumn.Attributes["Service"];
-                var defaultValue = selectColumn.Attributes["Default"];
-
-                if (string.IsNullOrEmpty(field) || attributeService is null)
-                    return;
-
-                Console.WriteLine("Realizar o get ao serviço");
-
-                var result = await attributeService.GetAll(new GetAllEndpointQuery(field, null, null, 0, 0));
-                var list = new List<object> { defaultValue };
-                list.AddRange((IEnumerable<object>)result.Data);
-                selectColumn.Data = list;
             }
         }
 
@@ -175,7 +143,6 @@ namespace CruderSimple.Blazor.Components.Grids
                     case DataGridColumnType.Command:
                         break;
                 }
-                Console.WriteLine(filters.Last());
             }
             return string.Join(",", filters);
         }
@@ -212,7 +179,6 @@ namespace CruderSimple.Blazor.Components.Grids
                     string.IsNullOrEmpty(columnToSort.SortField) ? columnToSort.Field : columnToSort.SortField,
                     columnToSort.SortDirection);
 
-            Console.WriteLine("Columns Loaded");
             await DataGridRef.Refresh();
         }
 
@@ -269,7 +235,7 @@ namespace CruderSimple.Blazor.Components.Grids
     public class ListPageFilter
     {
         public string SearchValue { get; set; }
-        public object SelectItem { get; set; }
+        public string SelectItem { get; set; }
         public DataGridColumnFilterMethod FilterMethod { get; set; }
     }
 }

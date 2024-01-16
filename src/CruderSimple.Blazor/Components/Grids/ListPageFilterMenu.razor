@@ -1,7 +1,7 @@
 ﻿@typeparam TEntity
 @typeparam TDto
 
-<Div Class="list-page-filter-menu">
+<Row Class="list-page-filter-menu" Padding="Padding.Is3.OnX">
     @if (!IsDate)
     {
         <Column ColumnSize="ColumnSize.Is12">
@@ -41,7 +41,7 @@
     {
         <Column ColumnSize="ColumnSize.Is12">
             <Field>
-                @if (DataGridSelectColumn != null)
+                @if (DataGridSelectColumn != null && SelectRender != null)
                 {
                     @SelectRender
                 }
@@ -93,4 +93,4 @@
         <Button Clicked="@Filter" Color="Color.Primary">Filter</Button>
         <Button Clicked="@Clear" Color="Color.Light">Clear</Button>
     </Column>
-</Div>
+</Row>

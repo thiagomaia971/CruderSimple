@@ -21,25 +21,15 @@ public partial class EntityAutocomplete<TEntity, TEntityResult> : ComponentBase
     where TEntity : IEntity
     where TEntityResult : BaseDto
 {
-    [Parameter]
-    public string SearchKey { get; set; }
-    [Parameter]
-    public string CustomSelect { get; set; }
-    [Parameter]
-    public string OrderBy { get; set; }
-    [Parameter]
-    public TEntityResult Data { get; set; }
-
-    [Parameter]
-    public EventCallback<TEntityResult> SelectedValueChanged { get; set; }
-
-    [Parameter]
-    public Func<string, Task> SelectedStringValueChanged { get; set; }
-    [Parameter]
-    public Func<(string Key, object Value), Task> SelectedObjectValueChanged { get; set; }
-
-    [Parameter]
-    public RenderFragment<ItemContext<TEntityResult, string>> ItemContent { get; set; }
+    [Parameter] public string SearchKey { get; set; }
+    [Parameter] public string CustomSelect { get; set; }
+    [Parameter] public string OrderBy { get; set; }
+    [Parameter] public TEntityResult Data { get; set; }
+    [Parameter] public EventCallback<TEntityResult> SelectedValueChanged { get; set; }
+    [Parameter] public Func<string, Task> SelectedStringValueChanged { get; set; }
+    [Parameter] public Func<(string Key, object Value), Task> SelectedObjectValueChanged { get; set; }
+    [Parameter] public RenderFragment<ItemContext<TEntityResult, string>> ItemContent { get; set; }
+    [Parameter] public bool Required { get; set; } = true;
 
     private TEntityResult _selectedValue { get; set; }
 
@@ -72,6 +62,8 @@ public partial class EntityAutocomplete<TEntity, TEntityResult> : ComponentBase
     public DebounceService DebounceService { get; set; }
 
     public bool IsFirstRender { get; set; } = true;
+    public TEntityResult SelectedItemBackup { get; set; }
+    public bool Focused { get; set; }
 
 
     public IEnumerable<TEntityResult> SearchedData
@@ -106,33 +98,66 @@ public partial class EntityAutocomplete<TEntity, TEntityResult> : ComponentBase
         base.OnParametersSet();
     }
 
+    private async Task SearchFocus(FocusEventArgs e)
+    {
+        Console.WriteLine("Focused"); 
+        Focused = true;
+    }
+
+    private async Task SearchChanged(KeyboardEventArgs e)
+    {
+        Console.WriteLine("SearchChanged: " + e.Type);
+        Focused = false;
+    }
+
+    private async Task SearchBlur(FocusEventArgs e)
+    {
+        Console.WriteLine("SearchBlur");
+        if (Focused && autoComplete.SelectedValue is null)
+        {
+            autoComplete.SelectedValue = SelectedItemBackup?.GetKey;
+            autoComplete.SelectedText = SelectedItemBackup?.GetValue;
+
+        }
+    }
+
     private async Task GetData(AutocompleteReadDataEventArgs e )
     {
-        if (IsFirstRender)
-        {
-            IsFirstRender = false;
-            return;
-        }
+            if (IsFirstRender)
+            {
+                IsFirstRender = false;
+                return;
+            }
 
-        DebounceService.Start(300, async () =>
-        {
-            var select = CreateSelect();
-            var filter = CreateFilter(e);
-            var orderBy = CreateOrderBy();
+            if (Focused)
+            {
+                SelectedItemBackup = SelectedValue;
+                autoComplete.SelectedValue = string.Empty;
+                autoComplete.SelectedText = string.Empty;
+                //await autoComplete.Clear();
+            }
+            await Search(e);
+    }
 
-            var result = await Service.GetAll(new GetAllEndpointQuery(
-                    select,
-                    filter,
-                    orderBy,
-                    e.VirtualizeCount,
-                    0,
-                    e.VirtualizeOffset));
+    private async Task Search(AutocompleteReadDataEventArgs e)
+    {
+        Console.WriteLine("Start GetData");
+        var select = CreateSelect();
+        var filter = CreateFilter(e);
+        var orderBy = CreateOrderBy();
 
-            TotalData = result.Size;
-            SearchedOriginalData = result.Data.ToList();
+        var result = await Service.GetAll(new GetAllEndpointQuery(
+                select,
+                filter,
+                orderBy,
+                e.VirtualizeCount,
+                0,
+                e.VirtualizeOffset));
 
-            StateHasChanged();
-        });
+        TotalData = result.Size;
+        SearchedOriginalData = result.Data.ToList();
+        Console.WriteLine("End GetData");
+        StateHasChanged();
     }
 
     private string CreateSelect()
@@ -142,7 +167,8 @@ public partial class EntityAutocomplete<TEntity, TEntityResult> : ComponentBase
 
     private string CreateFilter(AutocompleteReadDataEventArgs e)
     {
-        if (string.IsNullOrEmpty(e?.SearchValue))
+        Console.WriteLine("Is Focused: " + Focused);
+        if (Focused || string.IsNullOrEmpty(e?.SearchValue))
             return string.Empty;
         Console.WriteLine("SearchKey: "+SearchKey);
         var filter = new List<string>();
@@ -173,12 +199,20 @@ public partial class EntityAutocomplete<TEntity, TEntityResult> : ComponentBase
 
     async Task sIsValidValue(ValidatorEventArgs e, CancellationToken c)
     {
-        e.Status = SelectedValue is not null ? ValidationStatus.Success : ValidationStatus.Error;
+        if (Required)
+        {
+            e.Status = SelectedValue is not null ? ValidationStatus.Success : ValidationStatus.Error;
 
-        if (e.Status == ValidationStatus.Error)
-            e.ErrorText = "Selecione pelo menos um";
+            if (e.Status == ValidationStatus.Error)
+                e.ErrorText = "Selecione pelo menos um";
+            else
+                e.ErrorText = "OK";
+        }
         else
+        {
+            e.Status = ValidationStatus.Success;
             e.ErrorText = "OK";
+        }
     }
 
     async Task KeyPressHandler(KeyboardEventArgs args)

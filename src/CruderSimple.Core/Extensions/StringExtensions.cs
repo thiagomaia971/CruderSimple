@@ -1,4 +1,6 @@
-﻿namespace CruderSimple.Core.Extensions
+﻿using Newtonsoft.Json;
+
+namespace CruderSimple.Core.Extensions
 {
     public static class StringExtensions
     {
@@ -13,6 +15,13 @@
             if (left)
                 return string.Join(",", right);
             return $"{left},{string.Join(",", right)}";
+        }
+
+        public static string ToJson(this object obj)
+        {
+            if (obj == null)
+                return "null";
+            return $"{obj.GetType().Name}: {JsonConvert.SerializeObject(obj, Formatting.Indented)}";
         }
     }
 }

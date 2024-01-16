@@ -11,7 +11,8 @@
                       Sortable
                       Attributes="@Attributes"
                       ValueField="(x) => ((TDto)x).GetKey" 
-                      TextField="(x) => ((TDto)x).GetValue">
+                      TextField="(x) => ((TDto)x).GetValue"
+                      SortField="@(string.IsNullOrEmpty(GridSort) ? null : GridSort)">
     <DisplayTemplate>
         @DisplayTemplate(context)
     </DisplayTemplate>
