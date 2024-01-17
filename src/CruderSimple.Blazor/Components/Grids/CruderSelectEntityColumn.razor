@@ -1,6 +1,7 @@
-﻿@typeparam TItem
-@typeparam TEntity
-@typeparam TDto
+﻿@typeparam TEntity
+@typeparam TItem
+@typeparam TColumnItem
+@inherits CruderColumnBase<TEntity, TItem>
 
 <DataGridSelectColumn @ref="DataGridSelectColumn" 
                       TItem="TItem"
@@ -10,8 +11,8 @@
                       Filterable="@Filterable"
                       Sortable="@Sortable"
                       Attributes="@Attributes"
-                      ValueField="(x) => ((TDto)x).GetKey" 
-                      TextField="(x) => ((TDto)x).GetValue"
+                      ValueField="(x) => ((TItem)x).GetKey"
+                      TextField="(x) => ((TItem)x).GetValue"
                       SortField="@(string.IsNullOrEmpty(GridSort) ? null : GridSort)">
     <DisplayTemplate>
         @if (DisplayTemplate != null)

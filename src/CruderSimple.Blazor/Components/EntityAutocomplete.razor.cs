@@ -1,7 +1,6 @@
 using Blazorise;
 using Blazorise.Components;
 using Blazorise.Components.Autocomplete;
-using Blazorise.DataGrid;
 using CruderSimple.Blazor.Interfaces.Services;
 using CruderSimple.Core.EndpointQueries;
 using CruderSimple.Core.Entities;
@@ -11,9 +10,6 @@ using CruderSimple.Core.ViewModels;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Newtonsoft.Json;
-using System.Buffers;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace CruderSimple.Blazor.Components;
 
@@ -111,13 +107,13 @@ public partial class EntityAutocomplete<TEntity, TEntityResult> : ComponentBase
 
     private async Task GetData(AutocompleteReadDataEventArgs e )
     {
-            if (IsFirstRender)
-            {
-                IsFirstRender = false;
-                return;
-            }
+        if (IsFirstRender)
+        {
+            IsFirstRender = false;
+            return;
+        }
 
-            await Search(e);
+        await Search(e);
     }
 
     private async Task Search(AutocompleteReadDataEventArgs e)
@@ -188,8 +184,8 @@ public partial class EntityAutocomplete<TEntity, TEntityResult> : ComponentBase
         }
         else
         {
-            e.Status = ValidationStatus.Success;
-            e.ErrorText = "OK";
+            //e.Status = ValidationStatus.Success;
+            //e.ErrorText = "OK";
         }
     }
 
@@ -221,7 +217,8 @@ public static class EntityAutocompleteUtils
 
             if (selectItem is not null)
             {
-
+                Console.WriteLine("SelectItem is not null");
+                Console.WriteLine(selectItem.ToJson());
                 builder.AddAttribute(3, "Data", JsonConvert.DeserializeObject(JsonConvert.SerializeObject(selectItem), entityDto));
                 builder.AddAttribute(4, "SelectedValue", JsonConvert.DeserializeObject(JsonConvert.SerializeObject(selectItem), entityDto));
             }

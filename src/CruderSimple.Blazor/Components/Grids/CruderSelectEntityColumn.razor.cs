@@ -1,20 +1,18 @@
-using Blazorise;
 using Blazorise.DataGrid;
 using CruderSimple.Blazor.Interfaces.Services;
 using CruderSimple.Core.Entities;
 using CruderSimple.Core.ViewModels;
 using Microsoft.AspNetCore.Components;
-using System.Buffers;
 
 namespace CruderSimple.Blazor.Components.Grids;
 
-[CascadingTypeParameter(nameof(TItem))]
 [CascadingTypeParameter(nameof(TEntity))]
-[CascadingTypeParameter(nameof(TDto))]
-public partial class CruderSelectEntityColumn<TItem, TEntity, TDto> : CruderColumnBase<TItem, TDto>
+[CascadingTypeParameter(nameof(TItem))]
+[CascadingTypeParameter(nameof(TColumnItem))]
+public partial class CruderSelectEntityColumn<TEntity, TItem, TColumnItem> : CruderColumnBase<TEntity, TItem>
     where TEntity : IEntity
     where TItem : BaseDto
-    where TDto : BaseDto
+    where TColumnItem : BaseDto
 {
     /// <summary>
     /// Property used to search on Grid component inside of Filter
@@ -30,7 +28,8 @@ public partial class CruderSelectEntityColumn<TItem, TEntity, TDto> : CruderColu
     /// Custom select request params
     /// </summary>
 
-    [Inject] public ICrudService<TEntity, TDto> CrudService { get; set; }
+    [Inject] public ICrudService<TEntity, TColumnItem> CrudService { get; set; }
+    public DataGridSelectColumn<TItem> DataGridSelectColumn { get; set; }
 
     public Dictionary<string, object> Attributes { get; set; } = new Dictionary<string, object>();
 
@@ -77,6 +76,6 @@ public partial class CruderSelectEntityColumn<TItem, TEntity, TDto> : CruderColu
         var itemProperties = item.GetType().GetProperty(ColumnField);
         if (itemProperties is null)
             return item.GetValue;
-        return (itemProperties.GetValue(item) as TDto)?.GetValue ?? string.Empty;
+        return (itemProperties.GetValue(item) as TColumnItem)?.GetValue ?? string.Empty;
     }
 }

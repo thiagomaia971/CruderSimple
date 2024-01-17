@@ -1,16 +1,14 @@
 ﻿using Blazorise.DataGrid;
-using CruderSimple.Blazor.Interfaces.Services;
-using CruderSimple.Blazor.Services;
 using CruderSimple.Core.Entities;
 using CruderSimple.Core.ViewModels;
 using Microsoft.AspNetCore.Components;
 
 namespace CruderSimple.Blazor.Components.Grids
 {
-    [CascadingTypeParameter(nameof(TItem))]
+    [CascadingTypeParameter(nameof(TEntity))]
     [CascadingTypeParameter(nameof(TDto))]
-    public class CruderColumnBase<TItem, TDto> : ComponentBase
-        where TItem : IEntity
+    public class CruderColumnBase<TEntity, TDto> : ComponentBase
+        where TEntity : IEntity
         where TDto : BaseDto
     {
         /// <summary>
@@ -51,11 +49,10 @@ namespace CruderSimple.Blazor.Components.Grids
         /// <summary>
         /// Render a custom Display Grid
         /// </summary>
-        [Parameter] public RenderFragment<TItem> DisplayTemplate { get; set; }
+        [Parameter] public RenderFragment<TDto> DisplayTemplate { get; set; }
 
-        [CascadingParameter] public DataGrid<TItem> DataGridRef { get; set; }
+        [CascadingParameter] public DataGrid<TEntity> DataGridRef { get; set; }
         
-        public DataGridSelectColumn<TItem> DataGridSelectColumn { get; set; }
         public Dictionary<string, object> Attributes { get; set; } = new Dictionary<string, object>();
 
         protected override Task OnInitializedAsync()

@@ -59,12 +59,12 @@ public partial class ListPageFilterMenu<TEntity, TDto> : ComponentBase
     public object SelectItem
     {
         get =>
-            JsonConvert.DeserializeObject(((ListPageFilter)Column.Filter.SearchValue)?.SelectItem ?? "{}");
+            ((ListPageFilter)Column.Filter.SearchValue)?.SelectItem is null ? null : JsonConvert.DeserializeObject(((ListPageFilter)Column.Filter.SearchValue)?.SelectItem);
         set
         {
             if (Column.Filter.SearchValue is null)
                 InitializeSearchValue();
-            ((ListPageFilter)Column.Filter.SearchValue).SelectItem = JsonConvert.SerializeObject(value);
+            ((ListPageFilter)Column.Filter.SearchValue).SelectItem = value == null ? null : JsonConvert.SerializeObject(value);
         }
     }
 
@@ -80,7 +80,6 @@ public partial class ListPageFilterMenu<TEntity, TDto> : ComponentBase
         { 
             if (SelectRender is null)
                 SelectRender = GenerateSelectComponent(); 
-            StateHasChanged();
         };
 
         return base.OnInitializedAsync();
@@ -119,6 +118,7 @@ public partial class ListPageFilterMenu<TEntity, TDto> : ComponentBase
     {
         await ParentDataGrid.Refresh();
         await ParentDataGrid.Reload();
+        SelectRender = GenerateSelectComponent();
     }
 
     private async Task Clear()

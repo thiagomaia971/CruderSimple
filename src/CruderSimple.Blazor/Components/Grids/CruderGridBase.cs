@@ -61,9 +61,7 @@ namespace CruderSimple.Blazor.Components.Grids
         {
             var select = GetQuerySelect(e.Columns);
             var filter = GetQueryFilter(e.Columns);
-            Console.WriteLine(DataGridRef.GetColumns().ToJson());
             var orderByColumn = e.Columns.FirstOrDefault(x => x.SortIndex == 0);
-            Console.WriteLine(orderByColumn.ToJson());
             var orderBy = orderByColumn is null ? null : $"{orderByColumn.SortField} {orderByColumn.SortDirection}";
 
             var data = await Service.GetAll(new GetAllEndpointQuery(select, filter, orderBy, e.PageSize, e.Page));
