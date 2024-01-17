@@ -32,9 +32,24 @@ namespace CruderSimple.Blazor.Components.Grids
 
         public IEnumerable<TDto> Data { get; set; }
         public int TotalData { get; set; }
-        public DataGrid<TDto> DataGridRef { get; set; }
+        private DataGrid<TDto> _dataGridRef { get; set; }
+        public DataGrid<TDto> DataGridRef { get => _dataGridRef; set 
+            { 
+                _dataGridRef = value; 
+                if (_dataGridRef is not null)
+                    if (_dataGridRef.Attributes is null)
+                        _dataGridRef.Attributes = new Dictionary<string, object>
+                        {
+                            { "Events", CruderGridEvents }
+                        };
+                    else 
+                        _dataGridRef.Attributes.Add("Events", CruderGridEvents);
+            } 
+        }
         public bool IsFirstRender { get; set; } = true;
         public virtual string StorageKey => $"{GetType().Name}<{typeof(TEntity).Name},{typeof(TDto).Name}>";
+        public CruderGridEvents CruderGridEvents { get; set; } = new CruderGridEvents();
+
 
         protected virtual async Task GetData(DataGridReadDataEventArgs<TDto> e)
         {
@@ -180,6 +195,7 @@ namespace CruderSimple.Blazor.Components.Grids
                     columnToSort.SortDirection);
 
             await DataGridRef.Refresh();
+            CruderGridEvents.RaiseOnColumnsLoaded();
         }
 
         protected virtual async Task SaveColumns()
@@ -237,5 +253,17 @@ namespace CruderSimple.Blazor.Components.Grids
         public string SearchValue { get; set; }
         public string SelectItem { get; set; }
         public DataGridColumnFilterMethod FilterMethod { get; set; }
+    }
+
+    public delegate void ColumnsLoaded();
+    public class CruderGridEvents
+    {
+        public event ColumnsLoaded OnColumnsLoaded;
+
+        public void RaiseOnColumnsLoaded()
+        {
+            if (OnColumnsLoaded != null)
+                OnColumnsLoaded();
+        }
     }
 }

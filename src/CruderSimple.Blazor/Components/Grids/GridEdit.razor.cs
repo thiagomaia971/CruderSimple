@@ -17,6 +17,13 @@ public partial class GridEdit<TEntity, TDto> : CruderGridBase<TEntity, TDto>
     [Parameter] public string FilterKey { get; set; }
     [Parameter] public string FilterValue { get; set; }
     [Parameter] public Action<TDto> DefaultNewInstance { get;set; }
+    [Parameter] public bool SimpleNewCommand { get; set; }
+    [Parameter] public bool EditCommandAllowed { get; set; }
+    [Parameter] public RenderFragment StartNewCommandTemplate { get; set; }
+    [Parameter] public RenderFragment EndNewCommandTemplate { get; set; }
+    [Parameter] public RenderFragment<TDto> StartCommandTemplate { get; set; }
+    [Parameter] public RenderFragment<TDto> MiddleCommandTemplate { get; set; }
+    [Parameter] public RenderFragment<TDto> EndCommandTemplate { get; set; }
     public override string StorageKey => $"{base.StorageKey}:{FilterValue}";
 
     protected override string GetQueryFilter(IEnumerable<DataGridColumnInfo> dataGridColumnInfos, List<string> filters = null) 

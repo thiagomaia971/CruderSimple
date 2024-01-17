@@ -62,6 +62,11 @@ public partial class ListPageFilterMenu<TEntity, TDto> : ComponentBase
             ((ListPageFilter)Column.Filter.SearchValue)?.SelectItem is null ? null : JsonConvert.DeserializeObject(((ListPageFilter)Column.Filter.SearchValue)?.SelectItem);
         set
         {
+            if (value == null)
+            {
+                Column.Filter.SearchValue = null;
+                return;
+            }
             if (Column.Filter.SearchValue is null)
                 InitializeSearchValue();
             ((ListPageFilter)Column.Filter.SearchValue).SelectItem = value == null ? null : JsonConvert.SerializeObject(value);
@@ -76,11 +81,15 @@ public partial class ListPageFilterMenu<TEntity, TDto> : ComponentBase
 
     protected override Task OnInitializedAsync()
     {
-        ParentDataGrid.FilteredDataChanged = (_) => 
-        { 
-            if (SelectRender is null)
-                SelectRender = GenerateSelectComponent(); 
-        };
+        base.InvokeAsync(() =>
+        {
+            var events = (CruderGridEvents) ParentDataGrid.Attributes["Events"];
+            events.OnColumnsLoaded += () =>
+            {
+                if (IsSelect && SelectRender is null)
+                    SelectRender = GenerateSelectComponent(SelectItem);
+            };
+        });
 
         return base.OnInitializedAsync();
     }
@@ -118,20 +127,21 @@ public partial class ListPageFilterMenu<TEntity, TDto> : ComponentBase
     {
         await ParentDataGrid.Refresh();
         await ParentDataGrid.Reload();
-        SelectRender = GenerateSelectComponent();
+        SelectRender = GenerateSelectComponent(SelectItem);
     }
 
     private async Task Clear()
     {
-        SelectItem = null;
         Column.Filter.SearchValue = null;
         await ParentDataGrid.Refresh();
         await ParentDataGrid.Reload();
-        SelectRender = GenerateSelectComponent();
+        SelectRender = GenerateSelectComponent(null);
+        StateHasChanged();
     }
 
-    private RenderFragment GenerateSelectComponent()
+    private RenderFragment GenerateSelectComponent(object selectItem)
     {
+        Console.WriteLine("GenerateSelectComponent");
         if (DataGridSelectColumn is null)
             return null;
 
@@ -147,8 +157,8 @@ public partial class ListPageFilterMenu<TEntity, TDto> : ComponentBase
 
         var render = EntityAutocompleteUtils.CreateComponent(
             entity, 
-            entityDto, 
-            SelectItem, 
+            entityDto,
+            selectItem, 
             SelectChanged, 
             false, 
             DataGridSelectColumn.Attributes);

@@ -1,0 +1,34 @@
+﻿@typeparam TEntity
+@typeparam TItem
+@inherits CruderColumnBase<TEntity, TItem>
+
+<DataGridNumericColumn @ref="DataGridNumericColumn"
+                       TItem="TItem"
+                       Field="@ColumnField"
+                       Sortable="@Sortable"
+                       SortField="@GridSort"
+                       Caption="@ColumnCaption"
+                       Culture="pt-BR"
+                       Editable="@Editable"
+                       Filterable="@Filterable"
+                       DisplayFormat="{0:C}"
+                       Width="170px">
+    <EditTemplate>
+        <NumericPicker 
+                       CurrencySymbol="R$ " 
+                       CurrencySymbolPlacement="CurrencySymbolPlacement.Prefix" 
+                       AllowDecimalPadding="NumericAllowDecimalPadding.Always" 
+                       Culture="pt-BR"
+                       DecimalSeparator=","
+                       GroupSeparator="."
+                       SelectAllOnFocus
+                       Min="0"
+                       ValueChanged="@((double value) => ValueChanged(context, value))"
+                       AlwaysAllowDecimalSeparator
+                       Shadow="Shadow.Large"
+                       ShowStepButtons="true"
+                       ModifyValueOnWheel
+                       WheelOn="NumericWheelOn.Focus"
+                       Value="@((double) context.CellValue)" />
+    </EditTemplate>
+</DataGridNumericColumn>

@@ -1,6 +1,7 @@
 using Blazorise.DataGrid;
 using CruderSimple.Blazor.Interfaces.Services;
 using CruderSimple.Core.Entities;
+using CruderSimple.Core.Extensions;
 using CruderSimple.Core.ViewModels;
 using Microsoft.AspNetCore.Components;
 
@@ -32,6 +33,7 @@ public partial class CruderSelectEntityColumn<TEntity, TItem, TColumnItem> : Cru
     public DataGridSelectColumn<TItem> DataGridSelectColumn { get; set; }
 
     public Dictionary<string, object> Attributes { get; set; } = new Dictionary<string, object>();
+    public RenderFragment SelectComponent { get; set; }
 
     protected override Task OnInitializedAsync()
     {
@@ -63,6 +65,7 @@ public partial class CruderSelectEntityColumn<TEntity, TItem, TColumnItem> : Cru
             async ((string Key, object Value) value) => await SelectChanged(value, cellEdit),
             false,
             DataGridSelectColumn.Attributes);
+        StateHasChanged();
         return render;
     }
 

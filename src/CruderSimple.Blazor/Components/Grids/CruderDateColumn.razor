@@ -1,0 +1,14 @@
+﻿@typeparam TEntity
+@typeparam TItem
+@inherits CruderColumnBase<TEntity, TItem>
+
+<DataGridDateColumn TItem="TItem"
+                    Field="@ColumnField" 
+                    Sortable="@Sortable"
+                    SortField="@GridSort" 
+                    Caption="@ColumnCaption" 
+                    DisplayFormat="{0:dd/MM/yyyy}" 
+                    Editable="@Editable"
+                    Filterable="@Filterable"
+                    Width="160px" >
+</DataGridDateColumn>

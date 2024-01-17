@@ -217,8 +217,6 @@ public static class EntityAutocompleteUtils
 
             if (selectItem is not null)
             {
-                Console.WriteLine("SelectItem is not null");
-                Console.WriteLine(selectItem.ToJson());
                 builder.AddAttribute(3, "Data", JsonConvert.DeserializeObject(JsonConvert.SerializeObject(selectItem), entityDto));
                 builder.AddAttribute(4, "SelectedValue", JsonConvert.DeserializeObject(JsonConvert.SerializeObject(selectItem), entityDto));
             }

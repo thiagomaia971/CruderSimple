@@ -26,6 +26,7 @@
                   FixedHeader
                   Resizable
                   Bordered
+                  DetailRowStartsVisible="false"
                   NewItemDefaultSetter="DefaultNewInstance"
                   FixedHeaderDataGridHeight="420px"
                   FixedHeaderDataGridMaxHeight="420px"
@@ -37,20 +38,39 @@
             <DataGridColumns>
                 <DataGridCommandColumn TItem="TDto" PreventRowClick FixedPosition="TableColumnFixedPosition.Start" Field="Id" TextAlignment="TextAlignment.Start" Gap="Gap.Is0" Width="80px">
                     <NewCommandTemplate>
+                        @if (StartNewCommandTemplate is not null)
+                        {
+                            @StartNewCommandTemplate
+                        }
                         <Tooltip Text="@PermissionService.CanWriteTooltip("Novo")">
-                            <Button Type="ButtonType.Link" Clicked="@context.Clicked" Color="Color.Success" Block Width="Width.Is100" Size="Size.Small" Disabled="@(!PermissionService.CanWrite)">
+                            <Button Type="ButtonType.Link" Clicked="@context.Clicked" Color="Color.Success"  Width="Width.Is100" Size="Size.Small" Disabled="@(!PermissionService.CanWrite)">
                                 <Icon Name="IconName.Add" />
-                                Novo
+                                @if (!SimpleNewCommand)
+                                {
+                                    <Span> Novo</Span>
+                                }
                             </Button>
                         </Tooltip>
+                        @if (EndNewCommandTemplate is not null)
+                        {
+                            @EndNewCommandTemplate
+                        }
                     </NewCommandTemplate>
 
                     <EditCommandTemplate>
+                        @if (StartCommandTemplate is not null)
+                        {
+                            @StartCommandTemplate(context.Item)
+                        }
                         <Tooltip Text="@PermissionService.CanWriteTooltip("Editar")" Inline>
-                            <Button Size="Size.Small" Clicked="@context.Clicked" Disabled="@(!PermissionService.CanWrite)" Padding="Padding.Is1" Margin="Margin.Is2.FromStart" @onclick:stopPropagation>
+                            <Button Size="Size.Small" Clicked="@context.Clicked" Disabled="@(!PermissionService.CanWrite)" Padding="Padding.Is1" @onclick:stopPropagation>
                                 <Icon Name="IconName.Edit" />
                             </Button>
                         </Tooltip>
+                        @if (MiddleCommandTemplate is not null)
+                        {
+                            @MiddleCommandTemplate(context.Item)
+                        }
                     </EditCommandTemplate>
 
                     <DeleteCommandTemplate>
@@ -59,6 +79,10 @@
                                 <Icon Name="IconName.Delete" />
                             </Button>
                         </Tooltip>
+                        @if (EndCommandTemplate is not null)
+                        {
+                            @EndCommandTemplate(context.Item)
+                        }
                     </DeleteCommandTemplate>
 
                     <SaveCommandTemplate>
@@ -100,6 +124,9 @@
             <FilterMenuTemplate>
                 <ListPageFilterMenu TEntity="TEntity" TDto="TDto" Column="context.Column" />
             </FilterMenuTemplate>
+            <DetailRowTemplate>
+                DetailRowTemplate
+            </DetailRowTemplate>
         </DataGrid>
     </Column>
 </Row>

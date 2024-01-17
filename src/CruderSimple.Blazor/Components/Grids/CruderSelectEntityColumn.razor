@@ -25,6 +25,10 @@
         }
     </DisplayTemplate>
     <EditTemplate>
-        @CreateSelectComponent(context)
+        @if (SelectComponent is null)
+        {
+            SelectComponent = CreateSelectComponent(context);
+        }
+        @SelectComponent
     </EditTemplate>
 </DataGridSelectColumn>
