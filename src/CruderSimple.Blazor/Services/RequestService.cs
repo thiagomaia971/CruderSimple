@@ -1,14 +1,11 @@
 ﻿using System.Net.Http.Json;
 using System.Text;
 using Blazorise;
-using Blazorise.DataGrid;
 using CruderSimple.Blazor.Extensions;
 using CruderSimple.Blazor.Interfaces.Services;
 using CruderSimple.Core.EndpointQueries;
 using CruderSimple.Core.Entities;
-using CruderSimple.Core.Extensions;
 using CruderSimple.Core.ViewModels;
-using Newtonsoft.Json;
 
 namespace CruderSimple.Blazor.Services
 {

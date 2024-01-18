@@ -49,12 +49,13 @@ public class Pagination : Result
         };
     }
 
-    public static Pagination CreateError(params string[] errors)
+    public static Pagination CreateError(string stackTrace, params string[] errors)
     {
         return new Pagination
         {
             Success = false,
             HttpStatusCode = 500,
+            StackTrace = stackTrace,
             Errors = errors.ToList()
         };
     }
