@@ -23,45 +23,21 @@ public partial class EntityAutocomplete<TEntity, TEntityResult> : ComponentBase
     [Parameter] public string CustomSelect { get; set; }
     [Parameter] public string OrderBy { get; set; }
     [Parameter] public TEntityResult Data { get; set; }
+    [Parameter] public TEntityResult SelectedValue { get; set; }
     [Parameter] public EventCallback<TEntityResult> SelectedValueChanged { get; set; }
-    [Parameter] public Func<string, Task> SelectedStringValueChanged { get; set; }
     [Parameter] public Func<(string Key, object Value), Task> SelectedObjectValueChanged { get; set; }
     [Parameter] public RenderFragment<ItemContext<TEntityResult, string>> ItemContent { get; set; }
     [Parameter] public bool Required { get; set; } = true;
-
-    private TEntityResult _selectedValue { get; set; }
-
-    [Parameter]
-    public TEntityResult SelectedValue 
-    { 
-        get => _selectedValue; 
-        set 
-        {
-            _selectedValue = value;
-        }
-    }
-
-    [Parameter]
-    public bool Disabled { get; set; } = false;
-    
-    [Parameter] 
-    public IFluentSizing Width { get; set; }
-    
-    [Parameter] 
-    public IFluentSpacing Padding { get; set; }
+    [Parameter] public bool Disabled { get; set; } = false;
+    [Parameter] public IFluentSizing Width { get; set; }
+    [Parameter] public IFluentSpacing Padding { get; set; }
 
     [Inject]
     public ICrudService<TEntity, TEntityResult> Service { get; set; }
 
-    [Inject]
-    public PermissionService PermissionService { get; set; }
-
-    [Inject]
-    public DebounceService DebounceService { get; set; }
-
     public bool IsFirstRender { get; set; } = true;
+    public bool IgnoreSearchText { get; set; }
     public bool Focused { get; set; }
-
 
     public IEnumerable<TEntityResult> SearchedData
     {
@@ -75,7 +51,8 @@ public partial class EntityAutocomplete<TEntity, TEntityResult> : ComponentBase
             if (SelectedValue is not null) 
                 list.AddRange(SearchedOriginalData
                     .Where(x => SelectedValue.GetKey != x.GetKey));
-            return list.DistinctBy(c => c.GetKey).ToList();
+            var entityResults = list.DistinctBy(c => c.GetKey).ToList();
+            return entityResults;
         }
     }
 
@@ -87,22 +64,29 @@ public partial class EntityAutocomplete<TEntity, TEntityResult> : ComponentBase
 
     protected override void OnParametersSet()
     {
-        if (Data != null && (SearchedOriginalData is null || !SearchedOriginalData.Any()))
+        
+        Console.WriteLine("OnParametersSet");
+        if (autoComplete != null && Data != null && (SearchedOriginalData is null || !SearchedOriginalData.Any()))
         {
-            SearchedOriginalData = new List<TEntityResult>{Data};
-            SelectedValue = Data;
+            base.InvokeAsync(() =>
+            {
+                Console.WriteLine("OnParametersSet Ok");
+                SearchedOriginalData = new List<TEntityResult> { Data };
+                SelectedValue = Data;
+                Console.WriteLine(SelectedValue.ToJson());
+            });
         }
         base.OnParametersSet();
     }
 
     private async Task SearchFocus(FocusEventArgs e)
     {
-        Focused = true;
+        IgnoreSearchText = true;
     }
 
     private async Task SearchChanged(KeyboardEventArgs e)
     {
-        Focused = false;
+        IgnoreSearchText = false;
     }
 
     private async Task GetData(AutocompleteReadDataEventArgs e )
@@ -142,7 +126,7 @@ public partial class EntityAutocomplete<TEntity, TEntityResult> : ComponentBase
 
     private string CreateFilter(AutocompleteReadDataEventArgs e)
     {
-        if (Focused || string.IsNullOrEmpty(e?.SearchValue))
+        if (IgnoreSearchText || string.IsNullOrEmpty(e?.SearchValue))
             return string.Empty;
         
         var filter = new List<string>();
@@ -165,8 +149,6 @@ public partial class EntityAutocomplete<TEntity, TEntityResult> : ComponentBase
     {
         SelectedValue = SearchedOriginalData.FirstOrDefault(x => values == x.GetKey);
         SelectedValueChanged.InvokeAsync(SelectedValue);
-        if (SelectedStringValueChanged is not null)
-            SelectedStringValueChanged(values);
         if (SelectedObjectValueChanged is not null)
             SelectedObjectValueChanged((values, SelectedValue));
     }
@@ -182,11 +164,6 @@ public partial class EntityAutocomplete<TEntity, TEntityResult> : ComponentBase
             else
                 e.ErrorText = "OK";
         }
-        else
-        {
-            //e.Status = ValidationStatus.Success;
-            //e.ErrorText = "OK";
-        }
     }
 
     async Task KeyPressHandler(KeyboardEventArgs args)
@@ -198,7 +175,6 @@ public partial class EntityAutocomplete<TEntity, TEntityResult> : ComponentBase
             return;
         }
         ShouldPrevent = false;
-        var key = (string)args.Key;
         await autoComplete.SearchKeyDown.InvokeAsync(args);
     }
 }
@@ -215,11 +191,9 @@ public static class EntityAutocompleteUtils
             if (attributes.ContainsKey("Select"))
                 builder.AddAttribute(2, "CustomSelect", attributes["Select"]);
 
-            if (selectItem is not null)
-            {
-                builder.AddAttribute(3, "Data", JsonConvert.DeserializeObject(JsonConvert.SerializeObject(selectItem), entityDto));
-                builder.AddAttribute(4, "SelectedValue", JsonConvert.DeserializeObject(JsonConvert.SerializeObject(selectItem), entityDto));
-            }
+            var entityDtoValue = JsonConvert.DeserializeObject(JsonConvert.SerializeObject(selectItem), entityDto);
+            builder.AddAttribute(3, "Data", entityDtoValue);
+            //builder.AddAttribute(4, "SelectedValue", entityDtoValue);
 
             builder.AddAttribute(5, "SelectedObjectValueChanged", selectedValueChanged);
 

@@ -38,6 +38,7 @@ public partial class GridEdit<TEntity, TDto> : CruderGridBase<TEntity, TDto>
     {
         await DataGridRef.Select(e.Item);
         await DataGridRef.Edit(e.Item);
+        CruderGridEvents.RaiseOnEditMode();
     }
 
     public async Task InsertingAsync(CancellableRowChange<TDto> context)

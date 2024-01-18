@@ -135,13 +135,14 @@ public partial class ListPageFilterMenu<TEntity, TDto> : ComponentBase
         Column.Filter.SearchValue = null;
         await ParentDataGrid.Refresh();
         await ParentDataGrid.Reload();
+        SelectRender = null;
+        StateHasChanged();
         SelectRender = GenerateSelectComponent(null);
         StateHasChanged();
     }
 
     private RenderFragment GenerateSelectComponent(object selectItem)
     {
-        Console.WriteLine("GenerateSelectComponent");
         if (DataGridSelectColumn is null)
             return null;
 
@@ -171,6 +172,7 @@ public partial class ListPageFilterMenu<TEntity, TDto> : ComponentBase
             return;
         SearchValue = value.Key;
         SelectItem = value.Value;
+        SelectRender = GenerateSelectComponent(SelectItem);
         await Filter();
     }
 }

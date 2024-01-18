@@ -1,4 +1,6 @@
+using Blazorise;
 using Blazorise.DataGrid;
+using CruderSimple.Blazor.Extensions;
 using CruderSimple.Blazor.Interfaces.Services;
 using CruderSimple.Core.Entities;
 using CruderSimple.Core.Extensions;
@@ -30,10 +32,13 @@ public partial class CruderSelectEntityColumn<TEntity, TItem, TColumnItem> : Cru
     /// </summary>
 
     [Inject] public ICrudService<TEntity, TColumnItem> CrudService { get; set; }
-    public DataGridSelectColumn<TItem> DataGridSelectColumn { get; set; }
+
+    private DataGridSelectColumn<TItem> DataGridSelectColumn { get; set; }
+    private DataGrid<TItem> DataGrid => DataGridSelectColumn?.ParentDataGrid;
 
     public Dictionary<string, object> Attributes { get; set; } = new Dictionary<string, object>();
     public RenderFragment SelectComponent { get; set; }
+    private bool Loaded { get; set; }
 
     protected override Task OnInitializedAsync()
     {
@@ -43,8 +48,29 @@ public partial class CruderSelectEntityColumn<TEntity, TItem, TColumnItem> : Cru
         return base.OnInitializedAsync();
     }
 
-    private RenderFragment CreateSelectComponent(CellEditContext<TItem> cellEdit)
+    protected override void OnAfterRender(bool firstRender)
     {
+        if (!Loaded && DataGrid != null)
+            OnDataGridLoaded();
+        base.OnAfterRender(firstRender);
+    }
+
+
+    protected void OnDataGridLoaded()
+    {
+        Loaded = true;
+        Console.WriteLine("OnDataGridLoaded");
+        var events = (CruderGridEvents)DataGrid.Attributes["Events"];
+        events.OnEditMode += () =>
+        {
+            SelectComponent = CreateSelectComponent();
+            StateHasChanged();
+        };
+    }
+
+    private RenderFragment CreateSelectComponent(/*CellEditContext<TItem> cellEdit*/)
+    {
+        Console.WriteLine("CreateSelectComponent: "+ DataGrid.ReadCellEditValue(ColumnField).ToJson());
         if (DataGridSelectColumn is null)
             return null;
 
@@ -61,17 +87,21 @@ public partial class CruderSelectEntityColumn<TEntity, TItem, TColumnItem> : Cru
         var render = EntityAutocompleteUtils.CreateComponent(
             entity,
             entityDto,
-            cellEdit.CellValue,
-            async ((string Key, object Value) value) => await SelectChanged(value, cellEdit),
+            DataGrid.ReadCellEditValue(ColumnField),
+            async ((string Key, object Value) value) => await SelectChanged(value/*, cellEdit*/),
             false,
             DataGridSelectColumn.Attributes);
         StateHasChanged();
         return render;
     }
 
-    public async Task SelectChanged((string Key, object Value) value, CellEditContext<TItem> cellEdit)
+    public async Task SelectChanged((string Key, object Value) value/*, CellEditContext<TItem> cellEdit*/)
     {
-        cellEdit.UpdateCell(ColumnField, value.Value);
+        Console.WriteLine("Changed");
+        DataGrid.UpdateCellEditValue(ColumnField, value.Value);
+        SelectComponent = CreateSelectComponent();
+        StateHasChanged();
+        //cellEdit.UpdateCell(ColumnField, value.Value);
     }
 
     protected string GetGridName(TItem item)

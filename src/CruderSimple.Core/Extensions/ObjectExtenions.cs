@@ -9,5 +9,12 @@
                 return 0;
             return (double) value;
         }
+        public static T GetValueByPropertyName<T>(this object value, string propertyName)
+        {
+            var itemProperties = value.GetType().GetProperty(propertyName);
+            if (itemProperties is null)
+                return default;
+            return (T)value;
+        }
     }
 }

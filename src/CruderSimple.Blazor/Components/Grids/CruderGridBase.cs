@@ -256,14 +256,22 @@ namespace CruderSimple.Blazor.Components.Grids
     }
 
     public delegate void ColumnsLoaded();
+    public delegate void EditMode();
     public class CruderGridEvents
     {
         public event ColumnsLoaded OnColumnsLoaded;
+        public event EditMode OnEditMode;
 
         public void RaiseOnColumnsLoaded()
         {
             if (OnColumnsLoaded != null)
                 OnColumnsLoaded();
+        }
+
+        public void RaiseOnEditMode()
+        {
+            if (OnEditMode != null)
+                OnEditMode();
         }
     }
 }

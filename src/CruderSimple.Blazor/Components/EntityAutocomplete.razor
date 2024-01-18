@@ -21,9 +21,6 @@
                   SelectedValue="@(SelectedValue?.GetKey)"
                   SelectedValueChanged="ValueChanged"
                   AsyncValidator="@sIsValidValue"
-                  @onclick:preventDefault
-                  @onkeydown:preventDefault="ShouldPrevent"
-                  @onkeypress="KeyPressHandler"
                   SearchFocus="@SearchFocus"
                   SearchKeyDown="SearchChanged"
                   Disabled="@Disabled">

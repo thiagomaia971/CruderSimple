@@ -51,8 +51,6 @@ namespace CruderSimple.Blazor.Components.Grids
         /// </summary>
         [Parameter] public RenderFragment<TDto> DisplayTemplate { get; set; }
 
-        [CascadingParameter] public DataGrid<TEntity> DataGridRef { get; set; }
-        
         public Dictionary<string, object> Attributes { get; set; } = new Dictionary<string, object>();
 
         protected override Task OnInitializedAsync()
