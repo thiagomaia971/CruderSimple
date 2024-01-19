@@ -76,11 +76,6 @@ code {
     padding: 15px;
 }
 
-td:not(.text-left) {
-    height: 31px;
-    line-height: 31px;
-}
-
 .disabled {
     cursor: not-allowed;
 }
@@ -91,6 +86,12 @@ td:not(.text-left) {
 
 .b-bar-vertical-inline .b-bar-dropdown .b-bar-dropdown-menu, .b-bar-vertical-popout .b-bar-dropdown .b-bar-dropdown-menu, .b-bar-vertical-small .b-bar-dropdown .b-bar-dropdown-menu{
     padding: 0 !important;
+}
+
+
+td:not(.text-left) {
+    height: 31px;
+    line-height: 31px;
 }
 
 .datagrid-listpage {
@@ -108,23 +109,23 @@ td:not(.text-left) {
 }
 
 .datagrid-listpage th {
-    vertical-align: middle !important;
+    /*vertical-align: middle !important;*/
     padding-top: 2px;
     padding-bottom: 2px;
     /*position: relative !important;*/
 }
 
 .row .justify-content-between {
-    height: 20px;
+    height: 37px;
 }
 
 .col-auto .d-flex .flex-row-reverse {
-    height: 40px !important;
+    /*height: 40px !important;*/
 }
 
 .datagrid-listpage th .d-inline-flex {
     /*position: absolute;*/
-    top: 25%
+    /*top: 25%*/
 }
 
 .datagrid-listpage thead tr:nth-of-type(2) {
@@ -137,7 +138,7 @@ td:not(.text-left) {
 
 .datagrid-listpage .dropdown-toggle {
     padding-right: 0px;
-    padding-top: 0px;
+    padding-top: 7px;
     padding-left: 5px;
 }
 

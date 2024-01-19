@@ -1,4 +1,5 @@
 using System.Reflection.Metadata;
+using Blazorise;
 using Blazorise.DataGrid;
 using CruderSimple.Core.Entities;
 using CruderSimple.Core.Extensions;
@@ -19,25 +20,38 @@ public partial class GridEdit<TEntity, TDto> : CruderGridBase<TEntity, TDto>
     [Parameter] public Action<TDto> DefaultNewInstance { get;set; }
     [Parameter] public bool SimpleNewCommand { get; set; }
     [Parameter] public bool EditCommandAllowed { get; set; }
+    [Parameter] public string ModalEditTitle { get; set; }
     [Parameter] public RenderFragment StartNewCommandTemplate { get; set; }
     [Parameter] public RenderFragment EndNewCommandTemplate { get; set; }
     [Parameter] public RenderFragment<TDto> StartCommandTemplate { get; set; }
     [Parameter] public RenderFragment<TDto> MiddleCommandTemplate { get; set; }
     [Parameter] public RenderFragment<TDto> EndCommandTemplate { get; set; }
+    [Parameter] public RenderFragment<TDto> ModalEdit { get; set; }
     public override string StorageKey => $"{base.StorageKey}:{FilterValue}";
+    public Modal ModalRef { get; set; }
+    public bool IsLoading { get; set; }
+    protected Validations ValidationsRef { get; set; }
+    public string Errors { get; set; }
 
     protected override string GetQueryFilter(IEnumerable<DataGridColumnInfo> dataGridColumnInfos, List<string> filters = null) 
         => base.GetQueryFilter(dataGridColumnInfos, [$"{FilterKey} {Op.Equals} {FilterValue}"]);
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
-    { 
+    {
         await base.OnAfterRenderAsync(firstRender);
     }
 
-    public async Task SingleClicked(DataGridRowMouseEventArgs<TDto> e)
+    public async Task SingleClicked(TDto e, EditCommandContext<TDto> editContext = null)
     {
-        await DataGridRef.Select(e.Item);
-        await DataGridRef.Edit(e.Item);
+        await DataGridRef.Select(e);
+        if (ModalEdit == null)
+        {
+            await DataGridRef.Edit(e);
+            if (editContext?.Clicked != null)
+                await editContext?.Clicked.InvokeAsync();
+        }
+        else
+            await ModalRef.Show();
         CruderGridEvents.RaiseOnEditMode();
     }
 
@@ -55,6 +69,7 @@ public partial class GridEdit<TEntity, TDto> : CruderGridBase<TEntity, TDto>
         }
         else
             context.Cancel = true;
+        await DataGridRef.Refresh();
     }
 
     public async Task UpdatingAsync(CancellableRowChange<TDto> context)
@@ -71,6 +86,69 @@ public partial class GridEdit<TEntity, TDto> : CruderGridBase<TEntity, TDto>
         }
         else
             context.Cancel = true;
+        await DataGridRef.Refresh();
+    }
+
+    protected string CalculateWidthCommandColumn()
+    {
+        var widthBaseSimple = 32;
+        var widthBaseLarge = 67;
+
+        var widthFinal = 0;
+        if (SimpleNewCommand)
+            widthFinal += widthBaseSimple;
+        else
+            widthFinal += widthBaseLarge;
+        if (StartNewCommandTemplate != null)
+            widthFinal += widthBaseSimple;
+        if (EndNewCommandTemplate != null)
+            widthFinal += widthBaseSimple;
+
+        widthFinal += widthBaseSimple;
+
+        return widthFinal.ToString();
+    }
+
+    protected async Task SaveModal()
+    {
+        IsLoading = true;
+        if (ValidationsRef is not null && await ValidationsRef.ValidateAll())
+        {
+            Errors = null;
+            try
+            {
+                Result<TDto> result = null;
+                result = await Service.Update(DataGridRef?.SelectedRow.Id, DataGridRef?.SelectedRow);
+
+                if (result.Success)
+                {
+                    await NotificationService.Success("Atualizado com sucesso!", "Resultado");
+                    await ModalRef.Close(CloseReason.None);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                Errors = ex.Message;
+                await NotificationService.Error(Errors);
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+        IsLoading = false;
+    }
+
+    protected async Task ModalClosed(ModalClosingEventArgs e)
+    {
+        DataGridRef.SelectedRow = null;
+        Console.WriteLine(e.CloseReason);
+        if (e.CloseReason == CloseReason.None)
+        {
+            await DataGridRef.Refresh();
+            await DataGridRef.Reload();
+        }
     }
 
 }

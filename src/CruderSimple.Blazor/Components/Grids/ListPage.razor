@@ -4,7 +4,7 @@
 @using Blazorise.DataGrid
 @using CruderSimple.Core.Extensions
 
-<Row>
+<Row Padding="@Padding">
     <Column ColumnSize="ColumnSize.Is12">
         <DataGrid @ref="DataGridRef"
                     TItem="TDto"
@@ -48,14 +48,14 @@
                         @if (PermissionService.CanWrite)
                         {
                             <Tooltip Text="@PermissionService.CanWriteTooltip("Editar")" Inline>
-                                <Button Size="Size.Small" Clicked="@((_) => ToEdit(context.Item, _.CtrlKey))" Disabled="@(!PermissionService.CanWrite)" Padding="Padding.Is1" Margin="Margin.Is2.FromStart" @onclick:stopPropagation>
+                                <Button Size="Size.Small" Clicked="@((_) => ToEdit(context.Item, _.CtrlKey))" Disabled="@(!PermissionService.CanWrite)" Padding="Blazorise.Padding.Is1" Margin="Margin.Is2.FromStart" @onclick:stopPropagation>
                                     <Icon Name="IconName.Edit" />
                                 </Button>
                             </Tooltip>
                         }else
                         {
                             <Tooltip Text="@PermissionService.CanReadTooltip("Visualizar")" Inline>
-                                <Button Size="Size.Small" Clicked="@((_) => ToView(context.Item, _.CtrlKey))" Disabled="@(!PermissionService.CanRead)" Padding="Padding.Is1" Margin="Margin.Is2.FromStart" @onclick:stopPropagation>
+                                <Button Size="Size.Small" Clicked="@((_) => ToView(context.Item, _.CtrlKey))" Disabled="@(!PermissionService.CanRead)" Padding="Blazorise.Padding.Is1" Margin="Margin.Is2.FromStart" @onclick:stopPropagation>
                                     <Icon Name="IconName.Eye" />
                                 </Button>
                             </Tooltip>
@@ -64,7 +64,7 @@
 
                     <DeleteCommandTemplate>
                         <Tooltip Text="@PermissionService.CanWriteTooltip("Deletar")" Inline>
-                            <Button Size="Size.Small" Clicked="@context.Clicked" Disabled="@(!PermissionService.CanWrite)" Padding="Padding.Is1" @onclick:stopPropagation>
+                            <Button Size="Size.Small" Clicked="@context.Clicked" Disabled="@(!PermissionService.CanWrite)" Padding="Blazorise.Padding.Is1" @onclick:stopPropagation>
                                 <Icon Name="IconName.Delete" />
                             </Button>
                         </Tooltip>
@@ -77,7 +77,7 @@
             <EmptyTemplate>
                 @if (!Loading.Visible)
                 {
-                    <Row Flex="Flex.JustifyContent.Center" Width="Width.Is100" Height="Height.Px(360)" Style="position: relative;">
+                    <Row Flex="Flex.JustifyContent.Center" Width="Width.Is100" Height="Blazorise.Height.Px(360)" Style="position: relative;">
                         <Column ColumnSize="ColumnSize.Is4.OnWidescreen" Style="margin: 0; position: absolute; top: 45%; -ms-transform: translateY(-45%); transoform: translateY(-45%);">
                             <Div TextAlignment="TextAlignment.Center">
                                 <Heading Size="HeadingSize.Is4" TextColor="TextColor.Danger">

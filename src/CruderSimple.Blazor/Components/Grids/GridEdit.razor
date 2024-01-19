@@ -1,8 +1,9 @@
-﻿@typeparam TEntity
+﻿@using Microsoft.AspNetCore.Components.Forms
+@typeparam TEntity
 @typeparam TDto
 @inherits CruderGridBase<TEntity, TDto>
 
-<Row>
+<Row Padding="@Padding">
     <Column ColumnSize="ColumnSize.Is12">
         <DataGrid @ref="DataGridRef"
                   TItem="TDto"
@@ -27,34 +28,53 @@
                   Resizable
                   Bordered
                   DetailRowStartsVisible="false"
+                  DetailRowTrigger="@((_) => DetailRowTemplate != null)"
                   NewItemDefaultSetter="DefaultNewInstance"
-                  FixedHeaderDataGridHeight="420px"
-                  FixedHeaderDataGridMaxHeight="420px"
+                  FixedHeaderDataGridHeight="@Height?.FixedSize.Value.ToString()"
+                  FixedHeaderDataGridMaxHeight="430px"
                   SortMode="DataGridSortMode.Single"
                   FilterMode="DataGridFilterMode.Menu"
                   ReadData="@GetData"
                   TotalItems="@TotalData"
-                  RowClicked="@SingleClicked">
+                  RowClicked="@((_) => SingleClicked(_.Item))">
             <DataGridColumns>
-                <DataGridCommandColumn TItem="TDto" PreventRowClick FixedPosition="TableColumnFixedPosition.Start" Field="Id" TextAlignment="TextAlignment.Start" Gap="Gap.Is0" Width="100px">
+                <DataGridCommandColumn 
+                                       TItem="TDto" 
+                                       PreventRowClick 
+                                       FixedPosition="TableColumnFixedPosition.Start" 
+                                       Field="Id" 
+                                       Gap="Gap.Is2" 
+                                       Width="@CalculateWidthCommandColumn()"
+                                       TextAlignment="TextAlignment.Center"
+                                       HeaderTextAlignment="TextAlignment.Center"
+                                       VerticalAlignment="VerticalAlignment.Middle"
+                                       FilterTextAlignment="TextAlignment.Center"
+                                       FilterVerticalAlignment="VerticalAlignment.Middle">
                     <NewCommandTemplate>
-                        @if (StartNewCommandTemplate is not null)
-                        {
-                            @StartNewCommandTemplate
-                        }
-                        <Tooltip Text="@PermissionService.CanWriteTooltip("Novo")">
-                            <Button Type="ButtonType.Link" Clicked="@context.Clicked" Color="Color.Success"  Width="Width.Is100" Size="Size.Small" Disabled="@(!PermissionService.CanWrite)">
-                                <Icon Name="IconName.Add" />
-                                @if (!SimpleNewCommand)
-                                {
-                                    <Span> Novo</Span>
-                                }
-                            </Button>
-                        </Tooltip>
-                        @if (EndNewCommandTemplate is not null)
-                        {
-                            @EndNewCommandTemplate
-                        }
+                        <Div Gap="Gap.Is2" Display="Display.InlineFlex">
+                            @if (StartNewCommandTemplate is not null)
+                            {
+                                @StartNewCommandTemplate
+                            }
+                            <Tooltip Text="@PermissionService.CanWriteTooltip("Novo")">
+                                <Button Type="ButtonType.Link" Clicked="@context.Clicked" Color="Color.Success" Width="Width.Is100" Size="Size.Small" Disabled="@(!PermissionService.CanWrite)">
+                                    <Icon Name="IconName.Add" />
+                                    @if (!SimpleNewCommand)
+                                    {
+                                        <Span> Novo</Span>
+                                    }
+                                </Button>
+                            </Tooltip>
+                            <Tooltip Text="@PermissionService.CanWriteTooltip("Atualizar")">
+                                <Button Type="ButtonType.Link" Clicked="@((_) => DataGridRef.Reload())" Color="Color.Info" Width="Width.Is100" Size="Size.Small" Disabled="@(!PermissionService.CanWrite)">
+                                    <Icon Name="IconName.Sync" />
+                                </Button>
+                            </Tooltip>
+                            @if (EndNewCommandTemplate is not null)
+                            {
+                                @EndNewCommandTemplate
+                            }
+                        </Div>
                     </NewCommandTemplate>
 
                     <EditCommandTemplate>
@@ -63,7 +83,7 @@
                             @StartCommandTemplate(context.Item)
                         }
                         <Tooltip Text="@PermissionService.CanWriteTooltip("Editar")" Inline>
-                            <Button Size="Size.Small" Clicked="@context.Clicked" Disabled="@(!PermissionService.CanWrite)" Padding="Padding.Is1" @onclick:stopPropagation>
+                            <Button Size="Size.Small" Clicked="@((_) => SingleClicked(context.Item, context))" Disabled="@(!PermissionService.CanWrite)" Padding="Blazorise.Padding.Is1" @onclick:stopPropagation>
                                 <Icon Name="IconName.Edit" />
                             </Button>
                         </Tooltip>
@@ -75,7 +95,7 @@
 
                     <DeleteCommandTemplate>
                         <Tooltip Text="@PermissionService.CanWriteTooltip("Deletar")" Inline>
-                            <Button Size="Size.Small" Clicked="@context.Clicked" Disabled="@(!PermissionService.CanWrite)" Padding="Padding.Is1" @onclick:stopPropagation>
+                            <Button Size="Size.Small" Clicked="@context.Clicked" Disabled="@(!PermissionService.CanWrite)" Padding="Blazorise.Padding.Is1" @onclick:stopPropagation>
                                 <Icon Name="IconName.Delete" />
                             </Button>
                         </Tooltip>
@@ -87,7 +107,7 @@
 
                     <SaveCommandTemplate>
                         <Tooltip Text="@PermissionService.CanWriteTooltip("Salvar")" Inline>
-                            <Button Size="Size.Small" Type="ButtonType.Submit" PreventDefaultOnSubmit Clicked="context.Clicked" Disabled="@(!PermissionService.CanWrite)" Padding="Padding.Is1" Margin="Margin.Is2.FromStart.Is1.FromTop" @onclick:stopPropagation>
+                            <Button Size="Size.Small" Type="ButtonType.Submit" PreventDefaultOnSubmit Clicked="context.Clicked" Disabled="@(!PermissionService.CanWrite)" Padding="Blazorise.Padding.Is1" Margin="Margin.Is2.FromStart.Is1.FromTop" @onclick:stopPropagation>
                                 <Icon Name="IconName.Check" />
                             </Button>
                         </Tooltip>
@@ -95,7 +115,7 @@
 
                     <CancelCommandTemplate>
                         <Tooltip Text="Cancelar" Inline>
-                            <Button Size="Size.Small" Clicked="@context.Clicked" Padding="Padding.Is1" Margin="Margin.Is1.FromTop" @onclick:stopPropagation>
+                            <Button Size="Size.Small" Clicked="@context.Clicked" Padding="Blazorise.Padding.Is1" Margin="Margin.Is1.FromTop" @onclick:stopPropagation>
                                 <Icon Name="IconName.TimesCircle" />
                             </Button>
                         </Tooltip>
@@ -103,11 +123,21 @@
                 </DataGridCommandColumn>
                 @Columns
             </DataGridColumns>
-            <LoadingTemplate></LoadingTemplate>
+            <LoadingTemplate>
+                <Row Flex="Flex.JustifyContent.Center" Width="Width.Is100" Height="@Height" Style="position: relative;">
+                    <Column ColumnSize="ColumnSize.Is4.OnWidescreen" Style="margin: 0; position: absolute; top: 45%; -ms-transform: translateY(-45%); transoform: translateY(-45%);">
+                        <Div TextAlignment="TextAlignment.Center">
+                            <Heading Size="HeadingSize.Is4" TextColor="TextColor.Danger">
+                                Carregando...
+                            </Heading>
+                        </Div>
+                    </Column>
+                </Row>
+            </LoadingTemplate>
             <EmptyTemplate>
                 @if (!Loading.Visible)
                 {
-                    <Row Flex="Flex.JustifyContent.Center" Width="Width.Is100" Height="Height.Px(360)" Style="position: relative;">
+                    <Row Flex="Flex.JustifyContent.Center" Width="Width.Is100" Height="@Height" Style="position: relative;">
                         <Column ColumnSize="ColumnSize.Is4.OnWidescreen" Style="margin: 0; position: absolute; top: 45%; -ms-transform: translateY(-45%); transoform: translateY(-45%);">
                             <Div TextAlignment="TextAlignment.Center">
                                 <Heading Size="HeadingSize.Is4" TextColor="TextColor.Danger">
@@ -125,8 +155,46 @@
                 <ListPageFilterMenu TEntity="TEntity" TDto="TDto" Column="context.Column" />
             </FilterMenuTemplate>
             <DetailRowTemplate>
-                DetailRowTemplate
+                @if (DetailRowTemplate != null)
+                {
+                    @DetailRowTemplate(context)
+                }
             </DetailRowTemplate>
         </DataGrid>
     </Column>
 </Row>
+
+@if (ModalEdit != null && DataGridRef?.SelectedRow != null)
+{
+    <Modal @ref="ModalRef" Closing="@ModalClosed">
+        <ModalContent Size="ModalSize.ExtraLarge">
+            <ModalHeader>
+                <h4>
+                    @ModalEditTitle
+                </h4>
+            </ModalHeader>
+            <EditForm class="form-signin" OnValidSubmit="SaveModal" Model="@DataGridRef.SelectedRow">
+                <ModalBody>
+                    <LoadingIndicator @bind-Visible="@IsLoading">
+                        <Row>
+                            <Column ColumnSize="ColumnSize.Is12">
+                                <Validations @ref="@ValidationsRef" Model="@DataGridRef.SelectedRow" Mode="ValidationMode.Auto" MissingFieldsErrorMessage="Error" ValidateOnLoad="false">
+                                    <Blazorise.ValidationSummary Label="Segue os erros:" />
+                                    @ModalEdit(DataGridRef.SelectedRow)
+                                </Validations>
+                            </Column>
+                        </Row>
+                    </LoadingIndicator>
+                </ModalBody>
+                <ModalFooter>
+                    <Button Color="Color.Warning" Clicked="@(() => ModalRef.Close(CloseReason.UserClosing))">
+                        Cancelar
+                    </Button>
+                    <Button Color="Color.Primary" Type="ButtonType.Submit" Loading="@IsLoading" Disabled="@(!PermissionService.CanWrite || IsLoading)" Margin="Margin.Is1.OnX">
+                        Salvar
+                    </Button>
+                </ModalFooter>
+            </EditForm>
+        </ModalContent>
+    </Modal>
+}

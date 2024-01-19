@@ -19,7 +19,10 @@ namespace CruderSimple.Blazor.Components.Grids
     where TDto : BaseDto
     {
         [Parameter] public RenderFragment Columns { get; set; }
+        [Parameter] public RenderFragment<TDto> DetailRowTemplate { get; set; }
         [Parameter] public string CustomSelect { get; set; }
+        [Parameter] public IFluentSizing Height { get; set; } = Blazorise.Height.Px(430);
+        [Parameter] public IFluentSpacing Padding { get; set; }
 
         [CascadingParameter] public LoadingIndicator Loading { get; set; }
 
@@ -211,7 +214,6 @@ namespace CruderSimple.Blazor.Components.Grids
             var data = new ListPageLocalStorage<TDto>(DataGridRef.CurrentPage, DataGridRef.PageSize, columns);
             await LocalStorage.SetItemAsync(StorageKey, data);
         }
-
 
         protected virtual async Task RemovingAsync(CancellableRowChange<TDto> context)
         {

@@ -1,9 +1,6 @@
-using Blazorise;
 using Blazorise.DataGrid;
-using CruderSimple.Blazor.Extensions;
 using CruderSimple.Blazor.Interfaces.Services;
 using CruderSimple.Core.Entities;
-using CruderSimple.Core.Extensions;
 using CruderSimple.Core.ViewModels;
 using Microsoft.AspNetCore.Components;
 
@@ -59,7 +56,6 @@ public partial class CruderSelectEntityColumn<TEntity, TItem, TColumnItem> : Cru
     protected void OnDataGridLoaded()
     {
         Loaded = true;
-        Console.WriteLine("OnDataGridLoaded");
         var events = (CruderGridEvents)DataGrid.Attributes["Events"];
         events.OnEditMode += () =>
         {
@@ -70,7 +66,6 @@ public partial class CruderSelectEntityColumn<TEntity, TItem, TColumnItem> : Cru
 
     private RenderFragment CreateSelectComponent(/*CellEditContext<TItem> cellEdit*/)
     {
-        Console.WriteLine("CreateSelectComponent: "+ DataGrid.ReadCellEditValue(ColumnField).ToJson());
         if (DataGridSelectColumn is null)
             return null;
 
@@ -97,11 +92,8 @@ public partial class CruderSelectEntityColumn<TEntity, TItem, TColumnItem> : Cru
 
     public async Task SelectChanged((string Key, object Value) value/*, CellEditContext<TItem> cellEdit*/)
     {
-        Console.WriteLine("Changed");
         DataGrid.UpdateCellEditValue(ColumnField, value.Value);
         SelectComponent = CreateSelectComponent();
-        StateHasChanged();
-        //cellEdit.UpdateCell(ColumnField, value.Value);
     }
 
     protected string GetGridName(TItem item)

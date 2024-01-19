@@ -65,16 +65,10 @@ public partial class EntityAutocomplete<TEntity, TEntityResult> : ComponentBase
     protected override void OnParametersSet()
     {
         
-        Console.WriteLine("OnParametersSet");
         if (autoComplete != null && Data != null && (SearchedOriginalData is null || !SearchedOriginalData.Any()))
         {
-            base.InvokeAsync(() =>
-            {
-                Console.WriteLine("OnParametersSet Ok");
-                SearchedOriginalData = new List<TEntityResult> { Data };
-                SelectedValue = Data;
-                Console.WriteLine(SelectedValue.ToJson());
-            });
+            SearchedOriginalData = new List<TEntityResult> { Data };
+            SelectedValue = Data;
         }
         base.OnParametersSet();
     }
