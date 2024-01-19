@@ -3,6 +3,7 @@ using CruderSimple.Core.Extensions;
 using CruderSimple.Core.Interfaces;
 using CruderSimple.MySql.Interfaces;
 using CruderSimple.MySql.Repositories;
+using Mapster;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,6 +21,11 @@ public static class Configuration
         Type multiTenantRepositoryImplementation)
         where TMultiTenant : IEntity
     {
+        TypeAdapterConfig.GlobalSettings.Default
+            //.MaxDepth(3)
+            .PreserveReference(true)
+            .AvoidInlineMapping(true)
+            ;
         services
             .AddMediatR(typeof(Configuration))
             // .AddDynamodbMapper(configuration, environment)

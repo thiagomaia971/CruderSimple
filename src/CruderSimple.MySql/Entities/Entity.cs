@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using CruderSimple.Core.Entities;
 using CruderSimple.Core.ViewModels;
+using Mapster;
 using Newtonsoft.Json;
 
 namespace CruderSimple.MySql.Entities;
@@ -27,13 +28,13 @@ public abstract class Entity : IEntity
         return this;
     }
 
-    public virtual BaseDto ConvertToOutput(IDictionary<string, bool> cached = null)
+    public virtual BaseDto ConvertToOutput(IDictionary<string, object> cached = null)
     {
         if (cached is null)
-            cached = new Dictionary<string, bool>();
+            cached = new Dictionary<string, object>();
         if (cached.ContainsKey(Id))
             return null;
-        cached.Add(Id, true);
+        cached.Add(Id, this);
         var output = new BaseDto(
             Id,
             CreatedAt,

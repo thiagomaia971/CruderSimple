@@ -3,6 +3,7 @@ using CruderSimple.Core.EndpointQueries;
 using CruderSimple.Core.Entities;
 using CruderSimple.Core.Extensions;
 using CruderSimple.Core.ViewModels;
+using Mapster;
 using MediatR;
 
 namespace CruderSimple.Api.Requests;
@@ -26,7 +27,7 @@ public static class GetAllRequest
                 return Pagination.CreateSuccess(
                     page: request.page, // TODO
                     size: queryAsync.Size,
-                    data: queryAsync.Data.ToOutput<TEntity, TDto>());
+                    data: queryAsync.Data.Adapt<IEnumerable<TDto>>());
             }
             catch (Exception exception)
             {

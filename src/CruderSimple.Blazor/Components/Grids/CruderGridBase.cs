@@ -20,6 +20,7 @@ namespace CruderSimple.Blazor.Components.Grids
     {
         [Parameter] public RenderFragment Columns { get; set; }
         [Parameter] public RenderFragment<TDto> DetailRowTemplate { get; set; }
+        [Parameter] public bool SelectAll { get; set; }
         [Parameter] public string CustomSelect { get; set; }
         [Parameter] public IFluentSizing Height { get; set; } = Blazorise.Height.Px(430);
         [Parameter] public IFluentSpacing Padding { get; set; }
@@ -91,6 +92,9 @@ namespace CruderSimple.Blazor.Components.Grids
 
         protected virtual string GetQuerySelect(IEnumerable<DataGridColumnInfo> dataGridFields)
         {
+            if (SelectAll)
+                return "*";
+
             var select = string.Join(",", dataGridFields
                 .Where(x => !string.IsNullOrEmpty(x.Field))
                 .Select(x =>
