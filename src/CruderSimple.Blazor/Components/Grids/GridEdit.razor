@@ -57,7 +57,7 @@
                                 @StartNewCommandTemplate
                             }
                             <Tooltip Text="@PermissionService.CanWriteTooltip("Novo")">
-                                <Button Type="ButtonType.Link" Clicked="@context.Clicked" Color="Color.Success" Width="Width.Is100" Size="Size.Small" Disabled="@(!PermissionService.CanWrite)">
+                                <Button Type="ButtonType.Link" Clicked="@((_) => NewCommand(context))" Color="Color.Success" Width="Width.Is100" Size="Size.Small" Disabled="@(!PermissionService.CanWrite)">
                                     <Icon Name="IconName.Add" />
                                     @if (!SimpleNewCommand)
                                     {
@@ -137,8 +137,8 @@
             <EmptyTemplate>
                 @if (!Loading.Visible)
                 {
-                    <Row Flex="Flex.JustifyContent.Center" Width="Width.Is100" Height="@Height" Style="position: relative;">
-                        <Column ColumnSize="ColumnSize.Is4.OnWidescreen" Style="margin: 0; position: absolute; top: 45%; -ms-transform: translateY(-45%); transoform: translateY(-45%);">
+                    <Row Flex="Flex.JustifyContent.Center" Width="Width.Is100" Height="@(Height == null ? Blazorise.Height.Px(150) : Height)" Style="position: relative;">
+                        <Column ColumnSize="ColumnSize.Is4.OnWidescreen" Style="@(Height == null ? "margin: 0; position: absolute; top: 20%; -ms-transform: translateY(-20%); transoform: translateY(-20%);" : "margin: 0; position: absolute; top: 45%; -ms-transform: translateY(-45%); transoform: translateY(-45%);")">
                             <Div TextAlignment="TextAlignment.Center">
                                 <Heading Size="HeadingSize.Is4" TextColor="TextColor.Danger">
                                     Nenhum registro encontrado
@@ -164,23 +164,23 @@
     </Column>
 </Row>
 
-@if (ModalEdit != null && DataGridRef?.SelectedRow != null)
-{
-    <Modal @ref="ModalRef" Closing="@ModalClosed">
+<Modal @ref="ModalRef" Closing="@ModalClosed">
+    @if (ModalForm != null && CurrentSelected != null)
+    {
         <ModalContent Size="ModalSize.ExtraLarge">
             <ModalHeader>
-                <h4>
-                    @ModalEditTitle
+                <h4 style="margin: 0px;">
+                    @ModalFormTitle
                 </h4>
             </ModalHeader>
-            <EditForm class="form-signin" OnValidSubmit="SaveModal" Model="@DataGridRef.SelectedRow">
+            <EditForm class="form-signin" OnValidSubmit="SaveModal" Model="@CurrentSelected">
                 <ModalBody>
                     <LoadingIndicator @bind-Visible="@IsLoading">
                         <Row>
                             <Column ColumnSize="ColumnSize.Is12">
-                                <Validations @ref="@ValidationsRef" Model="@DataGridRef.SelectedRow" Mode="ValidationMode.Auto" MissingFieldsErrorMessage="Error" ValidateOnLoad="false">
+                                <Validations @ref="@ValidationsRef" Model="@CurrentSelected" Mode="ValidationMode.Auto" MissingFieldsErrorMessage="Error" ValidateOnLoad="false">
                                     <Blazorise.ValidationSummary Label="Segue os erros:" />
-                                    @ModalEdit(DataGridRef.SelectedRow)
+                                    @ModalForm(CurrentSelected)
                                 </Validations>
                             </Column>
                         </Row>
@@ -196,5 +196,5 @@
                 </ModalFooter>
             </EditForm>
         </ModalContent>
-    </Modal>
-}
+    }
+</Modal>

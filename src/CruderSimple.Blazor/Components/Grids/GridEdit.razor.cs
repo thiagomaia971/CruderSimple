@@ -1,4 +1,6 @@
+using System;
 using System.Reflection.Metadata;
+using System.Transactions;
 using Blazorise;
 using Blazorise.DataGrid;
 using CruderSimple.Core.Entities;
@@ -20,18 +22,21 @@ public partial class GridEdit<TEntity, TDto> : CruderGridBase<TEntity, TDto>
     [Parameter] public Action<TDto> DefaultNewInstance { get;set; }
     [Parameter] public bool SimpleNewCommand { get; set; }
     [Parameter] public bool EditCommandAllowed { get; set; }
-    [Parameter] public string ModalEditTitle { get; set; }
+    [Parameter] public string ModalFormTitle { get; set; }
+    [Parameter] public bool IsLocal { get; set; }
     [Parameter] public RenderFragment StartNewCommandTemplate { get; set; }
     [Parameter] public RenderFragment EndNewCommandTemplate { get; set; }
     [Parameter] public RenderFragment<TDto> StartCommandTemplate { get; set; }
     [Parameter] public RenderFragment<TDto> MiddleCommandTemplate { get; set; }
     [Parameter] public RenderFragment<TDto> EndCommandTemplate { get; set; }
-    [Parameter] public RenderFragment<TDto> ModalEdit { get; set; }
+    [Parameter] public RenderFragment<TDto> ModalForm { get; set; }
     public override string StorageKey => $"{base.StorageKey}:{FilterValue}";
     public Modal ModalRef { get; set; }
     public bool IsLoading { get; set; }
     protected Validations ValidationsRef { get; set; }
     public string Errors { get; set; }
+    public TDto CurrentSelected { get; set; }
+    public bool IsNewModal { get; set; }
 
     protected override string GetQueryFilter(IEnumerable<DataGridColumnInfo> dataGridColumnInfos, List<string> filters = null) 
         => base.GetQueryFilter(dataGridColumnInfos, [$"{FilterKey} {Op.Equals} {FilterValue}"]);
@@ -41,17 +46,36 @@ public partial class GridEdit<TEntity, TDto> : CruderGridBase<TEntity, TDto>
         await base.OnAfterRenderAsync(firstRender);
     }
 
+    public async Task NewCommand(NewCommandContext<TDto> command)
+    {
+        if (ModalForm == null) 
+        {
+            await command.Clicked.InvokeAsync(this);
+        }
+        else
+        {
+            IsNewModal = true;
+            CurrentSelected = Activator.CreateInstance<TDto>();
+            await ModalRef.Show();
+        }
+    }
+
     public async Task SingleClicked(TDto e, EditCommandContext<TDto> editContext = null)
     {
         await DataGridRef.Select(e);
-        if (ModalEdit == null)
+        CurrentSelected = e;
+        StateHasChanged();
+        if (ModalForm == null)
         {
             await DataGridRef.Edit(e);
             if (editContext?.Clicked != null)
                 await editContext?.Clicked.InvokeAsync();
         }
         else
+        {
+            IsNewModal = false;
             await ModalRef.Show();
+        }
         CruderGridEvents.RaiseOnEditMode();
     }
 
@@ -70,6 +94,7 @@ public partial class GridEdit<TEntity, TDto> : CruderGridBase<TEntity, TDto>
         else
             context.Cancel = true;
         await DataGridRef.Refresh();
+        CurrentSelected = null;
     }
 
     public async Task UpdatingAsync(CancellableRowChange<TDto> context)
@@ -78,6 +103,7 @@ public partial class GridEdit<TEntity, TDto> : CruderGridBase<TEntity, TDto>
         {
             await Loading.Show();
             var result = await Service.Update(context.NewItem.Id, context.NewItem);
+
             if (result.Success)
                 await NotificationService.Success("Atualizado com sucesso!");
             else
@@ -87,6 +113,7 @@ public partial class GridEdit<TEntity, TDto> : CruderGridBase<TEntity, TDto>
         else
             context.Cancel = true;
         await DataGridRef.Refresh();
+        CurrentSelected = null;
     }
 
     protected string CalculateWidthCommandColumn()
@@ -118,11 +145,16 @@ public partial class GridEdit<TEntity, TDto> : CruderGridBase<TEntity, TDto>
             try
             {
                 Result<TDto> result = null;
-                result = await Service.Update(DataGridRef?.SelectedRow.Id, DataGridRef?.SelectedRow);
+                if (DefaultNewInstance is not null)
+                    DefaultNewInstance(CurrentSelected);
+                if (IsNewModal)
+                    result = await Service.Create(CurrentSelected);
+                else
+                    result = await Service.Update(CurrentSelected.Id, CurrentSelected);
 
                 if (result.Success)
                 {
-                    await NotificationService.Success("Atualizado com sucesso!", "Resultado");
+                    await NotificationService.Success($"{(IsNewModal ? "Cadastrado" : "Atualizado")} com sucesso!");
                     await ModalRef.Close(CloseReason.None);
                 }
 
@@ -138,6 +170,7 @@ public partial class GridEdit<TEntity, TDto> : CruderGridBase<TEntity, TDto>
             }
         }
         IsLoading = false;
+        CurrentSelected = null;
     }
 
     protected async Task ModalClosed(ModalClosingEventArgs e)
