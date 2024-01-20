@@ -26,7 +26,7 @@ public static class GetByIdRequest
         {
             try
             {
-                var single = await repository.FindById(request.id, request.select);
+                var single = await repository.FindById(request.id, request.select, true);
                 if (single is null)
                     return Result.CreateError("Recurso não encontrado", 404, "Recurso não encontrado");
 

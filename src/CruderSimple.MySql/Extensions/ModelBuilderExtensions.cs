@@ -22,17 +22,22 @@ public static class ModelBuilderExtensions
             AutoIncludeDbSet(ModelBuilder, dbSetProperty);
     }
     
+    public static void Modified(this DbContext context, IEntity t, string entryId)
+    {
+        // var local = GetLocalDbSet(context, t, entryId);
+        // if (local is null)
+        //     context.Entry(t).State = EntityState.Added;
+        // else
+            context.Entry(t).State = EntityState.Modified;
+    }
+
     public static void DetachLocal(this DbContext context, IEntity t, string entryId)
     {
         var local = GetLocalDbSet(context, t, entryId);
-        // var local2 = context.Set<Entity>()
-        //     .Local
-        //     .FirstOrDefault(entry => entry.Id.Equals(entryId));
         if (local is not null)
-        {
-            context.Entry(local).State = EntityState.Detached;
-        }
-        context.Entry(t).State = EntityState.Modified;
+            context.Entry(local).State = EntityState.Unchanged;
+        else
+            context.Modified(t, entryId);
     }
     
     private static IEntity GetLocalDbSet<T>(DbContext context, T t, string entryId)

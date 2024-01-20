@@ -22,7 +22,7 @@ public static class GetAllRequest
         {
             try
             {
-                var queryAsync = await repository.GetAll(request);
+                var queryAsync = await repository.GetAll(request, true);
 
                 return Pagination.CreateSuccess(
                     page: request.page, // TODO

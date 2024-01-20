@@ -8,6 +8,14 @@ namespace CruderSimple.MySql.Extensions;
 
 public static class AutoDetachExtensions
 {
+    public static IQueryable<TSource> IsAsNoTracking<TSource>(this IQueryable<TSource> source, bool asNoTracking)
+        where TSource : class
+    {
+        if (asNoTracking)
+            return source.AsNoTrackingWithIdentityResolution();
+        return source;
+    }
+
     public static void AutoDetach(this DbContext dbContext, IEntity entity, List<string> detached = null)
     {
         if (detached is not null && detached.Contains($"{entity.GetType()}:{entity.Id}"))
@@ -17,6 +25,8 @@ public static class AutoDetachExtensions
             detached = new List<string>();
         else
             detached.Add($"{entity.GetType()}:{entity.Id}");
+        
+        // dbContext.Modified(entity, entity.Id);
         
         var allEntities = entity.GetPropertiesFromInhiredType<IEntity>();
 

@@ -42,19 +42,22 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
     public virtual async Task Save() 
         => await DbContext.SaveChangesAsync();
 
-    public virtual Task<TEntity> FindById(string id, string select = "*") 
-        => Query(true).SelectBy(select).FirstOrDefaultAsync(x => x.Id == id);
+    public virtual Task<TEntity> FindById(string id, string select = "*", bool asNoTracking = false) 
+        => Query(asNoTracking, true)
+            .SelectBy(select)
+            .FirstOrDefaultAsync(x => x.Id == id);
 
     public virtual Task<TEntity> FindBy(string propertyName, string value)
         => FindById(value);
 
-    public virtual Task<Pagination<TEntity>> GetAll(GetAllEndpointQuery query = null) 
-        => Task.FromResult(Query()
-            //.AsNoTracking()
+    public virtual Task<Pagination<TEntity>> GetAll(GetAllEndpointQuery query = null, bool asNoTracking = false) 
+        => Task.FromResult(Query(asNoTracking, false)
             .ApplyQuery(query));
 
-    protected virtual IQueryable<TEntity> Query(bool ignoreUser = false) 
+    protected virtual IQueryable<TEntity> Query(bool asNoTracking = false, bool ignoreUser = false) 
         => DbSet
+            .IgnoreAutoIncludes()
+            .IsAsNoTracking(asNoTracking)
             .ApplyMultiTenantFilter(multiTenant?.UserId ?? string.Empty, multiTenant?.Id ?? string.Empty, ignoreUser)
             .OrderBy(x => x.CreatedAt);
 }
