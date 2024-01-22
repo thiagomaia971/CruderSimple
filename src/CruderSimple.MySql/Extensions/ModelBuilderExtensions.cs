@@ -21,31 +21,31 @@ public static class ModelBuilderExtensions
         foreach (var dbSetProperty in properties)
             AutoIncludeDbSet(ModelBuilder, dbSetProperty);
     }
-    
-    public static void Modified(this DbContext context, IEntity t, string entryId)
-    {
-        // var local = GetLocalDbSet(context, t, entryId);
-        // if (local is null)
-        //     context.Entry(t).State = EntityState.Added;
-        // else
-            context.Entry(t).State = EntityState.Modified;
-    }
 
     public static void DetachLocal(this DbContext context, IEntity t, string entryId)
     {
-        var local = GetLocalDbSet(context, t, entryId);
-        if (local is not null)
-            context.Entry(local).State = EntityState.Unchanged;
-        else
-            context.Modified(t, entryId);
+        try
+        {
+            var local = GetLocalDbSet(context, t.GetType(), entryId);
+
+            if (local != null)
+                context.Entry(local).State = EntityState.Detached;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
+        finally
+        {
+            context.Entry(t).State = EntityState.Modified;
+        }
     }
     
-    private static IEntity GetLocalDbSet<T>(DbContext context, T t, string entryId)
-        where T : class, IEntity
+    private static IEntity GetLocalDbSet(DbContext context, Type entityType, string entryId)
     {
         var methodInfo = context.GetType().GetMethod("Set", new Type[0] {  });
         var methodGenericInfo =
-            methodInfo.MakeGenericMethod(t.GetType());
+            methodInfo.MakeGenericMethod(entityType);
 
         var dbSet = (dynamic) methodGenericInfo.Invoke(context, new string[0] {  });
         var local = (IEnumerable<IEntity>) dbSet.Local;

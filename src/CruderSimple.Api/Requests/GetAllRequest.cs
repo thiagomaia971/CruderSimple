@@ -27,7 +27,7 @@ public static class GetAllRequest
                 return Pagination.CreateSuccess(
                     page: request.page, // TODO
                     size: queryAsync.Size,
-                    data: queryAsync.Data.Adapt<IEnumerable<TDto>>());
+                    data: queryAsync.Data.ToOutput<TEntity, TDto>());
             }
             catch (Exception exception)
             {

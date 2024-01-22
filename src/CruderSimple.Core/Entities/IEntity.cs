@@ -7,6 +7,6 @@ public interface IEntity
 {
     public string Id { get; set; }
     public IEntity FromInput(BaseDto input);
-    BaseDto ConvertToOutput(IDictionary<string, object> cached = null);
+    BaseDto ConvertToOutput();
     public string GetPrimaryKey();
 }

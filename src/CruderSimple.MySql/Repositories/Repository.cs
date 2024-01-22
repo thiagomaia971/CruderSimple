@@ -2,9 +2,11 @@
 using CruderSimple.Core.Entities;
 using CruderSimple.Core.Extensions;
 using CruderSimple.Core.Interfaces;
+using CruderSimple.Core.ViewModels;
 using CruderSimple.MySql.Entities;
 using CruderSimple.MySql.Extensions;
 using CruderSimple.MySql.Interfaces;
+using Mapster;
 using Microsoft.EntityFrameworkCore;
 
 namespace CruderSimple.MySql.Repositories;
@@ -17,18 +19,22 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
 
     protected MultiTenantScoped MultiTenant { get; } = multiTenant;
 
-    public virtual IRepositoryBase<TEntity> Add(TEntity entity)
+    public virtual IRepositoryBase<TEntity> Add(TEntity entity, bool autoDetach = true)
     {
+        entity.CreatedAt = DateTime.UtcNow;
         entity.SetAllMultiTenant(MultiTenant.MultiTenantType, MultiTenant.Id);
-        DbContext.AutoDetach(entity);
+        if (autoDetach)
+            DbContext.AutoDetach(entity);
         DbContext.Add(entity);
         return this;
     }
 
-    public virtual IRepositoryBase<TEntity> Update(TEntity entity)
+    public virtual IRepositoryBase<TEntity> Update(TEntity entity, bool autoDetach = true)
     {
+        entity.UpdatedAt = DateTime.UtcNow;
         entity.SetAllMultiTenant(MultiTenant.MultiTenantType, MultiTenant.Id);
-        DbContext.AutoDetach(entity);
+        if (autoDetach)
+            DbContext.AutoDetach(entity);
         DbContext.Update(entity);
         return this;
     }
@@ -57,7 +63,7 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
     protected virtual IQueryable<TEntity> Query(bool asNoTracking = false, bool ignoreUser = false) 
         => DbSet
             .IgnoreAutoIncludes()
-            .IsAsNoTracking(asNoTracking)
+            .AsNoTracking(asNoTracking)
             .ApplyMultiTenantFilter(multiTenant?.UserId ?? string.Empty, multiTenant?.Id ?? string.Empty, ignoreUser)
             .OrderBy(x => x.CreatedAt);
 }

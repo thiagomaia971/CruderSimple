@@ -6,8 +6,8 @@ namespace CruderSimple.Core.Interfaces;
 public interface IRepositoryBase<T>
     where T : IEntity
 {
-    IRepositoryBase<T> Add(T entity);
-    IRepositoryBase<T> Update(T entity);
+    IRepositoryBase<T> Add(T entity, bool autoDetach = true);
+    IRepositoryBase<T> Update(T entity, bool autoDetach = true);
     IRepositoryBase<T> Remove(T entity);
     Task Save();
     Task<T> FindById(string id, string select = "*", bool asNoTracking = false);
