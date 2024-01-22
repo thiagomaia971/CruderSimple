@@ -9,7 +9,7 @@ public interface IRepositoryBase<T>
     IRepositoryBase<T> Add(T entity, bool autoDetach = true);
     IRepositoryBase<T> Update(T entity, bool autoDetach = true);
     IRepositoryBase<T> Remove(T entity);
-    Task Save();
+    Task Save(bool withoutTracking = true);
     Task<T> FindById(string id, string select = "*", bool asNoTracking = false);
     Task<T> FindBy(string propertyName, string value);
     Task<Pagination<T>> GetAll(GetAllEndpointQuery query = null, bool asNoTracking = false);

@@ -30,9 +30,9 @@ public static class MultiTenantExtensions
         
         var properties = entity.GetType().GetProperties()
             .Where(c =>
-                tenantType.IsAssignableFrom(c.PropertyType) ||
+                typeof(IEntity).IsAssignableFrom(c.PropertyType) ||
                 (c.PropertyType.IsGenericType && 
-                tenantType.IsAssignableFrom(c.PropertyType.GenericTypeArguments[0]) && 
+                typeof(IEntity).IsAssignableFrom(c.PropertyType.GenericTypeArguments[0]) && 
                 (c.PropertyType.GetGenericTypeDefinition() == typeof(IEnumerable<>) ||
                  c.PropertyType.GetGenericTypeDefinition() == typeof(List<>) ||
                  c.PropertyType.GetGenericTypeDefinition() == typeof(ICollection<>))))

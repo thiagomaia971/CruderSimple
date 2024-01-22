@@ -2,6 +2,7 @@
 using CruderSimple.Core.Entities;
 using CruderSimple.Core.Extensions;
 using CruderSimple.MySql.Attributes;
+using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 
@@ -32,8 +33,7 @@ public static class AutoDetachExtensions
         
         if (detached is null)
             detached = new List<string>();
-        else
-            detached.Add($"{entity.GetType()}:{entity.Id}");
+        detached.Add($"{entity.GetType()}:{entity.Id}");
         
         var allEntities = entity.GetPropertiesFromInhiredType<IEntity>();
 
@@ -46,22 +46,29 @@ public static class AutoDetachExtensions
             {
                 if (autoDetachAttribute is null)
                     dbContext.AutoDetach(innerEntity, detached);
-                else
-                    dbContext.DetachLocal(innerEntity, innerEntity.Id);
+                else if (!detached.Contains($"{innerEntity.GetType()}:{innerEntity.Id}"))
+                {
+                    // dbContext.DetachLocal(innerEntity);
+                    innerEntityProperty.SetValue(entity, null);
+                }
             }
             else
             {
                 var list = (innerEntityProperty.GetValue(entity) as IEnumerable);
                 if (list is null)
                     continue;
-                foreach (var v in list)
+                foreach (var v in list.Adapt<IEnumerable>())
                 {
                     if (v is null)
                         continue;
+                    var innerEntityList = (IEntity)v;
                     if (autoDetachAttribute is null)
-                        dbContext.AutoDetach((IEntity) v, detached);
-                    else 
-                        dbContext.DetachLocal((IEntity) v, ((IEntity) v).Id);
+                        dbContext.AutoDetach(innerEntityList, detached);
+                    else if (!detached.Contains($"{innerEntityList.GetType()}:{innerEntityList.Id}"))
+                    {
+                        dbContext.DetachLocal(innerEntityList);
+                        // list.Remove(innerEntityList);
+                    }
                 }
             }
         }

@@ -14,6 +14,8 @@
             var itemProperties = value.GetType().GetProperty(propertyName);
             if (itemProperties is null)
                 return default;
+            if (itemProperties.GetValue(value) == null)
+                return default;
             return (T) itemProperties.GetValue(value);
         }
         public static Type GetPropertyTypeByName(this object value, string propertyName)

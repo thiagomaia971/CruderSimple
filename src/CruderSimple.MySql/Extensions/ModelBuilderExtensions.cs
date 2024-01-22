@@ -22,11 +22,11 @@ public static class ModelBuilderExtensions
             AutoIncludeDbSet(ModelBuilder, dbSetProperty);
     }
 
-    public static void DetachLocal(this DbContext context, IEntity t, string entryId)
+    public static void DetachLocal(this DbContext context, IEntity t)
     {
         try
         {
-            var local = GetLocalDbSet(context, t.GetType(), entryId);
+            var local = GetLocalDbSet(context, t.GetType(), t.Id);
 
             if (local != null)
                 context.Entry(local).State = EntityState.Detached;

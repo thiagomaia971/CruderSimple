@@ -18,35 +18,54 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
     protected readonly DbSet<TEntity> DbSet = dbContext.Set<TEntity>();
 
     protected MultiTenantScoped MultiTenant { get; } = multiTenant;
+    protected TEntity Saved { get; set; }
 
     public virtual IRepositoryBase<TEntity> Add(TEntity entity, bool autoDetach = true)
     {
         entity.CreatedAt = DateTime.UtcNow;
-        entity.SetAllMultiTenant(MultiTenant.MultiTenantType, MultiTenant.Id);
+        entity.UpdatedAt = DateTime.UtcNow;
+        Saved = entity;
+        DbContext.Add(entity); 
         if (autoDetach)
-            DbContext.AutoDetach(entity);
-        DbContext.Add(entity);
+            DbContext.AutoDetach(Saved);
         return this;
     }
 
     public virtual IRepositoryBase<TEntity> Update(TEntity entity, bool autoDetach = true)
     {
         entity.UpdatedAt = DateTime.UtcNow;
-        entity.SetAllMultiTenant(MultiTenant.MultiTenantType, MultiTenant.Id);
-        if (autoDetach)
-            DbContext.AutoDetach(entity);
+        Saved = entity;
         DbContext.Update(entity);
+        if (autoDetach)
+            DbContext.AutoDetach(Saved);
         return this;
     }
 
     public virtual IRepositoryBase<TEntity> Remove(TEntity entity)
     {
+        Saved = entity;
         DbContext.Remove(entity);
         return this;
     }
 
-    public virtual async Task Save() 
-        => await DbContext.SaveChangesAsync();
+    public virtual async Task Save(bool withoutTracking = true)
+    {
+        Saved.SetAllMultiTenant(MultiTenant.MultiTenantType, MultiTenant.Id);
+        
+        if (withoutTracking)
+        {
+            var entries = dbContext.ChangeTracker.Entries().ToList();
+            dbContext.ChangeTracker.Clear();
+            foreach (var entry in entries)
+            {
+                if (entry.State == EntityState.Deleted)
+                    dbContext.Entry(entry.Entity).State = EntityState.Modified;
+                else
+                    dbContext.Entry(entry.Entity).State = entry.State;
+            }
+        }
+        await DbContext.SaveChangesAsync();
+    }
 
     public virtual Task<TEntity> FindById(string id, string select = "*", bool asNoTracking = false) 
         => Query(asNoTracking, true)
