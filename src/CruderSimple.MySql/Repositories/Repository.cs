@@ -56,13 +56,29 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
         {
             var entries = dbContext.ChangeTracker.Entries().ToList();
             dbContext.ChangeTracker.Clear();
-            foreach (var entry in entries)
+            foreach (var group in entries.GroupBy(x => ((IEntity)x.Entity).Id))
             {
-                if (entry.State == EntityState.Deleted)
+                var entry = group.FirstOrDefault();
+                if (group.Count() > 1)
+                {
                     dbContext.Entry(entry.Entity).State = EntityState.Modified;
+                }
                 else
-                    dbContext.Entry(entry.Entity).State = entry.State;
+                {
+                    if (entry.State == EntityState.Deleted)
+                        dbContext.Entry(entry.Entity).State = EntityState.Modified;
+                    else
+                        dbContext.Entry(entry.Entity).State = entry.State;
+                }
             }
+            
+            // foreach (var entry in entries.DistinctBy(x => ((IEntity)x.Entity).Id))
+            // {
+            //     if (entry.State == EntityState.Deleted)
+            //         dbContext.Entry(entry.Entity).State = EntityState.Modified;
+            //     else
+            //         dbContext.Entry(entry.Entity).State = entry.State;
+            // }
         }
         await DbContext.SaveChangesAsync();
     }

@@ -9,7 +9,7 @@
         <DataGrid @ref="DataGridRef"
                     TItem="TDto"
                     Class="datagrid-listpage"
-                    Data="@Data"
+                    Data="@SearchedData"
                     Hoverable
                     ShowPager
                     ShowPageSizes
@@ -70,10 +70,10 @@
                         </Tooltip>
                     </DeleteCommandTemplate>
                 </DataGridCommandColumn>
-                <DataGridDateColumn TItem="TDto" Field="CreatedAt" Caption="Data de Criação" DisplayFormat="{0:dd/MM/yyyy HH:mm:ss}" Editable Filterable Width="150px" SortDirection="SortDirection.Ascending">
+                <DataGridDateColumn TItem="TDto" Field="UpdatedAt" Caption="Última Atualização" DisplayFormat="{0:dd/MM/yyyy HH:mm:ss}" Editable Filterable Width="150px" SortDirection="SortDirection.Ascending">
                     <DisplayTemplate>
-                        <Tooltip Text="@(context.GetValueByPropertyName<DateTime>("CreatedAt").ToString("dd/MM/yyyy HH:mm:ss"))">
-                            @(context.GetValueByPropertyName<DateTime>("CreatedAt").RelativeDate())
+                        <Tooltip Text="@(context.GetValueByPropertyName<DateTime?>("UpdatedAt")?.ToString("dd/MM/yyyy HH:mm:ss") ?? context.GetValueByPropertyName<DateTime>("CreatedAt").ToString("dd/MM/yyyy HH:mm:ss"))">
+                            @(context.GetValueByPropertyName<DateTime?>("UpdatedAt")?.RelativeDate() ?? context.GetValueByPropertyName<DateTime>("CreatedAt").RelativeDate())
                         </Tooltip>
                     </DisplayTemplate>
                 </DataGridDateColumn>

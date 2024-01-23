@@ -34,7 +34,8 @@ namespace CruderSimple.Blazor.Components.Grids
         [Inject] public INotificationService NotificationService { get; set; }
         [Inject] public IMessageService UiMessageService { get; set; }
 
-        public IEnumerable<TDto> Data { get; set; }
+        public virtual IList<TDto> AllData => SearchedData?.ToList();
+        public List<TDto> SearchedData { get; set; } = new List<TDto>();
         public int TotalData { get; set; }
         private DataGrid<TDto> _dataGridRef { get; set; }
         public DataGrid<TDto> DataGridRef { get => _dataGridRef; set 
@@ -86,7 +87,7 @@ namespace CruderSimple.Blazor.Components.Grids
             var data = await Service.GetAll(new GetAllEndpointQuery(select, filter, orderBy, e.PageSize, e.Page));
 
             TotalData = data.Size;
-            Data = data.Data;
+            SearchedData = data.Data.ToList();
             await SaveColumns();
         }
 

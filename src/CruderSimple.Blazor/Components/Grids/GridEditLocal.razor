@@ -13,12 +13,12 @@
                   ShowPager
                   ShowPageSizes
                   Responsive
-                  Editable
                   EditMode="DataGridEditMode.Inline"
                   CommandMode="DataGridCommandMode.Commands"
                   RowInserting="InsertingAsync"
                   RowUpdating="UpdatingAsync"
                   RowRemoving="RemovingAsync"
+                  Editable
                   Filterable
                   Groupable
                   Narrow
@@ -191,7 +191,14 @@
                         Cancelar
                     </Button>
                     <Button Color="Color.Primary" Type="ButtonType.Submit" Loading="@IsLoading" Disabled="@(!PermissionService.CanWrite || IsLoading)" Margin="Margin.Is1.OnX">
-                        Salvar
+                        @if (IsNewModal)
+                        {
+                            @("Adicionar")
+                        }
+                        else
+                        {
+                            @("Editar")
+                        }
                     </Button>
                 </ModalFooter>
             </EditForm>
