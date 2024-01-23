@@ -155,7 +155,6 @@ public partial class GridEditLocal<TEntity, TDto> : CruderGridBase<TEntity, TDto
             }
             finally
             {
-                Console.WriteLine("Refresh");
                 await DataGridRef.Refresh();
             }
         }

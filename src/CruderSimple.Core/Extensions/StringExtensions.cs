@@ -24,8 +24,6 @@ namespace CruderSimple.Core.Extensions
         {
             if (obj == null)
                 return "null";
-            Console.WriteLine(obj.GetType());
-            Console.WriteLine(IsEnumerableType(obj.GetType(), out _));
             if (IsEnumerableType(obj.GetType(), out _))
             {
                 var list = obj as IEnumerable;
@@ -34,8 +32,6 @@ namespace CruderSimple.Core.Extensions
                 var objs = new List<string>();
                 foreach (var item in list)
                 {
-                    Console.WriteLine(item.GetType());
-                    Console.WriteLine(JsonConvert.SerializeObject(item, Formatting.Indented));
                     objs.Add(JsonConvert.SerializeObject(item, Formatting.Indented));
                 }
                 builder.Append(string.Join(",", objs));
