@@ -14,8 +14,9 @@ public static class MultiTenantExtensions
             return;
         if (typed is null)
             typed = new List<Type> { entity.GetType() };
-        else
-            typed.Add(entity.GetType());
+        else if (typed.Contains(entity.GetType()))
+            return;
+        else typed.Add(entity.GetType());
         
         var allMultitenantProperties = entity.GetPropertiesWithAttribute<MultiTenantAttribute>();
         foreach (var multitenantProperty in allMultitenantProperties

@@ -43,8 +43,9 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
 
     public virtual IRepositoryBase<TEntity> Remove(TEntity entity)
     {
+        entity.DeletedAt = DateTime.UtcNow;
         Saved = entity;
-        DbContext.Remove(entity);
+        DbContext.Update(entity);
         return this;
     }
 
@@ -99,6 +100,7 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
         => DbSet
             .IgnoreAutoIncludes()
             .AsNoTracking(asNoTracking)
+            .Where(x => !x.DeletedAt.HasValue)
             .ApplyMultiTenantFilter(multiTenant?.UserId ?? string.Empty, multiTenant?.Id ?? string.Empty, ignoreUser)
             .OrderBy(x => x.CreatedAt);
 }

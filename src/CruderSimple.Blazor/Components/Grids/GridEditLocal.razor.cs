@@ -18,7 +18,12 @@ public partial class GridEditLocal<TEntity, TDto> : CruderGridBase<TEntity, TDto
     where TEntity : IEntity
     where TDto : BaseDto
 {
-    public override IList<TDto> AllData => SearchedData.Concat(Data).DistinctBy(x => x.Id).ToList();
+    public override IList<TDto> AllData 
+        => SearchedData
+            .Concat(Data)
+            .DistinctBy(x => x.Id)
+            .Where(x => !x.DeletedAt.HasValue)
+            .ToList();
 
     [Parameter] public IEnumerable<TDto> Data { get; set; } = Enumerable.Empty<TDto>();
     [Parameter] public EventCallback<IEnumerable<TDto>> DataChanged { get; set; }
@@ -92,6 +97,7 @@ public partial class GridEditLocal<TEntity, TDto> : CruderGridBase<TEntity, TDto
         else
             context.Cancel = true;
         await DataGridRef.Refresh();
+        
         CurrentSelected = null;
     }
 
@@ -108,6 +114,20 @@ public partial class GridEditLocal<TEntity, TDto> : CruderGridBase<TEntity, TDto
             context.Cancel = true;
         await DataGridRef.Refresh();
         CurrentSelected = null;
+    }
+
+    protected override async Task RemovingAsync(CancellableRowChange<TDto> context)
+    {
+        if (await UiMessageService.Confirm("Remover esse item?", "Remover"))
+        {
+            context.NewItem.DeletedAt = DateTime.UtcNow;
+            await UpdateData(context.NewItem);
+            TotalData--;
+            await NotificationService.Success("Removido com sucesso!");
+            await DataGridRef.Refresh();
+        }
+        else
+            context.Cancel = true;
     }
 
     protected async Task SaveModal()

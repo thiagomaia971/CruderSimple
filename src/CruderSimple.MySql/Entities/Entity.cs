@@ -19,6 +19,9 @@ public abstract class Entity : IEntity
     
     [JsonProperty("UpdatedAt")]
     public DateTime? UpdatedAt { get; set; }
+    
+    [JsonProperty("DeletedAt")]
+    public DateTime? DeletedAt { get; set; }
 
     protected BaseDto FromOutputBase<TEntity, TDto>()
         where TEntity : IEntity
