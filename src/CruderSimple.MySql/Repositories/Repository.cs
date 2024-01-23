@@ -20,23 +20,27 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
     protected MultiTenantScoped MultiTenant { get; } = multiTenant;
     protected TEntity Saved { get; set; }
 
-    public virtual IRepositoryBase<TEntity> Add(TEntity entity, bool autoDetach = true)
+    public virtual IRepositoryBase<TEntity> Add(TEntity entity, AutoDetachOptions autoDetach = AutoDetachOptions.BEFORE)
     {
         entity.CreatedAt = DateTime.UtcNow;
         entity.UpdatedAt = DateTime.UtcNow;
         Saved = entity;
+        if (autoDetach == AutoDetachOptions.AFTER)
+            DbContext.AutoDetach(Saved);
         DbContext.Add(entity); 
-        if (autoDetach)
+        if (autoDetach == AutoDetachOptions.BEFORE)
             DbContext.AutoDetach(Saved);
         return this;
     }
 
-    public virtual IRepositoryBase<TEntity> Update(TEntity entity, bool autoDetach = true)
+    public virtual IRepositoryBase<TEntity> Update(TEntity entity, AutoDetachOptions autoDetach = AutoDetachOptions.BEFORE)
     {
         entity.UpdatedAt = DateTime.UtcNow;
         Saved = entity;
+        if (autoDetach == AutoDetachOptions.AFTER)
+            DbContext.AutoDetach(Saved);
         DbContext.Update(entity);
-        if (autoDetach)
+        if (autoDetach == AutoDetachOptions.BEFORE)
             DbContext.AutoDetach(Saved);
         return this;
     }
