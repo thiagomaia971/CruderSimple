@@ -2,6 +2,7 @@
 using CruderSimple.Core.Entities;
 using CruderSimple.Core.ViewModels;
 using Microsoft.AspNetCore.Components;
+using Newtonsoft.Json;
 
 namespace CruderSimple.Blazor.Components.Grids
 {

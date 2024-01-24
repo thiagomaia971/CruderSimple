@@ -1,14 +1,12 @@
-using System;
 using System.Reflection.Metadata;
-using System.Transactions;
 using Blazorise;
 using Blazorise.DataGrid;
+using CruderSimple.Core.EndpointQueries;
 using CruderSimple.Core.Entities;
 using CruderSimple.Core.Extensions;
 using CruderSimple.Core.ViewModels;
 using Mapster;
 using Microsoft.AspNetCore.Components;
-using Newtonsoft.Json;
 
 namespace CruderSimple.Blazor.Components.Grids;
 
@@ -20,14 +18,10 @@ public partial class GridEditLocal<TEntity, TDto> : CruderGridBase<TEntity, TDto
 {
     public override IList<TDto> AllData 
         => SearchedData
-            .Concat(Data)
-            .DistinctBy(x => x.Id)
-            .Where(x => !x.DeletedAt.HasValue)
             .ToList();
 
     [Parameter] public IEnumerable<TDto> Data { get; set; } = Enumerable.Empty<TDto>();
     [Parameter] public EventCallback<IEnumerable<TDto>> DataChanged { get; set; }
-
     [Parameter] public string FilterKey { get; set; }
     [Parameter] public string FilterValue { get; set; }
     [Parameter] public Action<TDto> DefaultNewInstance { get;set; }
@@ -41,30 +35,41 @@ public partial class GridEditLocal<TEntity, TDto> : CruderGridBase<TEntity, TDto
     [Parameter] public RenderFragment<TDto> MiddleCommandTemplate { get; set; }
     [Parameter] public RenderFragment<TDto> EndCommandTemplate { get; set; }
     [Parameter] public RenderFragment<TDto> ModalForm { get; set; }
-    public override string StorageKey => $"{base.StorageKey}:{FilterValue}";
     public Modal ModalRef { get; set; }
     public bool IsLoading { get; set; }
     protected Validations ValidationsRef { get; set; }
     public string Errors { get; set; }
     public TDto CurrentSelected { get; set; }
     public bool IsNewModal { get; set; }
+    public IList<TDto> Inserted { get; set; } = new List<TDto>();
+    public IList<TDto> Modified { get; set; } = new List<TDto>();
+    public IList<TDto> Deleted { get; set; } = new List<TDto>();
 
     protected override string GetQueryFilter(IEnumerable<DataGridColumnInfo> dataGridColumnInfos, List<string> filters = null) 
         => base.GetQueryFilter(dataGridColumnInfos, [$"{FilterKey} {Op.Equals} {FilterValue}"]);
 
-    public async Task NewCommand(NewCommandContext<TDto> command)
+    protected override async Task<List<TDto>> FilterData(List<TDto> data, GetAllEndpointQuery query = null)
     {
-        if (ModalForm == null) 
-        {
-            await command.Clicked.InvokeAsync(this);
-        }
-        else
-        {
-            IsNewModal = true;
-            CurrentSelected = Activator.CreateInstance<TDto>();
-            await ModalRef.Show();
-        }
+        if (query == null)
+            query = CreateQuery((await LoadColumnsFromLocalStorage())
+                .Select(x => new DataGridColumnInfo(
+                    x.Field,
+                    x.Filter?.SearchValue,
+                    x.CurrentSortDirection,
+                    x.CurrentSortDirection != SortDirection.Default ? 0 : -1,
+                    DataGridColumnType.Text,
+                    x.SortField,
+                    x.Filter?.FilterMethod ?? DataGridColumnFilterMethod.Contains)));
+        
+        var insertedOrdered = OrderByLocal(Inserted.ToList(), query);
+        var modifiedOrdered = OrderByLocal(Modified.ToList(), query);
+        var deletedOrdered = OrderByLocal(Deleted.ToList(), query);
+        data.InsertRange(0, insertedOrdered.Concat(modifiedOrdered).Concat(deletedOrdered));
+        return data.DistinctBy(x => x.Id).ToList();
     }
+
+    private List<TDto> OrderByLocal(List<TDto> data, GetAllEndpointQuery query) 
+        => data.AsQueryable().ApplyOrderBy(query).ToList();
 
     public async Task SingleClicked(TDto e, EditCommandContext<TDto> editContext = null)
     {
@@ -85,6 +90,20 @@ public partial class GridEditLocal<TEntity, TDto> : CruderGridBase<TEntity, TDto
         CruderGridEvents.RaiseOnEditMode();
     }
 
+    public async Task NewCommand(NewCommandContext<TDto> command)
+    {
+        if (ModalForm == null) 
+        {
+            await command.Clicked.InvokeAsync(this);
+        }
+        else
+        {
+            IsNewModal = true;
+            CurrentSelected = Activator.CreateInstance<TDto>();
+            await ModalRef.Show();
+        }
+    }
+
     public async Task InsertingAsync(CancellableRowChange<TDto> context)
     {
         if (await UiMessageService.Confirm("Adicionar esse item?", "Adicionar"))
@@ -96,7 +115,7 @@ public partial class GridEditLocal<TEntity, TDto> : CruderGridBase<TEntity, TDto
         }
         else
             context.Cancel = true;
-        await DataGridRef.Refresh();
+        //await DataGridRef.Refresh();
         
         CurrentSelected = null;
     }
@@ -106,7 +125,7 @@ public partial class GridEditLocal<TEntity, TDto> : CruderGridBase<TEntity, TDto
         if (await UiMessageService.Confirm("Editar esse item?", "Editar"))
         {
             await Loading.Show();
-            await UpdateData(context.NewItem);
+            await UpdateData(context.NewItem, false);
             await NotificationService.Success("Editado com sucesso!");
             await Loading.Hide();
         }
@@ -121,10 +140,8 @@ public partial class GridEditLocal<TEntity, TDto> : CruderGridBase<TEntity, TDto
         if (await UiMessageService.Confirm("Remover esse item?", "Remover"))
         {
             context.NewItem.DeletedAt = DateTime.UtcNow;
-            await UpdateData(context.NewItem);
-            TotalData--;
+            await UpdateData(context.NewItem, true);
             await NotificationService.Success("Removido com sucesso!");
-            await DataGridRef.Refresh();
         }
         else
             context.Cancel = true;
@@ -143,7 +160,7 @@ public partial class GridEditLocal<TEntity, TDto> : CruderGridBase<TEntity, TDto
                 if (IsNewModal)
                     await AddData(CurrentSelected);
                 else
-                    await UpdateData(CurrentSelected);
+                    await UpdateData(CurrentSelected, false);
 
                 await NotificationService.Success($"{(IsNewModal ? "Adicionado" : "Editado")} com sucesso!");
                 await ModalRef.Close(CloseReason.None);
@@ -152,10 +169,6 @@ public partial class GridEditLocal<TEntity, TDto> : CruderGridBase<TEntity, TDto
             {
                 Errors = ex.Message;
                 await NotificationService.Error(Errors);
-            }
-            finally
-            {
-                await DataGridRef.Refresh();
             }
         }
         CurrentSelected = null;
@@ -166,21 +179,37 @@ public partial class GridEditLocal<TEntity, TDto> : CruderGridBase<TEntity, TDto
         var dataList = Data.ToList();
         dataList.Add(item);
         Data = dataList;
-        TotalData++;
         await DataChanged.InvokeAsync(Data);
+
+        if (!Inserted.Any(x => x.Id == item.Id))
+            Inserted.Add(item);
+
+        SearchedData = await FilterData(SearchedData);
+        //await DataGridRef.Refresh();
     }
 
-    private async Task UpdateData(TDto item)
+    private async Task UpdateData(TDto item, bool isRemove)
     {
         var localDataList = Data.ToList();
 
+        var index = SearchedData.IndexOf(SearchedData.FirstOrDefault(x => x.GetKey.Equals(item.GetKey)));
         localDataList.Remove(localDataList.FirstOrDefault(x => x.GetKey.Equals(item.GetKey)));
         SearchedData.Remove(SearchedData.FirstOrDefault(x => x.GetKey.Equals(item.GetKey)));
+
         localDataList.Add(item);
+        if (!isRemove)
+            SearchedData.Insert(index, item);
 
         Data = localDataList;
         await DataChanged.InvokeAsync(Data);
-        Console.WriteLine(AllData.ToJson());
+
+        if (isRemove && !Deleted.Any(x => x.Id == item.Id))
+            Deleted.Add(item);
+        if (!isRemove && !Modified.Any(x => x.Id == item.Id))
+            Modified.Add(item);
+
+        SearchedData = await FilterData(SearchedData);
+        await DataGridRef.Refresh();
     }
 
     protected async Task ModalClosed(ModalClosingEventArgs e)
@@ -212,6 +241,16 @@ public partial class GridEditLocal<TEntity, TDto> : CruderGridBase<TEntity, TDto
         widthFinal += widthBaseSimple;
 
         return widthFinal.ToString();
+    }
+
+    protected void RowModifiedStyle(TDto item, DataGridRowStyling style)
+    {
+        if (Inserted.Any(x => x.Id == item.Id))
+            style.Color = Color.Success;
+        if (Modified.Any(x => x.Id == item.Id))
+            style.Color = Color.Warning;
+        if (Deleted.Any(x => x.Id == item.Id))
+            style.Color = Color.Danger;
     }
 
 }

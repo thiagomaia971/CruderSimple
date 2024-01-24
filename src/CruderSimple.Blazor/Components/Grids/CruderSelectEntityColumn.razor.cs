@@ -47,11 +47,13 @@ public partial class CruderSelectEntityColumn<TEntity, TItem, TColumnItem> : Cru
 
     protected override void OnAfterRender(bool firstRender)
     {
+        if (DataGridSelectColumn != null && GridSort != null)
+            DataGridSelectColumn.SortField = GridSort;
+
         if (!Loaded && DataGrid != null)
             OnDataGridLoaded();
         base.OnAfterRender(firstRender);
     }
-
 
     protected void OnDataGridLoaded()
     {

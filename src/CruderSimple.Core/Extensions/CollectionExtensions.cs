@@ -92,9 +92,7 @@ public static class CollectionExtensions
             return source;
 
         if (query.orderBy.Contains("Ascending"))
-        {
             return source.OrderBy(query.orderBy.Split(" Ascending")[0]);
-        }
         else if (query.orderBy.Contains("Descending"))
         {
             var propertyName = query.orderBy.Split(" Descending")[0];
@@ -108,21 +106,17 @@ public static class CollectionExtensions
     {
         if (query is null)
             return source;
-        
-        var size =  query.size > 0 ? query.size : 10;
-        var page = query.skip > 0 ? query.skip : ((query.page > 0 ? query.page : 1) - 1) * size;
+
+        return source.ApplyPagination(query.size, query.page, query.skip);
+    }
+
+    public static IQueryable<TSource> ApplyPagination<TSource>(this IQueryable<TSource> source, int size = 0, int page = 0, int skip = 0)
+    {
+        size = size > 0 ? size : 10;
+        page = skip > 0 ? skip : ((page > 0 ? page : 1) - 1) * size;
         return source
             .Skip(page)
             .Take(size);
-        
-        // if (query.size == -1)
-        //     return source;
-        //
-        // var size = query.size > 0 ? query.size : 10;
-        // var page = ((query.page > 0 ? query.page : 1) - 1) * size;
-        // return source
-        //     .Skip(page)
-        //     .Take(size);
     }
 
     public static IQueryable<TSource> ApplyFilter<TSource>(

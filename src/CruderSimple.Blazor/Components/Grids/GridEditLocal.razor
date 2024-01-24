@@ -36,7 +36,8 @@
                   FilterMode="DataGridFilterMode.Menu"
                   ReadData="@GetData"
                   TotalItems="@TotalData"
-                  RowClicked="@((_) => SingleClicked(_.Item))">
+                  RowClicked="@((_) => SingleClicked(_.Item))"
+                  RowStyling="@RowModifiedStyle">
             <DataGridColumns>
                 <DataGridCommandColumn 
                                        TItem="TDto" 

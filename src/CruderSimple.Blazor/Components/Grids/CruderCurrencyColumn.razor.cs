@@ -13,6 +13,15 @@ public partial class CruderCurrencyColumn<TEntity, TItem> : CruderColumnBase<TEn
     where TItem : BaseDto
 {
     public DataGridNumericColumn<TItem> DataGridNumericColumn { get; set; }
+
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (DataGridNumericColumn != null && GridSort != null)
+            DataGridNumericColumn.SortField = GridSort;
+
+        return base.OnAfterRenderAsync(firstRender);
+    }
+
     private void ValueChanged(CellEditContext<TItem> cellEdit, double value)
     {
         cellEdit.UpdateCell(ColumnField, value);

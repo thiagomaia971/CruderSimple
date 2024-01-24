@@ -1,4 +1,5 @@
 using Blazorise;
+using Blazorise.DataGrid;
 using CruderSimple.Core.Entities;
 using CruderSimple.Core.ViewModels;
 using Microsoft.AspNetCore.Components;
@@ -12,8 +13,15 @@ public partial class CruderDateColumn<TEntity, TItem> : CruderColumnBase<TEntity
     where TEntity : IEntity
     where TItem : BaseDto
 {
+    public DataGridDateColumn<TItem> DataGridDateColumn { get; set; }
     public DateEdit<DateTime> DatePickerRef { get; set; }
     public DateEdit<DateTime?> DatePickerNullableRef { get; set; }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (DataGridDateColumn != null && GridSort != null)
+            DataGridDateColumn.SortField = GridSort;
+    }
 
     public async Task OnFocus(FocusEventArgs e)
     {

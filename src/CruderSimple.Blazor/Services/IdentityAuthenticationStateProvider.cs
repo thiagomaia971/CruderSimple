@@ -1,5 +1,4 @@
 ﻿using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Text;
 using Blazored.LocalStorage;
 using CruderSimple.Blazor.Interfaces.Services;
@@ -25,22 +24,14 @@ public class IdentityAuthenticationStateProvider : AuthenticationStateProvider, 
     {
         var loginResult = await _authorizeApi.Login(login);
         await SaveItem("identity", loginResult);
-        //await localStorage.SetItemAsync("identity", loginResult);
-        // NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
         return loginResult;
     }
-
-    //public async Task Register(UserInput userInput)
-    //{
-    //    await _authorizeApi.Register(userInput);
-    //    NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
-    //}
 
     public async Task Logout()
     {
         await localStorage.RemoveItemAsync("identity");
-        await localStorage.RemoveItemAsync("claims");
         await localStorage.RemoveItemAsync("tenant");
+        await localStorage.RemoveItemAsync("claims");
         NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
     }
 
@@ -115,28 +106,8 @@ public class IdentityAuthenticationStateProvider : AuthenticationStateProvider, 
             data[i] = (byte)(data[i] ^ xorConstant);
         }
 
-        string v = Encoding.UTF8.GetString(data);
-        return v;
+        return Encoding.UTF8.GetString(data);
     }
-
-    private byte[] DeriveKeyFromPassword(string password)
-    {
-        var emptySalt = Array.Empty<byte>();
-        var iterations = 1000;
-        var desiredKeyLength = 16; // 16 bytes equal 128 bits.
-        var hashMethod = HashAlgorithmName.SHA384;
-        return Rfc2898DeriveBytes.Pbkdf2(Encoding.Unicode.GetBytes(password),
-                                         emptySalt,
-                                         iterations,
-                                         hashMethod,
-                                         desiredKeyLength);
-    }
-
-    private byte[] IV =
-    {
-        0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
-        0x09, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16
-    };
 }
 
 public record UserClaim(string Key, string Value);

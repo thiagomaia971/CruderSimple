@@ -2,10 +2,12 @@
 @typeparam TItem
 @inherits CruderColumnBase<TEntity, TItem>
 
-<DataGridDateColumn TItem="TItem"
-                    Field="@ColumnField" 
+<DataGridDateColumn 
+                    @ref="DataGridDateColumn"
+                    TItem="TItem"
+                    SortField="@GridSort"
+                    Field="@ColumnField"
                     Sortable="@Sortable"
-                    SortField="@GridSort" 
                     Caption="@ColumnCaption" 
                     DisplayFormat="{0:dd/MM/yyyy}" 
                     Editable="@Editable"
