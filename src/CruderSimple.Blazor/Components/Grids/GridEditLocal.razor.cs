@@ -18,6 +18,7 @@ public partial class GridEditLocal<TEntity, TDto> : CruderGridBase<TEntity, TDto
 {
     public override IList<TDto> AllData 
         => SearchedData
+            .DistinctBy(x => x.Id)
             .ToList();
 
     [Parameter] public IEnumerable<TDto> Data { get; set; } = Enumerable.Empty<TDto>();
@@ -65,13 +66,13 @@ public partial class GridEditLocal<TEntity, TDto> : CruderGridBase<TEntity, TDto
         var modifiedOrdered = OrderByLocal(Modified.ToList(), query);
         var deletedOrdered = OrderByLocal(Deleted.ToList(), query);
         data.InsertRange(0, insertedOrdered.Concat(modifiedOrdered).Concat(deletedOrdered));
-        return data.DistinctBy(x => x.Id).ToList();
+        return data.ToList();
     }
 
     private List<TDto> OrderByLocal(List<TDto> data, GetAllEndpointQuery query) 
         => data.AsQueryable().ApplyOrderBy(query).ToList();
 
-    public async Task SingleClicked(TDto e, EditCommandContext<TDto> editContext = null)
+    public async Task SelectRow(TDto e, EditCommandContext<TDto> editContext = null)
     {
         await DataGridRef.Select(e);
         CurrentSelected = e.Adapt<TDto>();
@@ -90,7 +91,7 @@ public partial class GridEditLocal<TEntity, TDto> : CruderGridBase<TEntity, TDto
         CruderGridEvents.RaiseOnEditMode();
     }
 
-    public async Task NewCommand(NewCommandContext<TDto> command)
+    public async Task OpenToEditRow(NewCommandContext<TDto> command)
     {
         if (ModalForm == null) 
         {
@@ -139,12 +140,38 @@ public partial class GridEditLocal<TEntity, TDto> : CruderGridBase<TEntity, TDto
     {
         if (await UiMessageService.Confirm("Remover esse item?", "Remover"))
         {
-            context.NewItem.DeletedAt = DateTime.UtcNow;
             await UpdateData(context.NewItem, true);
             await NotificationService.Success("Removido com sucesso!");
         }
         else
             context.Cancel = true;
+    }
+
+    protected async Task UndoEdit(EditCommandContext<TDto> context)
+    {
+        if (await UiMessageService.Confirm("Restaurar esse item?", "Restaurar"))
+        {
+            Modified.Remove(Modified.FirstOrDefault(x => x.Id == context.Item.Id));
+            SearchedData.Remove(SearchedData.FirstOrDefault(x => x.Id == context.Item.Id));
+            var localData = Data.ToList();
+            localData.Remove(localData.FirstOrDefault(x => x.Id == context.Item.Id));
+            Data = localData.ToList();
+            await DataChanged.InvokeAsync(Data);
+
+            SearchedData = await FilterData(SearchedData);
+            await NotificationService.Success("Restaurado com sucesso!");
+        }
+    }
+
+    protected async Task UndoDelete(DeleteCommandContext<TDto> context)
+    {
+        if (await UiMessageService.Confirm("Restaurar esse item?", "Restaurar"))
+        {
+            context.Item.DeletedAt = null;
+            Deleted.Remove(Deleted.FirstOrDefault(x => x.Id == context.Item.Id));
+            SearchedData = await FilterData(SearchedData);
+            await NotificationService.Success("Restaurado com sucesso!");
+        }
     }
 
     protected async Task SaveModal()
@@ -192,21 +219,30 @@ public partial class GridEditLocal<TEntity, TDto> : CruderGridBase<TEntity, TDto
     {
         var localDataList = Data.ToList();
 
-        var index = SearchedData.IndexOf(SearchedData.FirstOrDefault(x => x.GetKey.Equals(item.GetKey)));
-        localDataList.Remove(localDataList.FirstOrDefault(x => x.GetKey.Equals(item.GetKey)));
-        SearchedData.Remove(SearchedData.FirstOrDefault(x => x.GetKey.Equals(item.GetKey)));
+        if (isRemove && Inserted.Any(x => x.Id == item.Id))
+        {
+            Inserted.Remove(Inserted.FirstOrDefault(x => x.Id == item.Id));
+            SearchedData.Remove(SearchedData.FirstOrDefault(x => x.Id == item.Id));
+            localDataList.Remove(localDataList.FirstOrDefault(x => x.Id == item.Id));
+        }
+        else
+        {
+            if (isRemove)
+                item.DeletedAt = DateTime.UtcNow;
 
-        localDataList.Add(item);
-        if (!isRemove)
-            SearchedData.Insert(index, item);
+            localDataList.Remove(localDataList.FirstOrDefault(x => x.GetKey.Equals(item.GetKey)));
+            //SearchedData.Remove(SearchedData.FirstOrDefault(x => x.GetKey.Equals(item.GetKey)));
+
+            localDataList.Add(item);
+
+            if (isRemove && !Deleted.Any(x => x.Id == item.Id))
+                Deleted.Add(item);
+            if (!isRemove && !Modified.Any(x => x.Id == item.Id))
+                Modified.Add(item);
+        }
 
         Data = localDataList;
         await DataChanged.InvokeAsync(Data);
-
-        if (isRemove && !Deleted.Any(x => x.Id == item.Id))
-            Deleted.Add(item);
-        if (!isRemove && !Modified.Any(x => x.Id == item.Id))
-            Modified.Add(item);
 
         SearchedData = await FilterData(SearchedData);
         await DataGridRef.Refresh();
