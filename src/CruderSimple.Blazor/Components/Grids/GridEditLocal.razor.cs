@@ -7,6 +7,7 @@ using CruderSimple.Core.Extensions;
 using CruderSimple.Core.ViewModels;
 using Mapster;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace CruderSimple.Blazor.Components.Grids;
 
@@ -30,6 +31,7 @@ public partial class GridEditLocal<TEntity, TDto> : CruderGridBase<TEntity, TDto
     [Parameter] public bool EditCommandAllowed { get; set; }
     [Parameter] public string ModalFormTitle { get; set; }
     [Parameter] public bool IsLocal { get; set; }
+    [Parameter] public Func<TDto, Task> ModalOpened { get;set; }
     [Parameter] public RenderFragment StartNewCommandTemplate { get; set; }
     [Parameter] public RenderFragment EndNewCommandTemplate { get; set; }
     [Parameter] public RenderFragment<TDto> StartCommandTemplate { get; set; }
@@ -87,6 +89,8 @@ public partial class GridEditLocal<TEntity, TDto> : CruderGridBase<TEntity, TDto
         {
             IsNewModal = false;
             await ModalRef.Show();
+            if (ModalOpened != null)
+                await ModalOpened(CurrentSelected);
         }
         CruderGridEvents.RaiseOnEditMode();
     }
@@ -102,49 +106,35 @@ public partial class GridEditLocal<TEntity, TDto> : CruderGridBase<TEntity, TDto
             IsNewModal = true;
             CurrentSelected = Activator.CreateInstance<TDto>();
             await ModalRef.Show();
+            if (ModalOpened != null)
+                await ModalOpened(CurrentSelected);
         }
     }
 
     public async Task InsertingAsync(CancellableRowChange<TDto> context)
     {
-        if (await UiMessageService.Confirm("Adicionar esse item?", "Adicionar"))
-        {
-            await Loading.Show();
-            await AddData(context.NewItem);
-            await NotificationService.Success("Adicionado com sucesso!");
-            await Loading.Hide();
-        }
-        else
-            context.Cancel = true;
-        //await DataGridRef.Refresh();
+        await Loading.Show();
+        await AddData(context.NewItem);
+        await NotificationService.Success("Adicionado com sucesso!");
+        await Loading.Hide();
         
         CurrentSelected = null;
     }
 
     public async Task UpdatingAsync(CancellableRowChange<TDto> context)
     {
-        if (await UiMessageService.Confirm("Editar esse item?", "Editar"))
-        {
-            await Loading.Show();
-            await UpdateData(context.NewItem, false);
-            await NotificationService.Success("Editado com sucesso!");
-            await Loading.Hide();
-        }
-        else
-            context.Cancel = true;
-        await DataGridRef.Refresh();
+        await Loading.Show();
+        await UpdateData(context.NewItem, false);
+        await Loading.Hide();
+
+        //await DataGridRef.Refresh();
         CurrentSelected = null;
+        await DataGridRef.Select(null);
     }
 
     protected override async Task RemovingAsync(CancellableRowChange<TDto> context)
     {
-        if (await UiMessageService.Confirm("Remover esse item?", "Remover"))
-        {
-            await UpdateData(context.NewItem, true);
-            await NotificationService.Success("Removido com sucesso!");
-        }
-        else
-            context.Cancel = true;
+        await UpdateData(context.NewItem, true);
     }
 
     protected async Task UndoEdit(EditCommandContext<TDto> context)
@@ -191,6 +181,7 @@ public partial class GridEditLocal<TEntity, TDto> : CruderGridBase<TEntity, TDto
 
                 await NotificationService.Success($"{(IsNewModal ? "Adicionado" : "Editado")} com sucesso!");
                 await ModalRef.Close(CloseReason.None);
+                CurrentSelected = null;
             }
             catch (Exception ex)
             {
@@ -198,10 +189,9 @@ public partial class GridEditLocal<TEntity, TDto> : CruderGridBase<TEntity, TDto
                 await NotificationService.Error(Errors);
             }
         }
-        CurrentSelected = null;
     }
 
-    private async Task AddData(TDto item)
+    public async Task AddData(TDto item)
     {
         var dataList = Data.ToList();
         dataList.Add(item);
@@ -235,9 +225,14 @@ public partial class GridEditLocal<TEntity, TDto> : CruderGridBase<TEntity, TDto
 
             localDataList.Add(item);
 
-            if (isRemove && !Deleted.Any(x => x.Id == item.Id))
+            if (!isRemove && Inserted.Any(x => x.Id == item.Id))
+            {
+                Inserted.Remove(Inserted.FirstOrDefault(x => x.Id == item.Id));
+                Inserted.Add(item);
+            }
+            else if (isRemove && !Deleted.Any(x => x.Id == item.Id))
                 Deleted.Add(item);
-            if (!isRemove && !Modified.Any(x => x.Id == item.Id))
+            else if (!isRemove && !Modified.Any(x => x.Id == item.Id))
                 Modified.Add(item);
         }
 
@@ -245,7 +240,7 @@ public partial class GridEditLocal<TEntity, TDto> : CruderGridBase<TEntity, TDto
         await DataChanged.InvokeAsync(Data);
 
         SearchedData = await FilterData(SearchedData);
-        await DataGridRef.Refresh();
+        //await DataGridRef.Refresh();
     }
 
     protected async Task ModalClosed(ModalClosingEventArgs e)
@@ -288,5 +283,4 @@ public partial class GridEditLocal<TEntity, TDto> : CruderGridBase<TEntity, TDto
         if (Deleted.Any(x => x.Id == item.Id))
             style.Color = Color.Danger;
     }
-
 }
