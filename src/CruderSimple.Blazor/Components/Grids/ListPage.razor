@@ -36,12 +36,14 @@
             <DataGridColumns>
                 <DataGridCommandColumn TItem="TDto" PreventRowClick FixedPosition="TableColumnFixedPosition.Start" Field="Id" TextAlignment="TextAlignment.Start" Gap="Gap.Is0" Width="80px" SaveCommandAllowed="false">
                     <NewCommandTemplate>
-                        <Tooltip Text="@PermissionService.CanWriteTooltip("Novo")">
-                            <Button Type="ButtonType.Link" Clicked="@((_) => ToNew(_.CtrlKey))" Color="Color.Success" Block Width="Width.Is100" Size="Size.Small" Disabled="@(!PermissionService.CanWrite)">
-                                <Icon Name="IconName.Add" />
-                                Novo
-                            </Button>
-                        </Tooltip>
+                        <Div Gap="Gap.Is2" Display="Display.InlineFlex">
+                            <Tooltip Text="@PermissionService.CanWriteTooltip("Novo")">
+                                <Button Type="ButtonType.Link" Clicked="@((_) => ToNew(_.CtrlKey))" Color="Color.Success" Block Width="Width.Is100" Size="Size.Small" Disabled="@(!PermissionService.CanWrite)">
+                                    <Icon Name="IconName.Add" />
+                                    Novo
+                                </Button>
+                            </Tooltip>
+                        </Div>
                     </NewCommandTemplate>
 
                     <EditCommandTemplate>
@@ -70,7 +72,20 @@
                         </Tooltip>
                     </DeleteCommandTemplate>
                 </DataGridCommandColumn>
-                <DataGridDateColumn TItem="TDto" Field="UpdatedAt" Caption="Última Atualização" DisplayFormat="{0:dd/MM/yyyy HH:mm:ss}" Editable Filterable Width="150px" SortDirection="SortDirection.Ascending">
+                <DataGridDateColumn 
+                                    TItem="TDto" 
+                                    Field="UpdatedAt" 
+                                    Caption="Última Atualização" 
+                                    DisplayFormat="{0:dd/MM/yyyy HH:mm:ss}" 
+                                    Editable 
+                                    Filterable 
+                                    Width="200px" 
+                                    SortDirection="SortDirection.Ascending"
+                                    HeaderCellStyle="line-height: 38px"
+                                    HeaderTextAlignment="TextAlignment.Start"
+                                    VerticalAlignment="VerticalAlignment.Middle"
+                                    FilterTextAlignment="TextAlignment.Center"
+                                    FilterVerticalAlignment="VerticalAlignment.Middle">
                     <DisplayTemplate>
                         <Tooltip Text="@(context.GetValueByPropertyName<DateTime?>("UpdatedAt")?.ToString("dd/MM/yyyy HH:mm:ss") ?? context.GetValueByPropertyName<DateTime>("CreatedAt").ToString("dd/MM/yyyy HH:mm:ss"))">
                             @(context.GetValueByPropertyName<DateTime?>("UpdatedAt")?.RelativeDate() ?? context.GetValueByPropertyName<DateTime>("CreatedAt").RelativeDate())

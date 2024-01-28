@@ -123,6 +123,10 @@ td:not(.text-left) {
     /*height: 40px !important;*/
 }
 
+.table-responsive {
+    border: 1px solid #dee2e6;
+}
+
 .datagrid-listpage th .d-inline-flex {
     /*position: absolute;*/
     /*top: 25%*/
@@ -132,8 +136,8 @@ td:not(.text-left) {
     display: none;
 }
 
-.datagrid-listpage th .d-inline-flex {
-    /*line-height: 35px;*/
+.datagrid-listpage th {
+    line-height: 38px;
 }
 
 .datagrid-listpage .dropdown-toggle {

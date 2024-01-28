@@ -97,7 +97,7 @@ namespace CruderSimple.Blazor.Components.Grids
 
             TotalData = data.Size;
             SearchedData = await FilterData(data.Data.ToList(), query);
-            await DataGridRef.Refresh();
+            //await DataGridRef.Refresh();
             await SaveColumns();
         }
 
@@ -114,7 +114,6 @@ namespace CruderSimple.Blazor.Components.Grids
         private string GetOrderBy(IEnumerable<DataGridColumnInfo> e)
         {
             var orderByColumn = e.FirstOrDefault(x => x.SortIndex >= 0);
-            Console.WriteLine(e.Select(x => new { Field = x.Field, SortIndex = x.SortIndex, SortField = x.SortField }).ToJson());
             if (orderByColumn == null)
                 return null;
 
@@ -209,15 +208,18 @@ namespace CruderSimple.Blazor.Components.Grids
             CruderGridEvents.RaiseOnColumnsLoaded();
 
             var columnToSort = columns.FirstOrDefault(x => x.CurrentSortDirection != SortDirection.Default);
-            Console.WriteLine($"Column To Sort: {columnToSort?.Field} - {columnToSort?.CurrentSortDirection}");
-            if (columnToSort != null)
-                await DataGridRef.Sort(
-                    columnToSort.Field,
-                    columnToSort.CurrentSortDirection);
-            else
-                await Search(e);
-
+            var x = DataGridRef.GetColumns().FirstOrDefault(x => x.Field == columnToSort?.Field);
+            Console.WriteLine($"ColumnToSort: {x?.Field} - {x?.CurrentSortDirection} - {DataGridRef.Sortable} - {x?.Sortable}");
             await DataGridRef.Refresh();
+            if (columnToSort != null)
+            {
+                //    await DataGridRef.Sort(
+                //            columnToSort.Field,
+                //            columnToSort.CurrentSortDirection);
+                await DataGridRef.ApplySorting(new DataGridSortColumnInfo(columnToSort.Field, columnToSort.CurrentSortDirection));
+            }
+            //else
+                await Search(e);
         }
 
         protected async Task<List<ListPageColumnLocalStorage<TDto>>> LoadColumnsFromLocalStorage()
