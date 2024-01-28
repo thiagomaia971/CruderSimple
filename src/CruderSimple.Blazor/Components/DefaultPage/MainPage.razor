@@ -11,10 +11,12 @@
         <LayoutContent>
             <Row>
                 <Column ColumnSize="ColumnSize.Is12" Padding="Padding.Is3.FromStart.Is0.FromEnd">
-                    <Card Margin="@ThemeStyles.CardMargin" Shadow="@ThemeStyles.CardShadow" Style="min-height: 560px">
-                        <LoadingIndicator>
-                            @ChildContent
-                        </LoadingIndicator>
+                    <Card Margin="@ThemeStyles.CardMargin" Shadow="@ThemeStyles.CardShadow" Style="@CardStyle">
+                        <CascadingValue Value="@Dimension">
+                            <LoadingIndicator>
+                                @ChildContent
+                            </LoadingIndicator>
+                        </CascadingValue>
                     </Card>
                 </Column>
             </Row>
@@ -24,10 +26,39 @@
 @code {
     [Parameter]
     public RenderFragment TopBarStart { get; set; }
-    
+
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
-    
+
     [Parameter]
     public ICollection<SideMenu.PageSide>? Routes { get; set; } = new List<SideMenu.PageSide>();
+
+    [Inject]
+    public IJSRuntime JsRuntime { get; set; }
+
+    public WindowDimension Dimension { get; set; }
+
+    public string CardStyle { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Dimension = await JsRuntime.InvokeAsync<WindowDimension>("getWindowDimensions");
+        Console.WriteLine("Dimension: " + Dimension.ToJson());
+        CardStyle = $"min-height: {Dimension.Height}px";
+    }
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+        }
+    }
+
+    public class WindowDimension
+    {
+        public int Width { get; set; }
+        public int Height { get; set; }
+    }
+
 }

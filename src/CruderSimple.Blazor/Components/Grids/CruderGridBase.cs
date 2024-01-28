@@ -2,6 +2,7 @@
 using Blazorise;
 using Blazorise.DataGrid;
 using Blazorise.LoadingIndicator;
+using CruderSimple.Blazor.Components.DefaultPage;
 using CruderSimple.Blazor.Interfaces.Services;
 using CruderSimple.Blazor.Services;
 using CruderSimple.Core.EndpointQueries;
@@ -23,10 +24,11 @@ namespace CruderSimple.Blazor.Components.Grids
         [Parameter] public RenderFragment<TDto> DetailRowTemplate { get; set; }
         [Parameter] public bool SelectAll { get; set; }
         [Parameter] public string CustomSelect { get; set; }
-        [Parameter] public IFluentSizing Height { get; set; } = Blazorise.Height.Px(430);
+        [Parameter] public IFluentSizing Height { get; set; }
         [Parameter] public IFluentSpacing Padding { get; set; }
 
         [CascadingParameter] public LoadingIndicator Loading { get; set; }
+        [CascadingParameter] public MainPage.WindowDimension Dimension { get; set; }
 
         [Inject] public PermissionService PermissionService { get; set; }
         [Inject] public ICrudService<TEntity, TDto> Service { get; set; }
@@ -35,6 +37,8 @@ namespace CruderSimple.Blazor.Components.Grids
         [Inject] public INotificationService NotificationService { get; set; }
         [Inject] public IMessageService UiMessageService { get; set; }
         [Inject] public IdentityAuthenticationStateProvider State { get; set; }
+        public CardBody CardBody { get; set; }
+        public int HeightDimension;
 
         protected Claim TenantClaim { get; set; }
         public virtual IList<TDto> AllData => SearchedData?.ToList();
@@ -57,7 +61,6 @@ namespace CruderSimple.Blazor.Components.Grids
         public bool IsFirstRender { get; set; } = true;
         public virtual string StorageKey => $"{GetType().Name}<{typeof(TEntity).Name},{typeof(TDto).Name}>:{TenantClaim?.Value}";
         public CruderGridEvents CruderGridEvents { get; set; } = new CruderGridEvents();
-
 
         protected override async Task OnInitializedAsync()
         {

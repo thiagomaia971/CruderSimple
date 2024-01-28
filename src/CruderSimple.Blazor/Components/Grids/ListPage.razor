@@ -4,117 +4,119 @@
 @using Blazorise.DataGrid
 @using CruderSimple.Core.Extensions
 
-<Row Padding="@Padding">
-    <Column ColumnSize="ColumnSize.Is12">
-        <DataGrid @ref="DataGridRef"
-                    TItem="TDto"
-                    Class="datagrid-listpage"
-                    Data="@SearchedData"
-                    Hoverable
-                    ShowPager
-                    ShowPageSizes
-                    Responsive
-                    Editable
-                    CommandMode="DataGridCommandMode.Commands"
-                    RowRemoving="RemovingAsync"
-                    Filterable
-                    Groupable
-                    Striped
-                    Narrow
-                    Sortable
-                    Navigable
-                    FixedHeader
-                    Resizable
-                    Bordered
-                    FixedHeaderDataGridHeight="462px"
-                    FixedHeaderDataGridMaxHeight="462px"
-                    SortMode="DataGridSortMode.Single"
-                    FilterMode="DataGridFilterMode.Menu"
-                    ReadData="@GetData"
-                    TotalItems="@TotalData"
-                    RowClicked="@SingleClicked">
-            <DataGridColumns>
-                <DataGridCommandColumn TItem="TDto" PreventRowClick FixedPosition="TableColumnFixedPosition.Start" Field="Id" TextAlignment="TextAlignment.Start" Gap="Gap.Is0" Width="80px" SaveCommandAllowed="false">
-                    <NewCommandTemplate>
-                        <Div Gap="Gap.Is2" Display="Display.InlineFlex">
-                            <Tooltip Text="@PermissionService.CanWriteTooltip("Novo")">
-                                <Button Type="ButtonType.Link" Clicked="@((_) => ToNew(_.CtrlKey))" Color="Color.Success" Block Width="Width.Is100" Size="Size.Small" Disabled="@(!PermissionService.CanWrite)">
-                                    <Icon Name="IconName.Add" />
-                                    Novo
-                                </Button>
-                            </Tooltip>
-                        </Div>
-                    </NewCommandTemplate>
-
-                    <EditCommandTemplate>
-                        @if (PermissionService.CanWrite)
-                        {
-                            <Tooltip Text="@PermissionService.CanWriteTooltip("Editar")" Inline>
-                                <Button Size="Size.Small" Clicked="@((_) => ToEdit(context.Item, _.CtrlKey))" Disabled="@(!PermissionService.CanWrite)" Padding="Blazorise.Padding.Is1" Margin="Margin.Is2.FromStart" @onclick:stopPropagation>
-                                    <Icon Name="IconName.Edit" />
-                                </Button>
-                            </Tooltip>
-                        }else
-                        {
-                            <Tooltip Text="@PermissionService.CanReadTooltip("Visualizar")" Inline>
-                                <Button Size="Size.Small" Clicked="@((_) => ToView(context.Item, _.CtrlKey))" Disabled="@(!PermissionService.CanRead)" Padding="Blazorise.Padding.Is1" Margin="Margin.Is2.FromStart" @onclick:stopPropagation>
-                                    <Icon Name="IconName.Eye" />
-                                </Button>
-                            </Tooltip>
-                        }
-                    </EditCommandTemplate>
-
-                    <DeleteCommandTemplate>
-                        <Tooltip Text="@PermissionService.CanWriteTooltip("Deletar")" Inline>
-                            <Button Size="Size.Small" Clicked="@context.Clicked" Disabled="@(!PermissionService.CanWrite)" Padding="Blazorise.Padding.Is1" @onclick:stopPropagation>
-                                <Icon Name="IconName.Delete" />
-                            </Button>
-                        </Tooltip>
-                    </DeleteCommandTemplate>
-                </DataGridCommandColumn>
-                <DataGridDateColumn 
-                                    TItem="TDto" 
-                                    Field="UpdatedAt" 
-                                    Caption="Última Atualização" 
-                                    DisplayFormat="{0:dd/MM/yyyy HH:mm:ss}" 
-                                    Editable 
-                                    Filterable 
-                                    Width="200px" 
-                                    SortDirection="SortDirection.Ascending"
-                                    HeaderCellStyle="line-height: 38px"
-                                    HeaderTextAlignment="TextAlignment.Start"
-                                    VerticalAlignment="VerticalAlignment.Middle"
-                                    FilterTextAlignment="TextAlignment.Center"
-                                    FilterVerticalAlignment="VerticalAlignment.Middle">
-                    <DisplayTemplate>
-                        <Tooltip Text="@(context.GetValueByPropertyName<DateTime?>("UpdatedAt")?.ToString("dd/MM/yyyy HH:mm:ss") ?? context.GetValueByPropertyName<DateTime>("CreatedAt").ToString("dd/MM/yyyy HH:mm:ss"))">
-                            @(context.GetValueByPropertyName<DateTime?>("UpdatedAt")?.RelativeDate() ?? context.GetValueByPropertyName<DateTime>("CreatedAt").RelativeDate())
-                        </Tooltip>
-                    </DisplayTemplate>
-                </DataGridDateColumn>
-                @Columns
-            </DataGridColumns>
-            <LoadingTemplate></LoadingTemplate>
-            <EmptyTemplate>
-                @if (!Loading.Visible)
-                {
-                    <Row Flex="Flex.JustifyContent.Center" Width="Width.Is100" Height="Blazorise.Height.Px(360)" Style="position: relative;">
-                        <Column ColumnSize="ColumnSize.Is4.OnWidescreen" Style="margin: 0; position: absolute; top: 45%; -ms-transform: translateY(-45%); transoform: translateY(-45%);">
-                            <Div TextAlignment="TextAlignment.Center">
-                                <Heading Size="HeadingSize.Is4" TextColor="TextColor.Danger">
-                                    Nenhum registro encontrado
-                                </Heading>
-                                <Paragraph TextColor="TextColor.Muted" Margin="Margin.Is3.FromTop">
-                                    Verifique se existe dados ou se os filtros estão corretos.
-                                </Paragraph>
+<CardBody @ref="CardBody" Style="@($"height: {Dimension?.Height - 70}px")">
+    <Row Padding="@Padding">
+        <Column ColumnSize="ColumnSize.Is12">
+            <DataGrid @ref="DataGridRef"
+                        TItem="TDto"
+                        Class="datagrid-listpage"
+                        Data="@SearchedData"
+                        Hoverable
+                        ShowPager
+                        ShowPageSizes
+                        Responsive
+                        Editable
+                        CommandMode="DataGridCommandMode.Commands"
+                        RowRemoving="RemovingAsync"
+                        Filterable
+                        Groupable
+                        Striped
+                        Narrow
+                        Sortable
+                        Navigable
+                        FixedHeader
+                        Resizable
+                        Bordered
+                        SortMode="DataGridSortMode.Single"
+                        FilterMode="DataGridFilterMode.Menu"
+                        ReadData="@GetData"
+                        TotalItems="@TotalData"
+                        RowClicked="@SingleClicked"
+                        FixedHeaderDataGridHeight="@($"{(Height?.FixedSize ?? (Dimension?.Height - 110))}px")"
+                        FixedHeaderDataGridMaxHeight="@($"{(Height?.FixedSize ?? (Dimension?.Height - 110))}px")">
+                <DataGridColumns>
+                    <DataGridCommandColumn TItem="TDto" PreventRowClick FixedPosition="TableColumnFixedPosition.Start" Field="Id" TextAlignment="TextAlignment.Start" Gap="Gap.Is0" Width="80px" SaveCommandAllowed="false">
+                        <NewCommandTemplate>
+                            <Div Gap="Gap.Is2" Display="Display.InlineFlex">
+                                <Tooltip Text="@PermissionService.CanWriteTooltip("Novo")">
+                                    <Button Type="ButtonType.Link" Clicked="@((_) => ToNew(_.CtrlKey))" Color="Color.Success" Block Width="Width.Is100" Size="Size.Small" Disabled="@(!PermissionService.CanWrite)">
+                                        <Icon Name="IconName.Add" />
+                                        Novo
+                                    </Button>
+                                </Tooltip>
                             </Div>
-                        </Column>
-                    </Row>
-                }
-            </EmptyTemplate>
-            <FilterMenuTemplate >
-                <ListPageFilterMenu TEntity="TEntity" TDto="TDto" Column="context.Column"/>
-            </FilterMenuTemplate>
-        </DataGrid>
-    </Column>
-</Row>
+                        </NewCommandTemplate>
+
+                        <EditCommandTemplate>
+                            @if (PermissionService.CanWrite)
+                            {
+                                <Tooltip Text="@PermissionService.CanWriteTooltip("Editar")" Inline>
+                                    <Button Size="Size.Small" Clicked="@((_) => ToEdit(context.Item, _.CtrlKey))" Disabled="@(!PermissionService.CanWrite)" Padding="Blazorise.Padding.Is1" Margin="Margin.Is2.FromStart" @onclick:stopPropagation>
+                                        <Icon Name="IconName.Edit" />
+                                    </Button>
+                                </Tooltip>
+                            }else
+                            {
+                                <Tooltip Text="@PermissionService.CanReadTooltip("Visualizar")" Inline>
+                                    <Button Size="Size.Small" Clicked="@((_) => ToView(context.Item, _.CtrlKey))" Disabled="@(!PermissionService.CanRead)" Padding="Blazorise.Padding.Is1" Margin="Margin.Is2.FromStart" @onclick:stopPropagation>
+                                        <Icon Name="IconName.Eye" />
+                                    </Button>
+                                </Tooltip>
+                            }
+                        </EditCommandTemplate>
+
+                        <DeleteCommandTemplate>
+                            <Tooltip Text="@PermissionService.CanWriteTooltip("Deletar")" Inline>
+                                <Button Size="Size.Small" Clicked="@context.Clicked" Disabled="@(!PermissionService.CanWrite)" Padding="Blazorise.Padding.Is1" @onclick:stopPropagation>
+                                    <Icon Name="IconName.Delete" />
+                                </Button>
+                            </Tooltip>
+                        </DeleteCommandTemplate>
+                    </DataGridCommandColumn>
+                    <DataGridDateColumn 
+                                        TItem="TDto" 
+                                        Field="UpdatedAt" 
+                                        Caption="Última Atualização" 
+                                        DisplayFormat="{0:dd/MM/yyyy HH:mm:ss}" 
+                                        Editable 
+                                        Filterable 
+                                        Width="200px" 
+                                        SortDirection="SortDirection.Ascending"
+                                        HeaderCellStyle="line-height: 38px"
+                                        HeaderTextAlignment="TextAlignment.Start"
+                                        VerticalAlignment="VerticalAlignment.Middle"
+                                        FilterTextAlignment="TextAlignment.Center"
+                                        FilterVerticalAlignment="VerticalAlignment.Middle">
+                        <DisplayTemplate>
+                            <Tooltip Text="@(context.GetValueByPropertyName<DateTime?>("UpdatedAt")?.ToString("dd/MM/yyyy HH:mm:ss") ?? context.GetValueByPropertyName<DateTime>("CreatedAt").ToString("dd/MM/yyyy HH:mm:ss"))">
+                                @(context.GetValueByPropertyName<DateTime?>("UpdatedAt")?.RelativeDate() ?? context.GetValueByPropertyName<DateTime>("CreatedAt").RelativeDate())
+                            </Tooltip>
+                        </DisplayTemplate>
+                    </DataGridDateColumn>
+                    @Columns
+                </DataGridColumns>
+                <LoadingTemplate></LoadingTemplate>
+                <EmptyTemplate>
+                    @if (!Loading.Visible)
+                    {
+                        <Row Flex="Flex.JustifyContent.Center" Width="Width.Is100" Height="Blazorise.Height.Px(HeightDimension)" Style="position: relative;">
+                            <Column ColumnSize="ColumnSize.Is4.OnWidescreen" Style="margin: 0; position: absolute; top: 45%; -ms-transform: translateY(-45%); transoform: translateY(-45%);">
+                                <Div TextAlignment="TextAlignment.Center">
+                                    <Heading Size="HeadingSize.Is4" TextColor="TextColor.Danger">
+                                        Nenhum registro encontrado
+                                    </Heading>
+                                    <Paragraph TextColor="TextColor.Muted" Margin="Margin.Is3.FromTop">
+                                        Verifique se existe dados ou se os filtros estão corretos.
+                                    </Paragraph>
+                                </Div>
+                            </Column>
+                        </Row>
+                    }
+                </EmptyTemplate>
+                <FilterMenuTemplate >
+                    <ListPageFilterMenu TEntity="TEntity" TDto="TDto" Column="context.Column"/>
+                </FilterMenuTemplate>
+            </DataGrid>
+        </Column>
+    </Row>
+</CardBody>

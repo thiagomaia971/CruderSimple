@@ -91,7 +91,7 @@ code {
 
 td:not(.text-left) {
     height: 31px;
-    line-height: 31px;
+    /*line-height: 31px;*/
 }
 
 .datagrid-listpage {

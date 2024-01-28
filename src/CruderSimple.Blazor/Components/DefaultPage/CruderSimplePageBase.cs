@@ -25,6 +25,9 @@ public class CruderSimplePageBase : ComponentBase
     [Inject]
     private IJSRuntime _jSRuntime { get; set; }
 
+    [CascadingParameter]
+    public MainPage.WindowDimension Dimension { get; set; }
+
     public string PageTitle
     {
         get => PageParameter.PageTitle; set

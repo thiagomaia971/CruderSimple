@@ -41,11 +41,6 @@ public partial class GridEdit<TEntity, TDto> : CruderGridBase<TEntity, TDto>
     protected override string GetQueryFilter(IEnumerable<DataGridColumnInfo> dataGridColumnInfos, List<string> filters = null) 
         => base.GetQueryFilter(dataGridColumnInfos, [$"{FilterKey} {Op.Equals} {FilterValue}"]);
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        await base.OnAfterRenderAsync(firstRender);
-    }
-
     public async Task NewCommand(NewCommandContext<TDto> command)
     {
         if (ModalForm == null) 

@@ -1,0 +1,19 @@
+﻿@typeparam TEntity
+@typeparam TItem
+@inherits CruderColumnBase<TEntity, TItem>
+
+<DataGridColumn @ref="DataGridColumn"
+                       TItem="TItem"
+                       SortField="@GridSort"
+                       Field="@ColumnField"
+                       Sortable="@Sortable"
+                       Caption="@ColumnCaption"
+                       Editable="@Editable"
+                       Filterable="@Filterable"
+                       Width="170px"
+                       HeaderCellStyle="line-height: 38px"
+                       HeaderTextAlignment="TextAlignment.Start"
+                       VerticalAlignment="VerticalAlignment.Middle"
+                       FilterTextAlignment="TextAlignment.Center"
+                       FilterVerticalAlignment="VerticalAlignment.Middle">
+</DataGridColumn>
