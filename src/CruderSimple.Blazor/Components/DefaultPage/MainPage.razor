@@ -1,4 +1,5 @@
-﻿<Layout Sider="true">
+﻿@using Microsoft.JSInterop
+<Layout Sider="true">
     <LayoutSider>
         <LayoutSiderContent>
             <SideMenu Routes="@Routes" TopBarStart="@TopBarStart" />
@@ -34,7 +35,7 @@
     public ICollection<SideMenu.PageSide>? Routes { get; set; } = new List<SideMenu.PageSide>();
 
     [Inject]
-    public IJSRuntime JsRuntime { get; set; }
+    public BrowserService BrowserService { get; set; }
 
     public WindowDimension Dimension { get; set; }
 
@@ -42,23 +43,16 @@
 
     protected override async Task OnInitializedAsync()
     {
-        Dimension = await JsRuntime.InvokeAsync<WindowDimension>("getWindowDimensions");
+        Dimension = await BrowserService.Current();
         Console.WriteLine("Dimension: " + Dimension.ToJson());
         CardStyle = $"min-height: {Dimension.Height}px";
-    }
 
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
+        BrowserService.Resize += (object sender, WindowDimension dimension) =>
         {
-        }
+            Dimension = dimension;
+            Console.WriteLine("Dimension: " + Dimension.ToJson());
+            CardStyle = $"min-height: {Dimension.Height}px";
+            StateHasChanged();
+        };
     }
-
-    public class WindowDimension
-    {
-        public int Width { get; set; }
-        public int Height { get; set; }
-    }
-
 }

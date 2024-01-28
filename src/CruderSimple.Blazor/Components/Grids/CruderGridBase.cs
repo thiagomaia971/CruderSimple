@@ -28,7 +28,7 @@ namespace CruderSimple.Blazor.Components.Grids
         [Parameter] public IFluentSpacing Padding { get; set; }
 
         [CascadingParameter] public LoadingIndicator Loading { get; set; }
-        [CascadingParameter] public MainPage.WindowDimension Dimension { get; set; }
+        [CascadingParameter] public WindowDimension Dimension { get; set; }
 
         [Inject] public PermissionService PermissionService { get; set; }
         [Inject] public ICrudService<TEntity, TDto> Service { get; set; }

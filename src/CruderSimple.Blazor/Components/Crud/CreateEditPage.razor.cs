@@ -20,7 +20,7 @@ public partial class CreateEditPage<TEntity, TDto> : ComponentBase
     [Parameter] public RenderFragment ChildContent { get; set; }
     [Parameter] public bool SelectAll { get; set; }
     [Parameter] public string CustomSelect { get; set; }
-    [CascadingParameter] public MainPage.WindowDimension Dimension { get; set; }
+    [CascadingParameter] public WindowDimension Dimension { get; set; }
 
     private TDto _model { get; set; }
 

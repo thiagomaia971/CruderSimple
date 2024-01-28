@@ -38,7 +38,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<PermissionService>(permissionsService);
         services.AddSingleton<PageHistoryState>();
         services.AddScoped<DebounceService>();
-        services.AddSingleton<DimensionService>();
+        services.AddSingleton<BrowserService>();
         //var pageParameter = new PageParameter();
         //services.AddSingleton(pageParameter);
         services.AddCruderServices();
