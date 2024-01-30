@@ -19,6 +19,9 @@ public partial class CruderColumn<TEntity, TItem> : CruderColumnBase<TEntity, TI
         if (DataGridColumn != null && GridSort != null)
             DataGridColumn.SortField = GridSort;
 
+        if (DataGridColumn != null && DataGridColumn.ParentDataGrid != null)
+            Events = (CruderGridEvents<TItem>)DataGridColumn.ParentDataGrid.Attributes["Events"];
+
         return base.OnAfterRenderAsync(firstRender);
     }
 

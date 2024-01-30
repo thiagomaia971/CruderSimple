@@ -27,6 +27,7 @@
                   FixedHeader
                   Resizable
                   Bordered
+                  RowSelectable="@((_) => false)"
                   DetailRowStartsVisible="false"
                   DetailRowTrigger="@((_) => DetailRowTemplate != null)"
                   NewItemDefaultSetter="DefaultNewInstance"
@@ -36,7 +37,6 @@
                   FilterMode="DataGridFilterMode.Menu"
                   ReadData="@GetData"
                   TotalItems="@TotalData"
-                  RowClicked="@((_) => SelectRow(_.Item))"
                   RowStyling="@RowModifiedStyle">
             <DataGridColumns>
                 <DataGridCommandColumn 
@@ -85,7 +85,7 @@
                         }
                         @if (!context.Item.DeletedAt.HasValue)
                         {
-                            @if (Modified.Any(x => x.Id == context.Item.Id))
+                            @if (BackupModified.ContainsKey(context.Item.GetKey))
                             {
                                 <Tooltip Text="@PermissionService.CanWriteTooltip("Restaurar")" Inline>
                                     <Button Size="Size.Small" Clicked="@((e) => UndoEdit(context))" Disabled="@(!PermissionService.CanWrite)" Padding="Blazorise.Padding.Is1" @onclick:stopPropagation>
@@ -186,6 +186,11 @@
         </DataGrid>
     </Column>
 </Row>
+
+@foreach(var item in Data ?? new List<TDto>())
+{
+    <Span>@(item.GetKey) - @(item.GetValue)</Span>
+}
 
 <Modal @ref="ModalRef" Closing="@ModalClosed">
     @if (ModalForm != null && CurrentSelected != null)

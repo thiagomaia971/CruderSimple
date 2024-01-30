@@ -1,6 +1,6 @@
+using Blazorise;
 using Blazorise.DataGrid;
 using CruderSimple.Core.Entities;
-using CruderSimple.Core.Extensions;
 using CruderSimple.Core.ViewModels;
 using Microsoft.AspNetCore.Components;
 
@@ -19,16 +19,9 @@ public partial class CruderCurrencyColumn<TEntity, TItem> : CruderColumnBase<TEn
         if (DataGridNumericColumn != null && GridSort != null)
             DataGridNumericColumn.SortField = GridSort;
 
+        if (DataGridNumericColumn != null && DataGridNumericColumn.ParentDataGrid != null)
+            Events = (CruderGridEvents<TItem>) DataGridNumericColumn.ParentDataGrid.Attributes["Events"];
+
         return base.OnAfterRenderAsync(firstRender);
-    }
-
-    private void ValueChanged(CellEditContext<TItem> cellEdit, double value)
-    {
-        cellEdit.UpdateCell(ColumnField, value);
-    }
-
-    private string GetCurrencyFormat(TItem context)
-    {
-        return $"R$ {context.GetValueByPropertyName(ColumnField)}";
     }
 }

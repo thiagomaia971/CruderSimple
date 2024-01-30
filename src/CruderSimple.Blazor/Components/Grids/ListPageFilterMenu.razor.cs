@@ -83,7 +83,7 @@ public partial class ListPageFilterMenu<TEntity, TDto> : ComponentBase
     {
         base.InvokeAsync(() =>
         {
-            var events = (CruderGridEvents) ParentDataGrid.Attributes["Events"];
+            var events = (CruderGridEvents<TDto>) ParentDataGrid.Attributes["Events"];
             events.OnColumnsLoaded += () =>
             {
                 if (IsSelect && SelectRender is null)

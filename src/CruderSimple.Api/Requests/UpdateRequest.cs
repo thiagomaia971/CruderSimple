@@ -36,7 +36,7 @@ public static class UpdateRequest
                 await repository.Update(entityToSave)
                     .Save();
 
-                return Result.CreateSuccess(entityToSave.ToOutput<TDto>());
+                return Result.CreateSuccess((await repository.FindById(request.id)).ToOutput<TDto>());
             }
             catch (Exception exception)
             {

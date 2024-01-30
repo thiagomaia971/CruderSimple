@@ -2,7 +2,6 @@
 using Blazorise;
 using Blazorise.DataGrid;
 using Blazorise.LoadingIndicator;
-using CruderSimple.Blazor.Components.DefaultPage;
 using CruderSimple.Blazor.Interfaces.Services;
 using CruderSimple.Blazor.Services;
 using CruderSimple.Core.EndpointQueries;
@@ -11,7 +10,6 @@ using CruderSimple.Core.Extensions;
 using CruderSimple.Core.Services;
 using CruderSimple.Core.ViewModels;
 using Microsoft.AspNetCore.Components;
-using System.Reflection;
 using System.Security.Claims;
 
 namespace CruderSimple.Blazor.Components.Grids
@@ -49,18 +47,20 @@ namespace CruderSimple.Blazor.Components.Grids
             { 
                 _dataGridRef = value; 
                 if (_dataGridRef is not null)
+                {
                     if (_dataGridRef.Attributes is null)
                         _dataGridRef.Attributes = new Dictionary<string, object>
                         {
                             { "Events", CruderGridEvents }
                         };
-                    else 
+                    else
                         _dataGridRef.Attributes.Add("Events", CruderGridEvents);
+                }
             } 
         }
         public bool IsFirstRender { get; set; } = true;
         public virtual string StorageKey => $"{GetType().Name}<{typeof(TEntity).Name},{typeof(TDto).Name}>:{TenantClaim?.Value}";
-        public CruderGridEvents CruderGridEvents { get; set; } = new CruderGridEvents();
+        public CruderGridEvents<TDto> CruderGridEvents { get; set; } = new CruderGridEvents<TDto>();
 
         protected override async Task OnInitializedAsync()
         {
@@ -212,7 +212,6 @@ namespace CruderSimple.Blazor.Components.Grids
 
             var columnToSort = columns.FirstOrDefault(x => x.CurrentSortDirection != SortDirection.Default);
             var x = DataGridRef.GetColumns().FirstOrDefault(x => x.Field == columnToSort?.Field);
-            Console.WriteLine($"ColumnToSort: {x?.Field} - {x?.CurrentSortDirection} - {DataGridRef.Sortable} - {x?.Sortable}");
             await DataGridRef.Refresh();
             if (columnToSort != null)
             {
@@ -311,10 +310,15 @@ namespace CruderSimple.Blazor.Components.Grids
 
     public delegate void ColumnsLoaded();
     public delegate void EditMode();
-    public class CruderGridEvents
+    public delegate void ColumnValueChanged<TItem>(TItem oldItem, TItem newItem) where TItem : BaseDto;
+    public delegate void ColumnSelected<TItem>(TItem item) where TItem : BaseDto;
+    public class CruderGridEvents<TItem>
+         where TItem : BaseDto
     {
         public event ColumnsLoaded OnColumnsLoaded;
         public event EditMode OnEditMode;
+        public event ColumnValueChanged<TItem> OnColumnValueChanged;
+        public event ColumnSelected<TItem> OnColumnSelected;
 
         public void RaiseOnColumnsLoaded()
         {
@@ -326,6 +330,18 @@ namespace CruderSimple.Blazor.Components.Grids
         {
             if (OnEditMode != null)
                 OnEditMode();
+        }
+
+        public void RaiseOnColumnValueChanged(TItem oldItem, TItem newItem)
+        {
+            if (OnColumnValueChanged != null)
+                OnColumnValueChanged(oldItem, newItem);
+        }
+
+        public void RaiseColumnSelected(TItem item) 
+        {
+            if (OnColumnSelected != null)
+                OnColumnSelected(item);
         }
     }
 }

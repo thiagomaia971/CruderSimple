@@ -9,15 +9,62 @@
                        Sortable="@Sortable"
                        Caption="@ColumnCaption"
                        Culture="pt-BR"
-                       Editable="@Editable"
+                       Editable="@(!AlwaysEditable && Editable)"
                        Filterable="@Filterable"
                        DisplayFormat="{0:C}"
                        Width="170px"
                        HeaderCellStyle="line-height: 38px"
+                       PreventRowClick="@AlwaysEditable"
                        HeaderTextAlignment="TextAlignment.Start"
                        VerticalAlignment="VerticalAlignment.Middle"
                        FilterTextAlignment="TextAlignment.Center"
                        FilterVerticalAlignment="VerticalAlignment.Middle">
+    <DisplayTemplate>
+        <Div @onclick="@((_) => OnClick(context))">
+            @if (AlwaysEditable)
+            {
+                if (context.GetPropertyTypeByName(ColumnField) == typeof(double))
+                {
+                    <NumericPicker CurrencySymbol="R$ "
+                                   CurrencySymbolPlacement="CurrencySymbolPlacement.Prefix"
+                                   AllowDecimalPadding="NumericAllowDecimalPadding.Always"
+                                   Culture="pt-BR"
+                                   DecimalSeparator=","
+                                   GroupSeparator="."
+                                   SelectAllOnFocus
+                                   Min="0"
+                                   Value="@((double) context.GetValueByPropertyName(ColumnField))"
+                                   ValueChanged="@((double value) => ValueInlineChanged(context, value))"
+                                   AlwaysAllowDecimalSeparator
+                                   ShowStepButtons="true"
+                                   ModifyValueOnWheel
+                                   WheelOn="NumericWheelOn.Focus"
+                                   Debounce="true"
+                                   DebounceInterval="200"
+                                   Blur="OnBlur" />
+                }
+                else
+                {
+                    <Tooltip Text="@TooltipValueNull" TextAlignment="TextAlignment.Center">
+                        @("-")
+                    </Tooltip>
+                }
+            }
+            else
+            {
+                if (context.GetPropertyTypeByName(ColumnField) == typeof(double))
+                {
+                    @(context.GetValueByPropertyName(ColumnField).ToString("C"))
+                }
+                else
+                {
+                    <Tooltip Text="@TooltipValueNull" TextAlignment="TextAlignment.Center">
+                        @("-")
+                    </Tooltip>
+                }
+            }
+        </Div>
+    </DisplayTemplate>
     <EditTemplate>
         <NumericPicker 
                        CurrencySymbol="R$ " 
@@ -30,10 +77,10 @@
                        Min="0"
                        ValueChanged="@((double value) => ValueChanged(context, value))"
                        AlwaysAllowDecimalSeparator
-                       Shadow="Shadow.Large"
                        ShowStepButtons="true"
                        ModifyValueOnWheel
                        WheelOn="NumericWheelOn.Focus"
-                       Value="@((double) context.CellValue)" />
+                       Value="@((double) context.CellValue)" 
+                       @onclick:stopPropagation="true" />
     </EditTemplate>
 </DataGridNumericColumn>

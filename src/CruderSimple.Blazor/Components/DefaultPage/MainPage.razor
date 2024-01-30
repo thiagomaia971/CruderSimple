@@ -44,13 +44,11 @@
     protected override async Task OnInitializedAsync()
     {
         Dimension = await BrowserService.Current();
-        Console.WriteLine("Dimension: " + Dimension.ToJson());
         CardStyle = $"min-height: {Dimension.Height}px";
 
         BrowserService.Resize += (object sender, WindowDimension dimension) =>
         {
             Dimension = dimension;
-            Console.WriteLine("Dimension: " + Dimension.ToJson());
             CardStyle = $"min-height: {Dimension.Height}px";
             StateHasChanged();
         };

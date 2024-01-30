@@ -21,6 +21,11 @@ public partial class CruderDateColumn<TEntity, TItem> : CruderColumnBase<TEntity
     {
         if (DataGridDateColumn != null && GridSort != null)
             DataGridDateColumn.SortField = GridSort;
+
+        if (DataGridDateColumn != null && DataGridDateColumn.ParentDataGrid != null)
+            Events = (CruderGridEvents<TItem>)DataGridDateColumn.ParentDataGrid.Attributes["Events"];
+
+        base.OnAfterRender(firstRender);
     }
 
     public async Task OnFocus(FocusEventArgs e)

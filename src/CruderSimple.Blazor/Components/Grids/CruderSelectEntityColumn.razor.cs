@@ -50,6 +50,14 @@ public partial class CruderSelectEntityColumn<TEntity, TItem, TColumnItem> : Cru
         if (DataGridSelectColumn != null && GridSort != null)
             DataGridSelectColumn.SortField = GridSort;
 
+        if (DataGridSelectColumn != null && DataGridSelectColumn.ParentDataGrid != null)
+            Events = (CruderGridEvents<TItem>)DataGridSelectColumn.ParentDataGrid.Attributes["Events"];
+
+        //if (SelectComponent == null && AlwaysEditable)
+        //{
+        //    SelectComponent = CreateSelectComponent();
+        //    StateHasChanged();
+        //}
         if (!Loaded && DataGrid != null)
             OnDataGridLoaded();
         base.OnAfterRender(firstRender);
@@ -58,8 +66,7 @@ public partial class CruderSelectEntityColumn<TEntity, TItem, TColumnItem> : Cru
     protected void OnDataGridLoaded()
     {
         Loaded = true;
-        var events = (CruderGridEvents)DataGrid.Attributes["Events"];
-        events.OnEditMode += () =>
+        Events.OnEditMode += () =>
         {
             SelectComponent = CreateSelectComponent();
             StateHasChanged();
@@ -94,7 +101,11 @@ public partial class CruderSelectEntityColumn<TEntity, TItem, TColumnItem> : Cru
 
     public async Task SelectChanged((string Key, object Value) value/*, CellEditContext<TItem> cellEdit*/)
     {
+
+        OldValue = (TItem)value.Value;
+        NewValue = (TItem)value.Value;
         DataGrid.UpdateCellEditValue(ColumnField, value.Value);
+        await OnBlur();
         SelectComponent = CreateSelectComponent();
     }
 

@@ -15,5 +15,40 @@
                        HeaderTextAlignment="TextAlignment.Start"
                        VerticalAlignment="VerticalAlignment.Middle"
                        FilterTextAlignment="TextAlignment.Center"
-                       FilterVerticalAlignment="VerticalAlignment.Middle">
+                FilterVerticalAlignment="VerticalAlignment.Middle">
+    <DisplayTemplate>
+        <Div @onclick="@((_) => OnClick(context))">
+            @if (AlwaysEditable)
+            {
+                if (context.GetPropertyTypeByName(ColumnField) == typeof(string))
+                {
+                    <TextEdit Date="@(context.GetValueByPropertyName<string>(ColumnField))"
+                              DateChanged="@((string value) => ValueInlineChanged(context, value))"
+                              Shadow="Shadow.Large"
+                              Debounce="true"
+                              DebounceInterval="200"
+                              Blur="OnBlur" />
+                }
+                else
+                {
+                    <Tooltip Text="@TooltipValueNull" TextAlignment="TextAlignment.Center">
+                        @("-")
+                    </Tooltip>
+                }
+            }
+            else
+            {
+                if (context.GetPropertyTypeByName(ColumnField) == typeof(string))
+                {
+                    @(context.GetValueByPropertyName<string>(ColumnField))
+                }
+                else
+                {
+                    <Tooltip Text="@TooltipValueNull" TextAlignment="TextAlignment.Center">
+                        @("-")
+                    </Tooltip>
+                }
+            }
+        </Div>
+    </DisplayTemplate>
 </DataGridColumn>

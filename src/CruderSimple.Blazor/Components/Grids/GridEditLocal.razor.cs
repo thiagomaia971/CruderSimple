@@ -1,3 +1,4 @@
+using System;
 using System.Reflection.Metadata;
 using Blazorise;
 using Blazorise.DataGrid;
@@ -7,7 +8,6 @@ using CruderSimple.Core.Extensions;
 using CruderSimple.Core.ViewModels;
 using Mapster;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 
 namespace CruderSimple.Blazor.Components.Grids;
 
@@ -32,6 +32,7 @@ public partial class GridEditLocal<TEntity, TDto> : CruderGridBase<TEntity, TDto
     [Parameter] public string ModalFormTitle { get; set; }
     [Parameter] public bool IsLocal { get; set; }
     [Parameter] public Func<TDto, Task> ModalOpened { get;set; }
+    [Parameter] public Func<TDto, Task> OnSaveItem { get;set; }
     [Parameter] public RenderFragment StartNewCommandTemplate { get; set; }
     [Parameter] public RenderFragment EndNewCommandTemplate { get; set; }
     [Parameter] public RenderFragment<TDto> StartCommandTemplate { get; set; }
@@ -45,8 +46,23 @@ public partial class GridEditLocal<TEntity, TDto> : CruderGridBase<TEntity, TDto
     public TDto CurrentSelected { get; set; }
     public bool IsNewModal { get; set; }
     public IList<TDto> Inserted { get; set; } = new List<TDto>();
-    public IList<TDto> Modified { get; set; } = new List<TDto>();
-    public IList<TDto> Deleted { get; set; } = new List<TDto>();
+
+    public Dictionary<string, (TDto OldItem, TDto NewItem)> BackupModified { get; set;} = new Dictionary<string, (TDto, TDto)>();
+    public Dictionary<string, (TDto OldItem, TDto NewItem)> BackupDeleted { get; set; } = new Dictionary<string, (TDto, TDto)>();
+
+    protected override Task OnInitializedAsync()
+    {
+        CruderGridEvents.OnColumnValueChanged += async (oldItem, newItem) =>
+        {
+            await UpdateData(oldItem, newItem);
+        };
+        CruderGridEvents.OnColumnSelected += async (item) =>
+        {
+            await SelectRow(item);
+        };
+
+        return base.OnInitializedAsync();
+    }
 
     protected override string GetQueryFilter(IEnumerable<DataGridColumnInfo> dataGridColumnInfos, List<string> filters = null) 
         => base.GetQueryFilter(dataGridColumnInfos, [$"{FilterKey} {Op.Equals} {FilterValue}"]);
@@ -65,14 +81,19 @@ public partial class GridEditLocal<TEntity, TDto> : CruderGridBase<TEntity, TDto
                     x.Filter?.FilterMethod ?? DataGridColumnFilterMethod.Contains)));
         
         var insertedOrdered = OrderByLocal(Inserted.ToList(), query);
-        var modifiedOrdered = OrderByLocal(Modified.ToList(), query);
-        var deletedOrdered = OrderByLocal(Deleted.ToList(), query);
-        data.InsertRange(0, insertedOrdered.Concat(modifiedOrdered).Concat(deletedOrdered));
+        data.InsertRange(0, insertedOrdered/*.Concat(modifiedOrdered)*//*.Concat(deletedOrdered)*/);
+        foreach (var modified in BackupModified)
+            data = data.ReplaceItem(modified.Value.NewItem, x => x.GetKey == modified.Value.OldItem.GetKey, false).ToList();
+        foreach (var deleted in BackupDeleted)
+            data = data.ReplaceItem(deleted.Value.NewItem, x => x.GetKey == deleted.Value.OldItem.GetKey, false).ToList();
         return data.ToList();
     }
 
     private List<TDto> OrderByLocal(List<TDto> data, GetAllEndpointQuery query) 
         => data.AsQueryable().ApplyOrderBy(query).ToList();
+
+    public async Task RowClicked(DataGridRowMouseEventArgs<TDto> args) 
+        => await SelectRow(args.Item);
 
     public async Task SelectRow(TDto e, EditCommandContext<TDto> editContext = null)
     {
@@ -124,7 +145,9 @@ public partial class GridEditLocal<TEntity, TDto> : CruderGridBase<TEntity, TDto
     public async Task UpdatingAsync(CancellableRowChange<TDto> context)
     {
         await Loading.Show();
-        await UpdateData(context.NewItem, false);
+        await UpdateData(context.OldItem, context.NewItem);
+        if (OnSaveItem != null)
+            await OnSaveItem(CurrentSelected);
         await Loading.Hide();
 
         //await DataGridRef.Refresh();
@@ -134,22 +157,21 @@ public partial class GridEditLocal<TEntity, TDto> : CruderGridBase<TEntity, TDto
 
     protected override async Task RemovingAsync(CancellableRowChange<TDto> context)
     {
-        await UpdateData(context.NewItem, true);
+        await DeleteData(context.NewItem);
     }
 
     protected async Task UndoEdit(EditCommandContext<TDto> context)
     {
         if (await UiMessageService.Confirm("Restaurar esse item?", "Restaurar"))
         {
-            Modified.Remove(Modified.FirstOrDefault(x => x.Id == context.Item.Id));
-            SearchedData.Remove(SearchedData.FirstOrDefault(x => x.Id == context.Item.Id));
-            var localData = Data.ToList();
-            localData.Remove(localData.FirstOrDefault(x => x.Id == context.Item.Id));
-            Data = localData.ToList();
-            await DataChanged.InvokeAsync(Data);
+            var itemBackup = BackupModified[context.Item.GetKey];
+            BackupModified.Remove(context.Item.GetKey);
+            Data = Data.RemoveItem(x => x.GetKey == context.Item.GetKey);
+            await DataChanged.InvokeAsync();
 
-            SearchedData = await FilterData(SearchedData);
+            SearchedData = SearchedData.ReplaceItem(itemBackup.OldItem, x => x.GetKey == context.Item.GetKey).ToList();
             await NotificationService.Success("Restaurado com sucesso!");
+            await DataGridRef.Refresh();
         }
     }
 
@@ -158,9 +180,14 @@ public partial class GridEditLocal<TEntity, TDto> : CruderGridBase<TEntity, TDto
         if (await UiMessageService.Confirm("Restaurar esse item?", "Restaurar"))
         {
             context.Item.DeletedAt = null;
-            Deleted.Remove(Deleted.FirstOrDefault(x => x.Id == context.Item.Id));
-            SearchedData = await FilterData(SearchedData);
+            var itemBackup = BackupDeleted[context.Item.GetKey];
+            BackupDeleted.Remove(context.Item.GetKey);
+            Data = Data.RemoveItem(x => x.GetKey ==  context.Item.GetKey);
+            await DataChanged.InvokeAsync();
+
+            SearchedData = SearchedData.ReplaceItem(itemBackup.OldItem, x => x.GetKey == context.Item.GetKey).ToList();
             await NotificationService.Success("Restaurado com sucesso!");
+            await DataGridRef.Refresh();
         }
     }
 
@@ -177,11 +204,17 @@ public partial class GridEditLocal<TEntity, TDto> : CruderGridBase<TEntity, TDto
                 if (IsNewModal)
                     await AddData(CurrentSelected);
                 else
-                    await UpdateData(CurrentSelected, false);
+                {
+                    if (OnSaveItem != null)
+                        await OnSaveItem(CurrentSelected);
+                    await UpdateData(SearchedData.FirstOrDefault(x => x.GetKey == CurrentSelected.GetKey), CurrentSelected);
+                }
 
                 await NotificationService.Success($"{(IsNewModal ? "Adicionado" : "Editado")} com sucesso!");
                 await ModalRef.Close(CloseReason.None);
                 CurrentSelected = null;
+                await DataGridRef.Refresh();
+                await DataGridRef.Select(null);
             }
             catch (Exception ex)
             {
@@ -205,42 +238,34 @@ public partial class GridEditLocal<TEntity, TDto> : CruderGridBase<TEntity, TDto
         //await DataGridRef.Refresh();
     }
 
-    private async Task UpdateData(TDto item, bool isRemove)
+    private async Task UpdateData(TDto oldItem, TDto newItem)
     {
-        var localDataList = Data.ToList();
-
-        if (isRemove && Inserted.Any(x => x.Id == item.Id))
-        {
-            Inserted.Remove(Inserted.FirstOrDefault(x => x.Id == item.Id));
-            SearchedData.Remove(SearchedData.FirstOrDefault(x => x.Id == item.Id));
-            localDataList.Remove(localDataList.FirstOrDefault(x => x.Id == item.Id));
-        }
-        else
-        {
-            if (isRemove)
-                item.DeletedAt = DateTime.UtcNow;
-
-            localDataList.Remove(localDataList.FirstOrDefault(x => x.GetKey.Equals(item.GetKey)));
-            //SearchedData.Remove(SearchedData.FirstOrDefault(x => x.GetKey.Equals(item.GetKey)));
-
-            localDataList.Add(item);
-
-            if (!isRemove && Inserted.Any(x => x.Id == item.Id))
-            {
-                Inserted.Remove(Inserted.FirstOrDefault(x => x.Id == item.Id));
-                Inserted.Add(item);
-            }
-            else if (isRemove && !Deleted.Any(x => x.Id == item.Id))
-                Deleted.Add(item);
-            else if (!isRemove && !Modified.Any(x => x.Id == item.Id))
-                Modified.Add(item);
-        }
-
-        Data = localDataList;
+        if (Inserted.Any(x => x.GetKey == oldItem.GetKey))
+            return;
+        if (!BackupModified.ContainsKey(oldItem.GetKey))
+            BackupModified.Add(oldItem.GetKey, (oldItem, newItem));
+        Data = Data.ReplaceItem(newItem, x => x.GetKey.Equals(oldItem.GetKey));
+        SearchedData = SearchedData.ReplaceItem(newItem, x => x.GetKey.Equals(oldItem.GetKey)).ToList();
         await DataChanged.InvokeAsync(Data);
+    }
 
-        SearchedData = await FilterData(SearchedData);
-        //await DataGridRef.Refresh();
+    private async Task DeleteData(TDto item)
+    {
+        var itemToSave = item.Adapt<TDto>();
+        if (BackupModified.ContainsKey(item.GetKey))
+        {
+            itemToSave = BackupModified[item.GetKey].OldItem;
+            BackupModified.Remove(item.GetKey);
+            Data = Data.RemoveItem(x => x.GetKey == item.GetKey);
+        }
+        if (!BackupDeleted.ContainsKey(item.GetKey))
+            BackupDeleted.Add(item.GetKey, (itemToSave, item));
+
+        
+        item.DeletedAt = DateTime.UtcNow;
+        Data = Data.ReplaceItem(item, x => x.GetKey.Equals(item.GetKey));
+        await DataChanged.InvokeAsync(Data);
+        await DataGridRef.Refresh();
     }
 
     protected async Task ModalClosed(ModalClosingEventArgs e)
@@ -278,9 +303,9 @@ public partial class GridEditLocal<TEntity, TDto> : CruderGridBase<TEntity, TDto
     {
         if (Inserted.Any(x => x.Id == item.Id))
             style.Color = Color.Success;
-        if (Modified.Any(x => x.Id == item.Id))
-            style.Color = Color.Warning;
-        if (Deleted.Any(x => x.Id == item.Id))
+        else if (BackupDeleted.ContainsKey(item.GetKey))
             style.Color = Color.Danger;
+        else if (BackupModified.ContainsKey(item.GetKey))
+            style.Color = Color.Warning;
     }
 }
