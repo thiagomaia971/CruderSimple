@@ -36,7 +36,7 @@
                   FilterMode="DataGridFilterMode.Menu"
                   ReadData="@GetData"
                   TotalItems="@TotalData"
-                  RowClicked="@((_) => SingleClicked(_.Item))">
+                  RowClicked="@((_) => OpenEditMode(_.Item))">
             <DataGridColumns>
                 <DataGridCommandColumn 
                                        TItem="TDto" 
@@ -83,7 +83,7 @@
                             @StartCommandTemplate(context.Item)
                         }
                         <Tooltip Text="@PermissionService.CanWriteTooltip("Editar")" Inline>
-                            <Button Size="Size.Small" Clicked="@((_) => SingleClicked(context.Item, context))" Disabled="@(!PermissionService.CanWrite)" Padding="Blazorise.Padding.Is1" @onclick:stopPropagation>
+                            <Button Size="Size.Small" Clicked="@((_) => OpenEditMode(context.Item, context))" Disabled="@(!PermissionService.CanWrite)" Padding="Blazorise.Padding.Is1" @onclick:stopPropagation>
                                 <Icon Name="IconName.Edit" />
                             </Button>
                         </Tooltip>

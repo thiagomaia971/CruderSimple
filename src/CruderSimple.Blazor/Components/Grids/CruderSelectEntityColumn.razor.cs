@@ -1,7 +1,9 @@
 using Blazorise.DataGrid;
 using CruderSimple.Blazor.Interfaces.Services;
 using CruderSimple.Core.Entities;
+using CruderSimple.Core.Extensions;
 using CruderSimple.Core.ViewModels;
+using Mapster;
 using Microsoft.AspNetCore.Components;
 
 namespace CruderSimple.Blazor.Components.Grids;
@@ -32,6 +34,7 @@ public partial class CruderSelectEntityColumn<TEntity, TItem, TColumnItem> : Cru
 
     private DataGridSelectColumn<TItem> DataGridSelectColumn { get; set; }
     private DataGrid<TItem> DataGrid => DataGridSelectColumn?.ParentDataGrid;
+    public TItem CurrentSelect { get; set; }
 
     public Dictionary<string, object> Attributes { get; set; } = new Dictionary<string, object>();
     public RenderFragment SelectComponent { get; set; }
@@ -68,12 +71,12 @@ public partial class CruderSelectEntityColumn<TEntity, TItem, TColumnItem> : Cru
         Loaded = true;
         Events.OnEditMode += () =>
         {
-            SelectComponent = CreateSelectComponent();
+            SelectComponent = CreateSelectComponent(DataGrid.ReadCellEditValue(ColumnField));
             StateHasChanged();
         };
     }
 
-    private RenderFragment CreateSelectComponent(/*CellEditContext<TItem> cellEdit*/)
+    private RenderFragment CreateSelectComponent(object value)
     {
         if (DataGridSelectColumn is null)
             return null;
@@ -91,7 +94,7 @@ public partial class CruderSelectEntityColumn<TEntity, TItem, TColumnItem> : Cru
         var render = EntityAutocompleteUtils.CreateComponent(
             entity,
             entityDto,
-            DataGrid.ReadCellEditValue(ColumnField),
+            value,
             async ((string Key, object Value) value) => await SelectChanged(value/*, cellEdit*/),
             false,
             DataGridSelectColumn.Attributes);
@@ -101,12 +104,13 @@ public partial class CruderSelectEntityColumn<TEntity, TItem, TColumnItem> : Cru
 
     public async Task SelectChanged((string Key, object Value) value/*, CellEditContext<TItem> cellEdit*/)
     {
+        OldValue = CurrentSelect.Adapt<TItem>();
+        CurrentSelect.SetValueByPropertyName(value.Value, ColumnField);
+        NewValue = CurrentSelect;
 
-        OldValue = (TItem)value.Value;
-        NewValue = (TItem)value.Value;
         DataGrid.UpdateCellEditValue(ColumnField, value.Value);
         await OnBlur();
-        SelectComponent = CreateSelectComponent();
+        SelectComponent = CreateSelectComponent(DataGrid.ReadCellEditValue(ColumnField));
     }
 
     protected string GetGridName(TItem item)
@@ -115,5 +119,11 @@ public partial class CruderSelectEntityColumn<TEntity, TItem, TColumnItem> : Cru
         if (itemProperties is null)
             return item.GetValue;
         return (itemProperties.GetValue(item) as TColumnItem)?.GetValue ?? string.Empty;
+    }
+
+    protected override async Task OnClick(TItem item)
+    {
+        CurrentSelect = item;
+        await base.OnClick(item);
     }
 }

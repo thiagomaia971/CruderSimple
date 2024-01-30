@@ -57,8 +57,8 @@
                             {
                                 @StartNewCommandTemplate
                             }
-                            <Tooltip Text="@PermissionService.CanWriteTooltip("Novo")">
-                                <Button Type="ButtonType.Link" Clicked="@((_) => OpenToEditRow(context))" Color="Color.Success" Width="Width.Is100" Size="Size.Small" Disabled="@(!PermissionService.CanWrite)">
+                            <Tooltip Text="@PermissionService.CanWriteTooltip(NewTooltip)">
+                                <Button Type="ButtonType.Link" Clicked="@((_) => OpenCreateMode(context))" Color="Color.Success" Width="Width.Is100" Size="Size.Small" Disabled="@(!PermissionService.CanWrite)">
                                     <Icon Name="IconName.Add" />
                                     @if (!SimpleNewCommand)
                                     {
@@ -66,7 +66,7 @@
                                     }
                                 </Button>
                             </Tooltip>
-                            <Tooltip Text="@PermissionService.CanWriteTooltip("Atualizar")">
+                            <Tooltip Text="@PermissionService.CanWriteTooltip(RefreshTooltip)">
                                 <Button Type="ButtonType.Link" Clicked="@((_) => DataGridRef.Reload())" Color="Color.Info" Width="Width.Is100" Size="Size.Small" Disabled="@(!PermissionService.CanWrite)">
                                     <Icon Name="IconName.Sync" />
                                 </Button>
@@ -87,15 +87,15 @@
                         {
                             @if (BackupModified.ContainsKey(context.Item.GetKey))
                             {
-                                <Tooltip Text="@PermissionService.CanWriteTooltip("Restaurar")" Inline>
+                                <Tooltip Text="@PermissionService.CanWriteTooltip(UndoTooltip)" Inline>
                                     <Button Size="Size.Small" Clicked="@((e) => UndoEdit(context))" Disabled="@(!PermissionService.CanWrite)" Padding="Blazorise.Padding.Is1" @onclick:stopPropagation>
                                         <Icon Name="IconName.Undo" />
                                     </Button>
                                 </Tooltip>
                             }
-                            <Tooltip Text="@PermissionService.CanWriteTooltip("Editar")" Inline>
-                                <Button Size="Size.Small" Clicked="@((_) => SelectRow(context.Item, context))" Disabled="@(!PermissionService.CanWrite)" Padding="Blazorise.Padding.Is1" @onclick:stopPropagation>
-                                    <Icon Name="IconName.Edit" />
+                            <Tooltip Text="@PermissionService.CanWriteTooltip(ModalForm == null ? EditTooltip : ViewTooltip)" Inline>
+                                <Button Size="Size.Small" Clicked="@((_) => OpenEditMode(SearchedData.FirstOrDefault(x => x.GetKey == context.Item.GetKey), context))" Disabled="@(!PermissionService.CanWrite)" Padding="Blazorise.Padding.Is1" @onclick:stopPropagation>
+                                    <Icon Name="@(ModalForm == null ? IconName.Edit : IconName.Eye)" />
                                 </Button>
                             </Tooltip>
                         }
@@ -109,14 +109,14 @@
                         
                         @if (context.Item.DeletedAt.HasValue)
                         {
-                            <Tooltip Text="@PermissionService.CanWriteTooltip("Restaurar")" Inline>
+                            <Tooltip Text="@PermissionService.CanWriteTooltip(UndoTooltip)" Inline>
                                 <Button Size="Size.Small" Clicked="@((e) => UndoDelete(context))" Disabled="@(!PermissionService.CanWrite)" Padding="Blazorise.Padding.Is1" @onclick:stopPropagation>
                                     <Icon Name="IconName.Undo" />
                                 </Button>
                             </Tooltip>
                         }else
                         {
-                            <Tooltip Text="@PermissionService.CanWriteTooltip("Deletar")" Inline>
+                            <Tooltip Text="@PermissionService.CanWriteTooltip(DeleteTooltip)" Inline>
                                 <Button Size="Size.Small" Clicked="@context.Clicked" Disabled="@(!PermissionService.CanWrite)" Padding="Blazorise.Padding.Is1" @onclick:stopPropagation>
                                     <Icon Name="IconName.Delete" />
                                 </Button>
@@ -186,11 +186,6 @@
         </DataGrid>
     </Column>
 </Row>
-
-@foreach(var item in Data ?? new List<TDto>())
-{
-    <Span>@(item.GetKey) - @(item.GetValue)</Span>
-}
 
 <Modal @ref="ModalRef" Closing="@ModalClosed">
     @if (ModalForm != null && CurrentSelected != null)

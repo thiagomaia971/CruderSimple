@@ -22,9 +22,9 @@
     <DisplayTemplate>
         
         <Div @onclick="@((_) => OnClick(context))">
-            @if (AlwaysEditable)
+            @if (AlwaysEditable && PermissionService.CanWrite)
             {
-                @SelectComponent
+                @(SelectComponent = CreateSelectComponent(context.GetValueByPropertyName(ColumnField)))
             }
             else
             {

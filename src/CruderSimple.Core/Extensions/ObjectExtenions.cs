@@ -4,18 +4,18 @@ namespace CruderSimple.Core.Extensions
 {
     public static class ObjectExtenions
     {
-        public static double GetValueByPropertyName(this object value, string propertyName)
+        public static object GetValueByPropertyName(this object value, string propertyName)
         {
             if (value == null)
-                return 0;
+                return default;
             var splited = propertyName.Split('.');
             var itemProperties = value.GetType().GetProperty(splited[0]);
             if (itemProperties is null)
-                return 0;
-            
+                return default;
+
             var currentValue = itemProperties.GetValue(value);
             if (splited.Length == 1)
-                return (double) currentValue;
+                return currentValue;
 
             return GetValueByPropertyName(currentValue, string.Join(".", splited.Skip(1)));
         }

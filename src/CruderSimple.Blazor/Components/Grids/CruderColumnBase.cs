@@ -1,6 +1,7 @@
 ﻿using Blazorise.DataGrid;
 using CruderSimple.Core.Entities;
 using CruderSimple.Core.Extensions;
+using CruderSimple.Core.Services;
 using CruderSimple.Core.ViewModels;
 using Mapster;
 using Microsoft.AspNetCore.Components;
@@ -63,6 +64,8 @@ namespace CruderSimple.Blazor.Components.Grids
         /// </summary>
         [Parameter] public string TooltipValueNull { get; set; }
 
+        [Inject] protected PermissionService PermissionService { get; set; }
+
         protected Dictionary<string, object> Attributes { get; set; } = new Dictionary<string, object>();
         protected CruderGridEvents<TDto> Events { get; set; }
         protected TDto OldValue { get; set; }
@@ -74,7 +77,7 @@ namespace CruderSimple.Blazor.Components.Grids
             return base.OnInitializedAsync();
         }
 
-        protected void ValueInlineChanged(TDto item, object value)
+        protected async void ValueInlineChanged(TDto item, object value)
         {
             if (OldValue == null)
                 OldValue = item.Adapt<TDto>();
@@ -82,18 +85,22 @@ namespace CruderSimple.Blazor.Components.Grids
                 NewValue = item;
 
             item.SetValueByPropertyName(value, ColumnField);
+
+            await OnBlur();
         }
 
         protected async Task OnBlur()
         {
             if (OldValue != null && NewValue != null)
                 Events.RaiseOnColumnValueChanged(OldValue, NewValue);
+            OldValue = null;
+            NewValue = null;
         }
 
         protected void ValueChanged(CellEditContext<TDto> cellEdit, double value)
             => cellEdit.UpdateCell(ColumnField, value);
 
-        protected async Task OnClick(TDto item)
+        protected virtual async Task OnClick(TDto item)
         {
             if (!AlwaysEditable)
                 Events.RaiseColumnSelected(item);

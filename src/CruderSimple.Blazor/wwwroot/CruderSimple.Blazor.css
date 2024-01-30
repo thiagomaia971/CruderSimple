@@ -99,6 +99,10 @@ td:not(.text-left) {
     margin-bottom: 0px;
 }
 
+.datagrid-listpage input{
+    height: 32px;
+}
+
 .datagrid-listpage thead tr {
     height: 45px;
 }

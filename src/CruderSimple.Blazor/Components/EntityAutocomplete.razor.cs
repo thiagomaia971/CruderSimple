@@ -139,12 +139,16 @@ public partial class EntityAutocomplete<TEntity, TEntityResult> : ComponentBase
         return $"{OrderBy} {SortDirection.Ascending}";
     }
 
-    public void ValueChanged(string values)
+    public async Task ValueChanged(string values)
     {
         SelectedValue = SearchedOriginalData.FirstOrDefault(x => values == x.GetKey);
-        SelectedValueChanged.InvokeAsync(SelectedValue);
-        if (SelectedObjectValueChanged is not null)
-            SelectedObjectValueChanged((values, SelectedValue));
+        await SelectedValueChanged.InvokeAsync(SelectedValue);
+        if (SelectedObjectValueChanged != null)
+        {
+            Console.WriteLine("Value changed");
+            await SelectedObjectValueChanged((values, SelectedValue));
+
+        }
     }
 
     async Task sIsValidValue(ValidatorEventArgs e, CancellationToken c)

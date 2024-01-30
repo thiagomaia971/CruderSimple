@@ -55,7 +55,7 @@ public partial class GridEdit<TEntity, TDto> : CruderGridBase<TEntity, TDto>
         }
     }
 
-    public async Task SingleClicked(TDto e, EditCommandContext<TDto> editContext = null)
+    public async Task OpenEditMode(TDto e, EditCommandContext<TDto> editContext = null)
     {
         await DataGridRef.Select(e);
         CurrentSelected = e;
