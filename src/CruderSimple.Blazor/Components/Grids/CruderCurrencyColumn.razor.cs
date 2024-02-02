@@ -6,13 +6,13 @@ using Microsoft.AspNetCore.Components;
 
 namespace CruderSimple.Blazor.Components.Grids;
 
-[CascadingTypeParameter(nameof(TEntity))]
-[CascadingTypeParameter(nameof(TItem))]
-public partial class CruderCurrencyColumn<TEntity, TItem> : CruderColumnBase<TEntity, TItem>
-    where TEntity : IEntity
-    where TItem : BaseDto
+[CascadingTypeParameter(nameof(TColumnEntity))]
+[CascadingTypeParameter(nameof(TColumnDto))]
+public partial class CruderCurrencyColumn<TColumnEntity, TColumnDto> : CruderColumnBase<TColumnEntity, TColumnDto>
+    where TColumnEntity : IEntity
+    where TColumnDto : BaseDto
 {
-    public DataGridNumericColumn<TItem> DataGridNumericColumn { get; set; }
+    public DataGridNumericColumn<TColumnDto> DataGridNumericColumn { get; set; }
 
     protected override Task OnAfterRenderAsync(bool firstRender)
     {
@@ -20,7 +20,7 @@ public partial class CruderCurrencyColumn<TEntity, TItem> : CruderColumnBase<TEn
             DataGridNumericColumn.SortField = GridSort;
 
         if (DataGridNumericColumn != null && DataGridNumericColumn.ParentDataGrid != null)
-            Events = (CruderGridEvents<TItem>) DataGridNumericColumn.ParentDataGrid.Attributes["Events"];
+            Events = (CruderGridEvents<TColumnDto>) DataGridNumericColumn.ParentDataGrid.Attributes["Events"];
 
         return base.OnAfterRenderAsync(firstRender);
     }

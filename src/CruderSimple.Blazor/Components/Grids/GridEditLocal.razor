@@ -1,12 +1,12 @@
 ﻿@using Microsoft.AspNetCore.Components.Forms
-@typeparam TEntity
-@typeparam TDto
-@inherits CruderGridBase<TEntity, TDto>
+@typeparam TGridEntity
+@typeparam TGridDto
+@inherits CruderGridBase<TGridEntity, TGridDto>
 
 <Row Padding="@Padding">
     <Column ColumnSize="ColumnSize.Is12">
         <DataGrid @ref="DataGridRef"
-                  TItem="TDto"
+                  TItem="TGridDto"
                   Class="datagrid-listpage"
                   Data="@AllData"
                   Hoverable
@@ -30,7 +30,7 @@
                   RowSelectable="@((_) => false)"
                   DetailRowStartsVisible="false"
                   DetailRowTrigger="@((_) => DetailRowTemplate != null)"
-                  NewItemDefaultSetter="DefaultNewInstance"
+                  NewItemDefaultSetter="(async (e) => await OnBeforeSaveItem(e))"
                   FixedHeaderDataGridHeight="@Height?.FixedSize.Value.ToString()"
                   FixedHeaderDataGridMaxHeight="430px"
                   SortMode="DataGridSortMode.Single"
@@ -40,7 +40,7 @@
                   RowStyling="@RowModifiedStyle">
             <DataGridColumns>
                 <DataGridCommandColumn 
-                                       TItem="TDto" 
+                                       TItem="TGridDto" 
                                        PreventRowClick 
                                        FixedPosition="TableColumnFixedPosition.Start" 
                                        Field="Id" 
@@ -60,10 +60,6 @@
                             <Tooltip Text="@PermissionService.CanWriteTooltip(NewTooltip)">
                                 <Button Type="ButtonType.Link" Clicked="@((_) => OpenCreateMode(context))" Color="Color.Success" Width="Width.Is100" Size="Size.Small" Disabled="@(!PermissionService.CanWrite)">
                                     <Icon Name="IconName.Add" />
-                                    @if (!SimpleNewCommand)
-                                    {
-                                        <Span> Novo</Span>
-                                    }
                                 </Button>
                             </Tooltip>
                             <Tooltip Text="@PermissionService.CanWriteTooltip(RefreshTooltip)">
@@ -175,7 +171,7 @@
                 }
             </EmptyTemplate>
             <FilterMenuTemplate>
-                <ListPageFilterMenu TEntity="TEntity" TDto="TDto" Column="context.Column" />
+                <ListPageFilterMenu TGridEntity="TGridEntity" TGridDto="TGridDto" Column="context.Column" />
             </FilterMenuTemplate>
             <DetailRowTemplate>
                 @if (DetailRowTemplate != null)
@@ -186,6 +182,13 @@
         </DataGrid>
     </Column>
 </Row>
+
+@foreach (var item in Data ?? new List<TGridDto>())
+{
+    <Span>@(item.GetKey)</Span>
+    <br />
+}
+
 
 <Modal @ref="ModalRef" Closing="@ModalClosed">
     @if (ModalForm != null && CurrentSelected != null)

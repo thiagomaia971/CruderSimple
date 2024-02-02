@@ -1,9 +1,9 @@
-﻿@typeparam TEntity
-@typeparam TItem
-@inherits CruderColumnBase<TEntity, TItem>
+﻿@typeparam TColumnEntity
+@typeparam TColumnDto
+@inherits CruderColumnBase<TColumnEntity, TColumnDto>
 
 <DataGridColumn @ref="DataGridColumn"
-                       TItem="TItem"
+                       TItem="TColumnDto"
                        SortField="@GridSort"
                        Field="@ColumnField"
                        Sortable="@Sortable"
@@ -27,7 +27,8 @@
                               Shadow="Shadow.Large"
                               Debounce="true"
                               DebounceInterval="100"
-                              Blur="OnBlur" />
+                              Blur="OnBlur"
+                              Disabled="@DisabledEditable(context)" />
                 }
                 else
                 {

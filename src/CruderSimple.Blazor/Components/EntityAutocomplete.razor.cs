@@ -180,7 +180,14 @@ public partial class EntityAutocomplete<TEntity, TEntityResult> : ComponentBase
 public static class EntityAutocompleteUtils
 {
 
-    public static RenderFragment CreateComponent(Type entity, Type entityDto, object selectItem, MulticastDelegate selectedValueChanged, bool required, Dictionary<string, object> attributes)
+    public static RenderFragment CreateComponent(
+        Type entity, 
+        Type entityDto, 
+        object selectItem, 
+        MulticastDelegate selectedValueChanged, 
+        bool required,
+        Dictionary<string, object> attributes,
+        bool disabled = false)
     {
         var entityAutoComplete = typeof(EntityAutocomplete<,>).MakeGenericType(entity, entityDto);
         RenderFragment renderFragment = (builder) => {
@@ -196,6 +203,7 @@ public static class EntityAutocompleteUtils
             builder.AddAttribute(5, "SelectedObjectValueChanged", selectedValueChanged);
 
             builder.AddAttribute(7, "Required", required);
+            builder.AddAttribute(8, "Disabled", disabled);
             builder.CloseComponent();
         };
         return renderFragment;

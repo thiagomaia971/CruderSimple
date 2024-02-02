@@ -1,9 +1,9 @@
-﻿@typeparam TEntity
-@typeparam TItem
-@inherits CruderColumnBase<TEntity, TItem>
+﻿@typeparam TColumnEntity
+@typeparam TColumnDto
+@inherits CruderColumnBase<TColumnEntity, TColumnDto>
 
 <DataGridNumericColumn @ref="DataGridNumericColumn"
-                       TItem="TItem"
+                       TItem="TColumnDto"
                        SortField="@GridSort"
                        Field="@ColumnField"
                        Sortable="@Sortable"
@@ -41,7 +41,8 @@
                                    WheelOn="NumericWheelOn.Focus"
                                    Debounce="true"
                                    DebounceInterval="100"
-                                   Blur="OnBlur" />
+                                   Blur="OnBlur"
+                                   Disabled="@DisabledEditable(context)" />
                 }
                 else
                 {
@@ -81,6 +82,6 @@
                        ModifyValueOnWheel
                        WheelOn="NumericWheelOn.Focus"
                        Value="@((double) context.CellValue)" 
-                       @onclick:stopPropagation="true" />
+                       Disabled="@DisabledEditable(context.Item)" />
     </EditTemplate>
 </DataGridNumericColumn>

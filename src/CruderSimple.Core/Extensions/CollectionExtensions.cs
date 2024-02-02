@@ -14,42 +14,88 @@ public static class CollectionExtensions
 
     public static IEnumerable<TItem> AddItem<TItem>(this IEnumerable<TItem> values, TItem item)
     {
+        if (values.Contains(item))
+            return values;
         var valuesNew = values.ToList();
         valuesNew.Add(item);
         values = valuesNew;
         return values;
     }
 
-    public static IEnumerable<TItem> RemoveItem<TItem>(this IEnumerable<TItem> values, Func<TItem, bool> predicate)
+    public static IEnumerable<TItem> RemoveItem<TItem>(this IEnumerable<TItem> values, TItem item)
+        where TItem : BaseDto
     {
-        var valueToRemove = values.FirstOrDefault(predicate);
+        var valueToRemove = values.FirstOrDefaultByKey(item);
         if (valueToRemove == null)
             return values;
 
+        Console.WriteLine($"Remove {item.GetKey}");
         var valuesNew = values.ToList();
         valuesNew.Remove(valueToRemove);
         values = valuesNew;
         return values;
     }
-
-    public static IEnumerable<TItem> ReplaceItem<TItem>(this IEnumerable<TItem> values, TItem item, Func<TItem, bool> predicate, bool addIfNotExists = true)
+    public static IEnumerable<TItem> ReplaceItem<TItem>(this IEnumerable<TItem> values, TItem oldItem, TItem newItem, bool addIfNotExists = true)
+        where TItem : BaseDto
     {
         if (values == null)
             return Enumerable.Empty<TItem>();
         var valuesNew = values.ToList();
-        var itemFounded = valuesNew.FirstOrDefault(predicate);
+        var itemFounded = valuesNew.FirstOrDefaultByKey(oldItem);
         if (itemFounded != null)
         {
             var index = valuesNew.IndexOf(itemFounded);
             valuesNew.Remove(itemFounded);
-            valuesNew.Insert(index, item);
+            valuesNew.Insert(index, newItem);
         }
         else if (addIfNotExists)
-            valuesNew.Add(item);
+            valuesNew.Add(newItem);
 
         values = valuesNew;
         return values;
     }
+    public static IDictionary<string, (TItem Item, bool StyleGrid)> ReplaceItem<TItem>(
+        this IDictionary<string, (TItem Item, bool StyleGrid)> values, 
+        TItem oldItem, 
+        TItem newItem, 
+        bool addIfNotExists = true)
+        where TItem : BaseDto
+    {
+        if (values == null)
+            return new Dictionary<string, (TItem Item, bool StyleGrid)>();
+
+        if (values.TryGetValue(oldItem.GetKey, out var itemFounded))
+            itemFounded.Item = newItem;
+        else if (addIfNotExists)
+            values.Add(newItem.GetKey, (newItem, true));
+
+        return values;
+    }
+
+    public static TItem FirstOrDefaultByKey<TItem>(this List<TItem> values, TItem item)
+        where TItem : BaseDto
+    {
+        if ( item == null)
+            return null;
+        return values?.FirstOrDefault(x => x.GetKey.Equals(item.GetKey));
+    }
+
+    public static TItem FirstOrDefaultByKey<TItem>(this IEnumerable<TItem> values, TItem item)
+        where TItem : BaseDto
+    {
+        if (item == null)
+            return null;
+        return values?.FirstOrDefault(x => x.GetKey.Equals(item.GetKey));
+    }
+
+    public static bool AnyByKey<TItem>(this List<TItem> values, TItem item)
+        where TItem : BaseDto
+        => values.Any(x => x.GetKey.Equals(item.GetKey));
+
+    public static bool AnyByKey<TItem>(this IEnumerable<TItem> values, TItem item)
+        where TItem : BaseDto
+        => values.Any(x => x.GetKey.Equals(item.GetKey));
+
 
     public static ICollection<TEntity> FromInput<TEntity, TDto>(this ICollection<TEntity> entities,
         ICollection<TDto> inputs)

@@ -6,13 +6,13 @@ using Microsoft.AspNetCore.Components;
 
 namespace CruderSimple.Blazor.Components.Grids;
 
-[CascadingTypeParameter(nameof(TEntity))]
-[CascadingTypeParameter(nameof(TItem))]
-public partial class CruderColumn<TEntity, TItem> : CruderColumnBase<TEntity, TItem>
-    where TEntity : IEntity
-    where TItem : BaseDto
+[CascadingTypeParameter(nameof(TColumnEntity))]
+[CascadingTypeParameter(nameof(TColumnDto))]
+public partial class CruderColumn<TColumnEntity, TColumnDto> : CruderColumnBase<TColumnEntity, TColumnDto>
+    where TColumnEntity : IEntity
+    where TColumnDto : BaseDto
 {
-    public DataGridColumn<TItem> DataGridColumn { get; set; }
+    public DataGridColumn<TColumnDto> DataGridColumn { get; set; }
 
     protected override Task OnAfterRenderAsync(bool firstRender)
     {
@@ -20,17 +20,17 @@ public partial class CruderColumn<TEntity, TItem> : CruderColumnBase<TEntity, TI
             DataGridColumn.SortField = GridSort;
 
         if (DataGridColumn != null && DataGridColumn.ParentDataGrid != null)
-            Events = (CruderGridEvents<TItem>)DataGridColumn.ParentDataGrid.Attributes["Events"];
+            Events = (CruderGridEvents<TColumnDto>)DataGridColumn.ParentDataGrid.Attributes["Events"];
 
         return base.OnAfterRenderAsync(firstRender);
     }
 
-    private void ValueChanged(CellEditContext<TItem> cellEdit, double value)
+    private void ValueChanged(CellEditContext<TColumnDto> cellEdit, double value)
     {
         cellEdit.UpdateCell(ColumnField, value);
     }
 
-    private string GetCurrencyFormat(TItem context)
+    private string GetCurrencyFormat(TColumnDto context)
     {
         return $"R$ {context.GetValueByPropertyName(ColumnField)}";
     }

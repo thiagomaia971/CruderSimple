@@ -8,18 +8,18 @@ using Newtonsoft.Json.Linq;
 
 namespace CruderSimple.Blazor.Components.Grids;
 
-[CascadingTypeParameter(nameof(TEntity))]
-[CascadingTypeParameter(nameof(TDto))]
-public partial class ListPageFilterMenu<TEntity, TDto> : ComponentBase
-    where TEntity : IEntity
-    where TDto : BaseDto
+[CascadingTypeParameter(nameof(TGridEntity))]
+[CascadingTypeParameter(nameof(TGridDto))]
+public partial class ListPageFilterMenu<TGridEntity, TGridDto> : ComponentBase
+    where TGridEntity : IEntity
+    where TGridDto : BaseDto
 {
 
-    [CascadingParameter] public DataGrid<TDto> ParentDataGrid { get; set; }
+    [CascadingParameter] public DataGrid<TGridDto> ParentDataGrid { get; set; }
 
-    [Parameter] public DataGridColumn<TDto> Column { get; set; }
+    [Parameter] public DataGridColumn<TGridDto> Column { get; set; }
 
-    public DataGridSelectColumn<TDto> SelectColumn => (DataGridSelectColumn<TDto>)Column;
+    public DataGridSelectColumn<TGridDto> SelectColumn => (DataGridSelectColumn<TGridDto>)Column;
     public object SelectColumnCrudService
     {
         get
@@ -76,14 +76,14 @@ public partial class ListPageFilterMenu<TEntity, TDto> : ComponentBase
     public bool IsNumeric => Column.ColumnType == DataGridColumnType.Numeric;
     public bool IsDate => Column.ColumnType == DataGridColumnType.Date;
     public bool IsSelect => Column.ColumnType == DataGridColumnType.Select;
-    public DataGridSelectColumn<TDto> DataGridSelectColumn => Column as DataGridSelectColumn<TDto>;
+    public DataGridSelectColumn<TGridDto> DataGridSelectColumn => Column as DataGridSelectColumn<TGridDto>;
     public RenderFragment SelectRender { get; set; }
 
     protected override Task OnInitializedAsync()
     {
         base.InvokeAsync(() =>
         {
-            var events = (CruderGridEvents<TDto>) ParentDataGrid.Attributes["Events"];
+            var events = (CruderGridEvents<TGridDto>) ParentDataGrid.Attributes["Events"];
             events.OnColumnsLoaded += () =>
             {
                 if (IsSelect && SelectRender is null)

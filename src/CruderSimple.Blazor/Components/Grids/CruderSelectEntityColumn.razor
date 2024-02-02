@@ -1,18 +1,18 @@
-﻿@typeparam TEntity
-@typeparam TItem
-@typeparam TColumnItem
-@inherits CruderColumnBase<TEntity, TItem>
+﻿@typeparam TColumnEntity
+@typeparam TColumnDto
+@typeparam TSelectEntityDto
+@inherits CruderColumnBase<TColumnEntity, TColumnDto>
 
 <DataGridSelectColumn @ref="DataGridSelectColumn" 
-                      TItem="TItem"
+                      TItem="TColumnDto"
                       Field="@ColumnField"
                       Caption="@ColumnCaption"
                       Editable="@Editable"
                       Filterable="@Filterable"
                       Sortable="@Sortable"
                       Attributes="@Attributes"
-                      ValueField="(x) => ((TItem)x).GetKey"
-                      TextField="(x) => ((TItem)x).GetValue"
+                      ValueField="(x) => ((TColumnDto)x).GetKey"
+                      TextField="(x) => ((TColumnDto)x).GetValue"
                       SortField="Procedure.Code"
                       HeaderCellStyle="line-height: 38px"
                       HeaderTextAlignment="TextAlignment.Start"

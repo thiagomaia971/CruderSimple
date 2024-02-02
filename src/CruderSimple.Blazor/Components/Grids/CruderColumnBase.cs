@@ -8,11 +8,11 @@ using Microsoft.AspNetCore.Components;
 
 namespace CruderSimple.Blazor.Components.Grids
 {
-    [CascadingTypeParameter(nameof(TEntity))]
-    [CascadingTypeParameter(nameof(TDto))]
-    public class CruderColumnBase<TEntity, TDto> : ComponentBase
-        where TEntity : IEntity
-        where TDto : BaseDto
+    [CascadingTypeParameter(nameof(TColumnEntity))]
+    [CascadingTypeParameter(nameof(TColumnDto))]
+    public class CruderColumnBase<TColumnEntity, TColumnDto> : ComponentBase
+        where TColumnEntity : IEntity
+        where TColumnDto : BaseDto
     {
         /// <summary>
         /// Field used to Grid
@@ -45,6 +45,11 @@ namespace CruderSimple.Blazor.Components.Grids
         [Parameter] public bool AlwaysEditable { get; set; } = false;
 
         /// <summary>
+        /// Column is Always in Editable mode
+        /// </summary>
+        [Parameter] public Func<TColumnDto, bool> DisabledEditable { get; set; } = (_) => false;
+
+        /// <summary>
         /// Column is Filterable
         /// </summary>
         [Parameter] public bool Filterable { get; set; } = true;
@@ -57,7 +62,7 @@ namespace CruderSimple.Blazor.Components.Grids
         /// <summary>
         /// Render a custom Display Grid
         /// </summary>
-        [Parameter] public RenderFragment<TDto> DisplayTemplate { get; set; }
+        [Parameter] public RenderFragment<TColumnDto> DisplayTemplate { get; set; }
 
         /// <summary>
         /// When Type doenst Match, put a tooltip info
@@ -67,9 +72,9 @@ namespace CruderSimple.Blazor.Components.Grids
         [Inject] protected PermissionService PermissionService { get; set; }
 
         protected Dictionary<string, object> Attributes { get; set; } = new Dictionary<string, object>();
-        protected CruderGridEvents<TDto> Events { get; set; }
-        protected TDto OldValue { get; set; }
-        protected TDto NewValue { get; set; }
+        protected CruderGridEvents<TColumnDto> Events { get; set; }
+        protected TColumnDto OldValue { get; set; }
+        protected TColumnDto NewValue { get; set; }
 
         protected override Task OnInitializedAsync()
         {
@@ -77,10 +82,10 @@ namespace CruderSimple.Blazor.Components.Grids
             return base.OnInitializedAsync();
         }
 
-        protected async void ValueInlineChanged(TDto item, object value)
+        protected async void ValueInlineChanged(TColumnDto item, object value)
         {
             if (OldValue == null)
-                OldValue = item.Adapt<TDto>();
+                OldValue = item.Adapt<TColumnDto>();
             if (NewValue == null)
                 NewValue = item;
 
@@ -97,10 +102,10 @@ namespace CruderSimple.Blazor.Components.Grids
             NewValue = null;
         }
 
-        protected void ValueChanged(CellEditContext<TDto> cellEdit, double value)
+        protected void ValueChanged(CellEditContext<TColumnDto> cellEdit, double value)
             => cellEdit.UpdateCell(ColumnField, value);
 
-        protected virtual async Task OnClick(TDto item)
+        protected virtual async Task OnClick(TColumnDto item)
         {
             if (!AlwaysEditable)
                 Events.RaiseColumnSelected(item);

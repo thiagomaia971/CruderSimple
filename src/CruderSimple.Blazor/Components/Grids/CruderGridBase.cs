@@ -20,7 +20,6 @@ namespace CruderSimple.Blazor.Components.Grids
     {
         [Parameter] public RenderFragment Columns { get; set; }
         [Parameter] public RenderFragment<TDto> DetailRowTemplate { get; set; }
-        [Parameter] public bool SelectAll { get; set; }
         [Parameter] public string CustomSelect { get; set; }
         [Parameter] public IFluentSizing Height { get; set; }
         [Parameter] public IFluentSpacing Padding { get; set; }
@@ -37,6 +36,7 @@ namespace CruderSimple.Blazor.Components.Grids
         [Inject] public IdentityAuthenticationStateProvider State { get; set; }
         public CardBody CardBody { get; set; }
         public int HeightDimension;
+        protected bool IsLoading { get; set; }
 
         protected Claim TenantClaim { get; set; }
         public virtual IList<TDto> AllData => SearchedData?.ToList();
@@ -128,7 +128,7 @@ namespace CruderSimple.Blazor.Components.Grids
 
         protected virtual string GetQuerySelect(IEnumerable<DataGridColumnInfo> dataGridFields)
         {
-            if (SelectAll)
+            if (string.IsNullOrEmpty(CustomSelect))
                 return "*";
 
             var select = string.Join(",", dataGridFields

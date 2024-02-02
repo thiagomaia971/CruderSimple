@@ -7,13 +7,13 @@ using Microsoft.AspNetCore.Components.Web;
 
 namespace CruderSimple.Blazor.Components.Grids;
 
-[CascadingTypeParameter(nameof(TEntity))]
-[CascadingTypeParameter(nameof(TItem))]
-public partial class CruderDateColumn<TEntity, TItem> : CruderColumnBase<TEntity, TItem>
-    where TEntity : IEntity
-    where TItem : BaseDto
+[CascadingTypeParameter(nameof(TColumnEntity))]
+[CascadingTypeParameter(nameof(TColumnDto))]
+public partial class CruderDateColumn<TColumnEntity, TColumnDto> : CruderColumnBase<TColumnEntity, TColumnDto>
+    where TColumnEntity : IEntity
+    where TColumnDto : BaseDto
 {
-    public DataGridDateColumn<TItem> DataGridDateColumn { get; set; }
+    public DataGridDateColumn<TColumnDto> DataGridDateColumn { get; set; }
     public DateEdit<DateTime> DatePickerRef { get; set; }
     public DateEdit<DateTime?> DatePickerNullableRef { get; set; }
 
@@ -23,7 +23,7 @@ public partial class CruderDateColumn<TEntity, TItem> : CruderColumnBase<TEntity
             DataGridDateColumn.SortField = GridSort;
 
         if (DataGridDateColumn != null && DataGridDateColumn.ParentDataGrid != null)
-            Events = (CruderGridEvents<TItem>)DataGridDateColumn.ParentDataGrid.Attributes["Events"];
+            Events = (CruderGridEvents<TColumnDto>)DataGridDateColumn.ParentDataGrid.Attributes["Events"];
 
         base.OnAfterRender(firstRender);
     }

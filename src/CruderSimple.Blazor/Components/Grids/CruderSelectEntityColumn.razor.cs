@@ -8,13 +8,14 @@ using Microsoft.AspNetCore.Components;
 
 namespace CruderSimple.Blazor.Components.Grids;
 
-[CascadingTypeParameter(nameof(TEntity))]
-[CascadingTypeParameter(nameof(TItem))]
-[CascadingTypeParameter(nameof(TColumnItem))]
-public partial class CruderSelectEntityColumn<TEntity, TItem, TColumnItem> : CruderColumnBase<TEntity, TItem>
-    where TEntity : IEntity
-    where TItem : BaseDto
-    where TColumnItem : BaseDto
+[CascadingTypeParameter(nameof(TColumnEntity))]
+[CascadingTypeParameter(nameof(TColumnDto))]
+[CascadingTypeParameter(nameof(TSelectEntityDto))]
+public partial class CruderSelectEntityColumn<TColumnEntity, TColumnDto, TSelectEntityDto> 
+    : CruderColumnBase<TColumnEntity, TColumnDto>
+    where TColumnEntity : IEntity
+    where TColumnDto : BaseDto
+    where TSelectEntityDto : BaseDto
 {
     /// <summary>
     /// Property used to search on Grid component inside of Filter
@@ -30,11 +31,11 @@ public partial class CruderSelectEntityColumn<TEntity, TItem, TColumnItem> : Cru
     /// Custom select request params
     /// </summary>
 
-    [Inject] public ICrudService<TEntity, TColumnItem> CrudService { get; set; }
+    [Inject] public ICrudService<TColumnEntity, TSelectEntityDto> CrudService { get; set; }
 
-    private DataGridSelectColumn<TItem> DataGridSelectColumn { get; set; }
-    private DataGrid<TItem> DataGrid => DataGridSelectColumn?.ParentDataGrid;
-    public TItem CurrentSelect { get; set; }
+    private DataGridSelectColumn<TColumnDto> DataGridSelectColumn { get; set; }
+    private DataGrid<TColumnDto> DataGrid => DataGridSelectColumn?.ParentDataGrid;
+    public TColumnDto CurrentSelect { get; set; }
 
     public Dictionary<string, object> Attributes { get; set; } = new Dictionary<string, object>();
     public RenderFragment SelectComponent { get; set; }
@@ -54,7 +55,7 @@ public partial class CruderSelectEntityColumn<TEntity, TItem, TColumnItem> : Cru
             DataGridSelectColumn.SortField = GridSort;
 
         if (DataGridSelectColumn != null && DataGridSelectColumn.ParentDataGrid != null)
-            Events = (CruderGridEvents<TItem>)DataGridSelectColumn.ParentDataGrid.Attributes["Events"];
+            Events = (CruderGridEvents<TColumnDto>)DataGridSelectColumn.ParentDataGrid.Attributes["Events"];
 
         //if (SelectComponent == null && AlwaysEditable)
         //{
@@ -76,10 +77,13 @@ public partial class CruderSelectEntityColumn<TEntity, TItem, TColumnItem> : Cru
         };
     }
 
-    private RenderFragment CreateSelectComponent(object value)
+    private RenderFragment CreateSelectComponent(object value, TColumnDto item = null)
     {
         if (DataGridSelectColumn is null)
             return null;
+
+        if (item == null)
+            item = default(TColumnDto);
 
         var service = DataGridSelectColumn.Attributes["Service"];
         if (service is null)
@@ -97,14 +101,15 @@ public partial class CruderSelectEntityColumn<TEntity, TItem, TColumnItem> : Cru
             value,
             async ((string Key, object Value) value) => await SelectChanged(value/*, cellEdit*/),
             false,
-            DataGridSelectColumn.Attributes);
+            DataGridSelectColumn.Attributes,
+            DisabledEditable(item));
         StateHasChanged();
         return render;
     }
 
-    public async Task SelectChanged((string Key, object Value) value/*, CellEditContext<TItem> cellEdit*/)
+    public async Task SelectChanged((string Key, object Value) value/*, CellEditContext<TColumnDto> cellEdit*/)
     {
-        OldValue = CurrentSelect.Adapt<TItem>();
+        OldValue = CurrentSelect.Adapt<TColumnDto>();
         CurrentSelect.SetValueByPropertyName(value.Value, ColumnField);
         NewValue = CurrentSelect;
 
@@ -113,15 +118,15 @@ public partial class CruderSelectEntityColumn<TEntity, TItem, TColumnItem> : Cru
         SelectComponent = CreateSelectComponent(DataGrid.ReadCellEditValue(ColumnField));
     }
 
-    protected string GetGridName(TItem item)
+    protected string GetGridName(TColumnDto item)
     { 
         var itemProperties = item.GetType().GetProperty(ColumnField);
         if (itemProperties is null)
             return item.GetValue;
-        return (itemProperties.GetValue(item) as TColumnItem)?.GetValue ?? string.Empty;
+        return (itemProperties.GetValue(item) as TSelectEntityDto)?.GetValue ?? string.Empty;
     }
 
-    protected override async Task OnClick(TItem item)
+    protected override async Task OnClick(TColumnDto item)
     {
         CurrentSelect = item;
         await base.OnClick(item);
