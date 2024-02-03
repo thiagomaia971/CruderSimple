@@ -21,7 +21,7 @@ public class Repository<T>(IDynamoDBContext dynamoDbContext, IAmazonDynamoDB ama
 
     public IRepositoryBase<T> Add(T entity)
     {
-        var oldEntities = entity.Id is null ? new List<Entity>() : (FindById(entity.Id).GetAwaiter().GetResult())?.SegregateEntities() ?? new List<Entity>();
+        var oldEntities = entity.Id is null ? new List<Entity>() : (FindById(entity.Id, "*").GetAwaiter().GetResult())?.SegregateEntities() ?? new List<Entity>();
         var entitiesToSave = entity.SegregateEntities();
         
         foreach (var entityToSave in entitiesToSave)
@@ -81,11 +81,31 @@ public class Repository<T>(IDynamoDBContext dynamoDbContext, IAmazonDynamoDB ama
         return batchWrite;
     }
 
+    public IRepositoryBase<T> Add(T entity, AutoDetachOptions autoDetach = AutoDetachOptions.BEFORE)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IRepositoryBase<T> Update(T entity, AutoDetachOptions autoDetach = AutoDetachOptions.BEFORE)
+    {
+        throw new NotImplementedException();
+    }
+
     public virtual IRepositoryBase<T> Remove(T entity)
     {
         var batchWrite = AddBatchWrite(entity);
         batchWrite.AddDeleteItem(entity);
         return this;
+    }
+
+    public Task Save(bool withoutTracking = true)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<T> FindById(string id, string select = "*", bool asNoTracking = false)
+    {
+        throw new NotImplementedException();
     }
 
     public virtual async Task Save()
@@ -115,6 +135,11 @@ public class Repository<T>(IDynamoDBContext dynamoDbContext, IAmazonDynamoDB ama
             .ByGsi(propertyName, value)
             .ByInheritedType()
             .FindAsync();
+
+    public Task<Pagination<T>> GetAll(GetAllEndpointQuery query = null, bool asNoTracking = false)
+    {
+        throw new NotImplementedException();
+    }
 
     public async Task<Pagination<T>> GetAll(GetAllEndpointQuery query = null)
     {
