@@ -29,7 +29,6 @@ public static class CollectionExtensions
         if (valueToRemove == null)
             return values;
 
-        Console.WriteLine($"Remove {item.GetKey}");
         var valuesNew = values.ToList();
         valuesNew.Remove(valueToRemove);
         values = valuesNew;

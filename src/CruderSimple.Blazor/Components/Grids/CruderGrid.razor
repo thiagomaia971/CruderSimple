@@ -3,7 +3,6 @@
 @typeparam TGridDto
 @inherits CruderGridBase<TGridEntity, TGridDto>
 
-
 <CascadingValue Value="this">
     <Row Padding="@Padding">
         <Column ColumnSize="ColumnSize.Is12">
@@ -183,10 +182,58 @@
     
     @if (IsDebug)
     {
-        <CruderTable Title="SearchedData" Data="@SearchedData"></CruderTable>
-        <CruderTable Title="Data" Data="@Data" />
-        <CruderTable Title="BackupModified" Data="@BackupModified.Select(x => x.Value.NewItem).ToList()" />
-        <CruderTable Title="BackupDeleted" Data="@BackupDeleted.Select(x => x.Value.NewItem).ToList()" />
+        <Accordion Margin="Margin.Is3.FromTop">
+            <Collapse>
+                <CollapseHeader>
+                    <Heading Size="HeadingSize.Is5">
+                        <AccordionToggle>SearchedData</AccordionToggle>
+                    </Heading>
+                </CollapseHeader>
+                <CollapseBody>
+                    <CruderTable Data="@SearchedData"></CruderTable>
+                </CollapseBody>
+            </Collapse>
+            <Collapse>
+                <CollapseHeader>
+                    <Heading Size="HeadingSize.Is5">
+                        <AccordionToggle>Data</AccordionToggle>
+                    </Heading>
+                </CollapseHeader>
+                <CollapseBody>
+                    <CruderTable Data="@Data" />
+                </CollapseBody>
+            </Collapse>
+            <Collapse>
+                <CollapseHeader>
+                    <Heading Size="HeadingSize.Is5">
+                        <AccordionToggle>Inserted</AccordionToggle>
+                    </Heading>
+                </CollapseHeader>
+                <CollapseBody>
+                    <CruderTable Data="@Inserted.Select(x => x.Value.Item).ToList()" />
+                </CollapseBody>
+            </Collapse>
+            <Collapse>
+                <CollapseHeader>
+                    <Heading Size="HeadingSize.Is5">
+                        <AccordionToggle>BackupModified</AccordionToggle>
+                    </Heading>
+                </CollapseHeader>
+                <CollapseBody>
+                    <CruderTable Data="@BackupModified.Select(x => x.Value.NewItem).ToList()" />
+                </CollapseBody>
+            </Collapse>
+            <Collapse>
+                <CollapseHeader>
+                    <Heading Size="HeadingSize.Is5">
+                        <AccordionToggle>BackupDeleted</AccordionToggle>
+                    </Heading>
+                </CollapseHeader>
+                <CollapseBody>
+                    <CruderTable Data="@BackupDeleted.Select(x => x.Value.NewItem).ToList()" />
+                </CollapseBody>
+            </Collapse>
+        </Accordion>
     }
 
     <CruderGridModal @ref="CruderGridModal"

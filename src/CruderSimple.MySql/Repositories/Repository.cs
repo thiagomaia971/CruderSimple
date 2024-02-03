@@ -60,13 +60,14 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
         
         if (withoutTracking)
         {
-            var referencesId = GetReferences(Saved);
+            var referencesId = Saved.GetReferences();
             var entries = dbContext.ChangeTracker.Entries().ToList();
             dbContext.ChangeTracker.Clear();
             var groupBy = entries
                 .Where(x => referencesId.ContainsKey(((IEntity)x.Entity).Id))
                 .GroupBy(x => ((IEntity)x.Entity).Id)
                 .ToList();
+            
             foreach (var group in groupBy)
             {
                 var entry = group.FirstOrDefault();
@@ -122,44 +123,6 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
         await DbContext.SaveChangesAsync();
     }
 
-    private Dictionary<string, IEntity> GetReferences(IEntity entity, Dictionary<string, IEntity> references = null)
-    {
-        if (references == null)
-            references = new Dictionary<string, IEntity>();
-        if (references.ContainsKey(entity.Id))
-            return references;
-        
-        references.Add(entity.Id, entity);
-        var allEntities = entity.GetPropertiesFromInhiredType<IEntity>();
-
-        foreach (var innerEntityProperty in allEntities)
-        {
-            if (innerEntityProperty.GetValue(entity) is IEntity innerEntity)
-            {
-                var innerReferences = GetReferences(innerEntity, references);
-                foreach (var reference in innerReferences.Where(x => !references.ContainsKey(x.Key)))
-                    references.Add(reference.Key, reference.Value);
-            }
-            else
-            {
-                var list = (innerEntityProperty.GetValue(entity) as IEnumerable);
-                if (list is null)
-                    continue;
-                foreach (var v in list.Adapt<IEnumerable>())
-                {
-                    if (v is null)
-                        continue;
-                    var innerEntityList = (IEntity)v;
-                    var innerReferences = GetReferences(innerEntityList, references);
-                    foreach (var reference in innerReferences.Where(x => !references.ContainsKey(x.Key)))
-                        references.Add(reference.Key, reference.Value);
-                }
-            }
-        }
-
-        return references;
-    }
-
     public virtual Task<TEntity> FindById(string id, string select = "*", bool asNoTracking = false) 
         => Query(asNoTracking, true)
             .SelectBy(select)
@@ -176,7 +139,6 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
         => DbSet
             .IgnoreAutoIncludes()
             .AsNoTracking(asNoTracking)
-            .Where(x => !x.DeletedAt.HasValue)
             .ApplyMultiTenantFilter(multiTenant?.UserId ?? string.Empty, multiTenant?.Id ?? string.Empty, ignoreUser)
             .OrderBy(x => x.CreatedAt);
 }

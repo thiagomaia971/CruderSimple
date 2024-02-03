@@ -31,14 +31,9 @@ public partial class CruderGrid<TGridEntity, TGridDto> : CruderGridBase<TGridEnt
     [Parameter] public EventCallback<TGridDto> CurrentSelectedChanged { get; set; }
 
     /// <summary>
-    /// Filter Request API by Key
+    /// Filter Request API
     /// </summary>
-    [Parameter] public string FilterKey { get; set; }
-
-    /// <summary>
-    /// Filter Request API by Key Value
-    /// </summary>
-    [Parameter] public string FilterValue { get; set; }
+    [Parameter] public string FilterBy { get; set; }
 
     /// <summary>
     /// Tooltip value for Undo button
@@ -176,11 +171,11 @@ public partial class CruderGrid<TGridEntity, TGridDto> : CruderGridBase<TGridEnt
     }
 
     protected override string GetQueryFilter(IEnumerable<DataGridColumnInfo> dataGridColumnInfos, List<string> filters = null)
-        => base.GetQueryFilter(dataGridColumnInfos, [$"{FilterKey} {Op.Equals} {FilterValue}"]);
+        => base.GetQueryFilter(dataGridColumnInfos, [FilterBy]);
 
     protected override async Task<List<TGridDto>> FilterData(List<TGridDto> data, GetAllEndpointQuery query = null)
     {
-        if (HasInitialData)
+        if (!IsInitialDataLoaded && HasInitialData)
             data = await LoadInitialData(data);
         data = LoadModifiedData(data);
         return data.ToList();
@@ -266,7 +261,7 @@ public partial class CruderGrid<TGridEntity, TGridDto> : CruderGridBase<TGridEnt
         if (!Inserted.ContainsKey(item.GetKey))
             Inserted.Add(item.GetKey, (item, style));
 
-        //SearchedData = await FilterData(SearchedData);
+        SearchedData = await FilterData(SearchedData);
         await ItemCreated.InvokeAsync(item);
     }
 

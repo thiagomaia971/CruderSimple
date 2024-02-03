@@ -6,7 +6,6 @@ namespace CruderSimple.Blazor.Components;
 
 public partial class CruderTable : ComponentBase
 {
-    [Parameter] public string Title {get;set;}
     [Parameter] public IEnumerable<object> Data {get;set;} = Enumerable.Empty<object>();
     public Table Table { get; set; }
     public TableHeader TableHeader { get; set; }

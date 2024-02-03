@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Data.Entity;
+using System.Linq.Expressions;
 using System.Reflection;
 using CruderSimple.Core.Entities;
 using CruderSimple.MySql.Attributes;
@@ -20,6 +21,16 @@ public static class ModelBuilderExtensions
             .Where(x => x.PropertyType.GenericTypeArguments.Any() &&  typeof(IEntity).IsAssignableFrom(x.PropertyType.GenericTypeArguments[0]));
         foreach (var dbSetProperty in properties)
             AutoIncludeDbSet(ModelBuilder, dbSetProperty);
+    }
+
+    public static void FilterSoftDelete<T>(this ModelBuilder ModelBuilder)
+    {
+        var properties = typeof(T)
+            .GetProperties(BindingFlags.Instance | BindingFlags.Public)
+            .Where(x => x.PropertyType.GenericTypeArguments.Any() &&  typeof(IEntity).IsAssignableFrom(x.PropertyType.GenericTypeArguments[0]));
+        
+        foreach (var dbSetProperty in properties)
+            SetSoftDeleteQueryDbSet(ModelBuilder, dbSetProperty);
     }
 
     public static void DetachLocal(this DbContext context, IEntity t)
@@ -67,5 +78,20 @@ public static class ModelBuilderExtensions
 
         foreach (var propertyToInclude in propertiesToInclude)
             entity.Navigation(propertyToInclude.Name).AutoInclude();
+    }
+    
+    private static void SetSoftDeleteQueryDbSet(ModelBuilder modelBuilder, PropertyInfo dbSetProperty)
+    {
+        var entityType = dbSetProperty.PropertyType;
+        if (!typeof(IEntity).IsAssignableFrom(dbSetProperty.PropertyType))
+            entityType = dbSetProperty.PropertyType.GenericTypeArguments[0];
+        
+        var entity = modelBuilder.Entity(entityType);
+        var parameter = Expression.Parameter(entityType, $"{entityType.Name.Substring(0, 2)}");
+        
+        var property = Expression.Property(Expression.Property(parameter, "DeletedAt"), "HasValue");
+        var body = Expression.Not(property);
+        var lambda = Expression.Lambda(body, parameter);
+        entity.HasQueryFilter(lambda);
     }
 }
