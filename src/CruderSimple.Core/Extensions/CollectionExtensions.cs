@@ -88,6 +88,13 @@ public static class CollectionExtensions
         return values?.FirstOrDefault(x => x.GetKey.Equals(item.GetKey));
     }
 
+    public static IEnumerable<TItem> ForEach<TItem>(this IEnumerable<TItem> values, Action<TItem> action)
+    {
+        var currentValues = values.ToList();
+        currentValues.ForEach(action);
+        return currentValues.ToList();
+    }
+
     public static bool AnyByKey<TItem>(this List<TItem> values, TItem item)
         where TItem : BaseDto
         => values.Any(x => x.GetKey.Equals(item.GetKey));

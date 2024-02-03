@@ -37,6 +37,13 @@ public abstract class Entity : IEntity
 
     public abstract IEntity FromInput(BaseDto input);
     public abstract BaseDto ConvertToOutput();
+    
+    
+    public virtual void DeleteMethod(int modifiedBy)
+    {
+        DeletedAt = DateTime.UtcNow;
+        // ModifiedMethod(modifiedBy);
+    }
 
     public virtual string GetPrimaryKey() 
         => Id;

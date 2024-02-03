@@ -47,7 +47,7 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
 
     public virtual IRepositoryBase<TEntity> Remove(TEntity entity)
     {
-        entity.DeletedAt = DateTime.UtcNow;
+        entity.DeleteMethod(0);
         Saved = entity;
         DbContext.Update(entity);
         return this;
@@ -61,17 +61,31 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
         {
             var entries = dbContext.ChangeTracker.Entries().ToList();
             dbContext.ChangeTracker.Clear();
+            var tracked = new List<string>();
             foreach (var group in entries.GroupBy(x => ((IEntity)x.Entity).Id))
             {
                 var entry = group.FirstOrDefault();
+                var entryEntity = (IEntity) entry.Entity;
+                if (tracked.Contains(entryEntity.Id))
+                    continue;
+                tracked.Add(entryEntity.Id);
+                
                 if (group.Count() > 1)
                 {
+                    if (entryEntity.DeletedAt.HasValue)
+                        entryEntity.DeleteMethod(0);
                     dbContext.Entry(entry.Entity).State = EntityState.Modified;
                 }
                 else
                 {
+                    
+                    if (entryEntity.DeletedAt.HasValue)
+                        entryEntity.DeleteMethod(0);
                     if (entry.State == EntityState.Deleted)
+                    {
+                        // ((IEntity) entry.Entity).DeleteMethod(0);
                         dbContext.Entry(entry.Entity).State = EntityState.Modified;
+                    }
                     else
                         dbContext.Entry(entry.Entity).State = entry.State;
                 }
