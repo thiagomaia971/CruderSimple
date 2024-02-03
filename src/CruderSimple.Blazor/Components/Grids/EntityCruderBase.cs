@@ -9,14 +9,14 @@ namespace CruderSimple.Blazor.Components.Grids
         where TGridDto : BaseDto
     {
         [Parameter, EditorRequired] public string FilterBy { get; set; }
-        [Parameter] public IEnumerable<TGridDto> Data { get; set; }
-        [Parameter] public EventCallback<IEnumerable<TGridDto>> DataChanged { get; set; }
+        [Parameter] public IList<TGridDto> Data { get; set; }
+        [Parameter] public Action<IList<TGridDto>> DataChanged { get; set; }
         protected CruderGrid<TGridEntity, TGridDto> CruderGrid { get; set; }
 
-        protected async Task DataHasChanged(IEnumerable<TGridDto> data)
+        protected void DataHasChanged(IList<TGridDto> data)
         {
             Data = data;
-            await DataChanged.InvokeAsync(data);
+            DataChanged(data);
         }
     }
 }

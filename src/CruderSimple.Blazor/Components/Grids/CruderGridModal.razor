@@ -3,10 +3,18 @@
 @typeparam TGridDto
 @inherits ComponentBase
 
-<Modal @ref="ModalRef" Closing="@ModalClosed">
+@Dimension?.Width
+@((int) (Dimension?.Width * 0.8))
+@((int) (Dimension.Width * 0.1))
+
+<Modal @ref="ModalRef" 
+       Closing="@ModalClosed"
+       Class="cruder-grid-modal">
     @if (ModalFormTemplate != null && CurrentSelected != null)
     {
-        <ModalContent Size="ModalSize.ExtraLarge">
+        <ModalContent Size="ModalSize.ExtraLarge"
+                      Width="Blazorise.Width.Px((int) (Dimension.Width * 0.8))"
+                      Margin="@(Blazorise.Margin.Is($"{(int) (Dimension.Width * 0.1)}px"))">
             <ModalHeader>
                 <h4 style="margin: 0px;">
                     @ModalFormTitle

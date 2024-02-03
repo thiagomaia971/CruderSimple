@@ -1,4 +1,5 @@
 using Blazorise;
+using CruderSimple.Blazor.Services;
 using CruderSimple.Core.Entities;
 using CruderSimple.Core.Services;
 using CruderSimple.Core.ViewModels;
@@ -24,6 +25,7 @@ public partial class CruderGridModal<TGridEntity, TGridDto> : ComponentBase
     [Inject] public INotificationService NotificationService { get; set; }
     [Inject] public PermissionService PermissionService { get; set; }
 
+    [CascadingParameter] public WindowDimension Dimension { get; set; }
 
     public TGridDto CurrentSelected => CruderGrid?.CurrentSelected;
     public TGridDto CurrentSelectedBackup { get; set; }
@@ -55,20 +57,14 @@ public partial class CruderGridModal<TGridEntity, TGridDto> : ComponentBase
             Errors = null;
             try
             {
-                //if (OnBeforeSaveItem != null)
-                //    await OnBeforeSaveItem(CurrentSelected);
-
                 if (IsNewItem)
                     await CruderGrid.AddItem(CurrentSelected, true);
                 else
                     await CruderGrid.UpdateItem(CurrentSelectedBackup, CurrentSelected, true);
-                await CruderGrid.Select(null);
 
-                //await NotificationService.Success($"{(IsNewModal ? "Adicionado" : "Editado")} com sucesso!");
+                await CruderGrid.Select(null);
                 await ModalRef.Close(CloseReason.None);
-                //CurrentSelected = null;
-                //await DataGridRef.Refresh();
-                //await DataGridRef.Select(null);
+                await CruderGrid.Refresh();
             }
             catch (Exception ex)
             {

@@ -32,5 +32,20 @@ namespace CruderSimple.Blazor.Services
         }
     }
 
-    public record WindowDimension(int Widht, int Height);
+    public class WindowDimension
+    {
+        public int Width { get; set; }
+        public int Heigth { get; set; }
+
+        public WindowDimension()
+        {
+            
+        }
+
+        public WindowDimension(int width, int height)
+        {
+            Width = width;
+            Heigth = height;
+        }
+    }
 }

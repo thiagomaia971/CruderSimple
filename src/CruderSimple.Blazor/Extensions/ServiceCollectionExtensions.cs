@@ -39,6 +39,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<PageHistoryState>();
         services.AddScoped<DebounceService>();
         services.AddSingleton<BrowserService>();
+        services.AddScoped(typeof(CruderLogger<>));
         //var pageParameter = new PageParameter();
         //services.AddSingleton(pageParameter);
         services.AddCruderServices();

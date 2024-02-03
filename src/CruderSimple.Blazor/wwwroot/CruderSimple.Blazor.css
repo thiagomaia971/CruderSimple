@@ -94,25 +94,25 @@ td:not(.text-left) {
     /*line-height: 31px;*/
 }
 
-.datagrid-listpage {
+.cruder-grid-base {
     border-top: 2px solid #dee2e6 !important;
     margin-bottom: 0px;
 }
 
-.datagrid-listpage input{
+.cruder-grid-base input{
     height: 32px;
 }
 
-.datagrid-listpage thead tr {
+.cruder-grid-base thead tr {
     height: 45px;
 }
 
-.datagrid-listpage tbody td {
+.cruder-grid-base tbody td {
     padding-top: 2px;
     padding-bottom: 2px;
 }
 
-.datagrid-listpage th {
+.cruder-grid-base th {
     /*vertical-align: middle !important;*/
     padding-top: 2px;
     padding-bottom: 2px;
@@ -131,23 +131,31 @@ td:not(.text-left) {
     border: 1px solid #dee2e6;
 }
 
-.datagrid-listpage th .d-inline-flex {
+.list-page {
+    table-layout: fixed;
+}
+
+.cruder-grid-base th .d-inline-flex {
     /*position: absolute;*/
     /*top: 25%*/
 }
 
-.datagrid-listpage thead tr:nth-of-type(2) {
+.cruder-grid-base thead tr:nth-of-type(2) {
     display: none;
 }
 
-.datagrid-listpage th {
+.cruder-grid-base th {
     line-height: 38px;
 }
 
-.datagrid-listpage .dropdown-toggle {
+.cruder-grid-base .dropdown-toggle {
     padding-right: 0px;
     padding-top: 7px;
     padding-left: 5px;
+}
+
+.cruder-grid-modal .modal-dialog {
+    margin-left: initial;
 }
 
 .navbar {

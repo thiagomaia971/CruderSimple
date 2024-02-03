@@ -10,6 +10,7 @@ using CruderSimple.Core.Extensions;
 using CruderSimple.Core.Services;
 using CruderSimple.Core.ViewModels;
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Logging;
 using System.Security.Claims;
 
 namespace CruderSimple.Blazor.Components.Grids
@@ -21,12 +22,23 @@ namespace CruderSimple.Blazor.Components.Grids
         [Parameter] public RenderFragment Columns { get; set; }
         [Parameter] public RenderFragment<TDto> DetailRowTemplate { get; set; }
         [Parameter] public string CustomSelect { get; set; }
-        [Parameter] public IFluentSizing Height { get; set; }
+        [Parameter] public IFluentSizing Height { get; set; } = Blazorise.Height.Px(430);
         [Parameter] public IFluentSpacing Padding { get; set; }
+
+        /// <summary>
+        /// Start new command template
+        /// </summary>
+        [Parameter] public RenderFragment StartNewCommandTemplate { get; set; }
+
+        /// <summary>
+        /// End new command template
+        /// </summary>
+        [Parameter] public RenderFragment EndNewCommandTemplate { get; set; }
 
         [CascadingParameter] public LoadingIndicator Loading { get; set; }
         [CascadingParameter] public WindowDimension Dimension { get; set; }
 
+        [Inject] public CruderLogger<CruderGridBase<TEntity, TDto>> Logger { get; set; }
         [Inject] public PermissionService PermissionService { get; set; }
         [Inject] public ICrudService<TEntity, TDto> Service { get; set; }
         [Inject] public PageHistoryState PageHistorysState { get; set; }
@@ -64,6 +76,7 @@ namespace CruderSimple.Blazor.Components.Grids
 
         protected override async Task OnInitializedAsync()
         {
+            Logger.LogDebug("Cruder Grid Base OnInitializedAsync");
             var state = await State.GetAuthenticationStateAsync();
             TenantClaim = state.User.Claims.FirstOrDefault(x => x.Type == "TenantId");
         }
@@ -282,6 +295,21 @@ namespace CruderSimple.Blazor.Components.Grids
             }
             else
                 context.Cancel = true;
+        }
+
+
+        protected virtual int CalculateWidthCommandColumn()
+        {
+            var widthBaseSimple = 32;
+
+            var widthFinal = widthBaseSimple;
+            if (StartNewCommandTemplate != null)
+                widthFinal += widthBaseSimple;
+            if (EndNewCommandTemplate != null)
+                widthFinal += widthBaseSimple;
+
+            widthFinal += widthBaseSimple;
+            return widthFinal;
         }
     }
 

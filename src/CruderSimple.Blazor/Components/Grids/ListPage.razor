@@ -4,12 +4,12 @@
 @using Blazorise.DataGrid
 @using CruderSimple.Core.Extensions
 
-<CardBody @ref="CardBody" Style="@($"height: {Dimension?.Height - 70}px")">
+<CardBody @ref="CardBody" Style="@($"height: {Dimension?.Heigth - 70}px")">
     <Row Padding="@Padding">
         <Column ColumnSize="ColumnSize.Is12">
             <DataGrid @ref="DataGridRef"
                         TItem="TDto"
-                        Class="datagrid-listpage"
+                        Class="cruder-grid-base list-page"
                         Data="@SearchedData"
                         Hoverable
                         ShowPager
@@ -25,25 +25,47 @@
                         Sortable
                         Navigable
                         FixedHeader
-                        Resizable
                         Bordered
                         SortMode="DataGridSortMode.Single"
                         FilterMode="DataGridFilterMode.Menu"
                         ReadData="@GetData"
                         TotalItems="@TotalData"
                         RowClicked="@SingleClicked"
-                        FixedHeaderDataGridHeight="@($"{(Height?.FixedSize ?? (Dimension?.Height - 110))}px")"
-                        FixedHeaderDataGridMaxHeight="@($"{(Height?.FixedSize ?? (Dimension?.Height - 110))}px")">
+                        FixedHeaderDataGridHeight="@($"{(Height?.FixedSize ?? (Dimension?.Heigth - 110))}px")"
+                        FixedHeaderDataGridMaxHeight="@($"{(Height?.FixedSize ?? (Dimension?.Heigth - 110))}px")">
                 <DataGridColumns>
-                    <DataGridCommandColumn TItem="TDto" PreventRowClick FixedPosition="TableColumnFixedPosition.Start" Field="Id" TextAlignment="TextAlignment.Start" Gap="Gap.Is0" Width="80px" SaveCommandAllowed="false">
+                    <DataGridCommandColumn TItem="TDto" 
+                                           PreventRowClick 
+                                           FixedPosition="TableColumnFixedPosition.Start" 
+                                           Field="Id"
+                                           Gap="Gap.Is2"
+                                           Width="@((CalculateWidthCommandColumn() - 40).ToString())"
+                                           TextAlignment="TextAlignment.Center"
+                                           HeaderTextAlignment="TextAlignment.Center"
+                                           VerticalAlignment="VerticalAlignment.Middle"
+                                           FilterTextAlignment="TextAlignment.Center"
+                                           FilterVerticalAlignment="VerticalAlignment.Middle"
+                                           SaveCommandAllowed="false">
                         <NewCommandTemplate>
                             <Div Gap="Gap.Is2" Display="Display.InlineFlex">
+                                @* @if (StartNewCommandTemplate is not null)
+                                {
+                                    @StartNewCommandTemplate
+                                } *@
                                 <Tooltip Text="@PermissionService.CanWriteTooltip("Novo")">
-                                    <Button Type="ButtonType.Link" Clicked="@((_) => ToNew(_.CtrlKey))" Color="Color.Success" Block Width="Width.Is100" Size="Size.Small" Disabled="@(!PermissionService.CanWrite)">
+                                    <Button Type="ButtonType.Link" Clicked="@((_) => ToNew(_.CtrlKey))" Color="Color.Success" Width="Width.Is100" Size="Size.Small" Disabled="@(!PermissionService.CanWrite)">
                                         <Icon Name="IconName.Add" />
-                                        Novo
                                     </Button>
                                 </Tooltip>
+                                <Tooltip Text="@PermissionService.CanWriteTooltip("Atualizar")">
+                                    <Button Type="ButtonType.Link" Clicked="@((_) => DataGridRef.Reload())" Color="Color.Info" Width="Width.Is100" Size="Size.Small" Disabled="@(!PermissionService.CanWrite)">
+                                        <Icon Name="IconName.Sync" />
+                                    </Button>
+                                </Tooltip>
+                                @if (EndNewCommandTemplate is not null)
+                                {
+                                    @EndNewCommandTemplate
+                                }
                             </Div>
                         </NewCommandTemplate>
 
@@ -51,14 +73,14 @@
                             @if (PermissionService.CanWrite)
                             {
                                 <Tooltip Text="@PermissionService.CanWriteTooltip("Editar")" Inline>
-                                    <Button Size="Size.Small" Clicked="@((_) => ToEdit(context.Item, _.CtrlKey))" Disabled="@(!PermissionService.CanWrite)" Padding="Blazorise.Padding.Is1" Margin="Margin.Is2.FromStart" @onclick:stopPropagation>
+                                    <Button Size="Size.Small" Clicked="@((_) => ToEdit(context.Item, _.CtrlKey))" Disabled="@(!PermissionService.CanWrite)" Padding="Blazorise.Padding.Is1" @onclick:stopPropagation>
                                         <Icon Name="IconName.Edit" />
                                     </Button>
                                 </Tooltip>
                             }else
                             {
                                 <Tooltip Text="@PermissionService.CanReadTooltip("Visualizar")" Inline>
-                                    <Button Size="Size.Small" Clicked="@((_) => ToView(context.Item, _.CtrlKey))" Disabled="@(!PermissionService.CanRead)" Padding="Blazorise.Padding.Is1" Margin="Margin.Is2.FromStart" @onclick:stopPropagation>
+                                    <Button Size="Size.Small" Clicked="@((_) => ToView(context.Item, _.CtrlKey))" Disabled="@(!PermissionService.CanRead)" Padding="Blazorise.Padding.Is1" @onclick:stopPropagation>
                                         <Icon Name="IconName.Eye" />
                                     </Button>
                                 </Tooltip>
@@ -80,7 +102,7 @@
                                         DisplayFormat="{0:dd/MM/yyyy HH:mm:ss}" 
                                         Editable 
                                         Filterable 
-                                        Width="200px" 
+                                        Width="61px" 
                                         SortDirection="SortDirection.Ascending"
                                         HeaderCellStyle="line-height: 38px"
                                         HeaderTextAlignment="TextAlignment.Start"

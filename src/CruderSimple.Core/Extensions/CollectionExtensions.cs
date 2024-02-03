@@ -12,45 +12,39 @@ namespace CruderSimple.Core.Extensions;
 public static class CollectionExtensions
 {
 
-    public static IEnumerable<TItem> AddItem<TItem>(this IEnumerable<TItem> values, TItem item)
+    public static IList<TItem> AddItem<TItem>(this IList<TItem> values, TItem item)
     {
         if (values.Contains(item))
             return values;
-        var valuesNew = values.ToList();
-        valuesNew.Add(item);
-        values = valuesNew;
+        values.Add(item);
         return values;
     }
 
-    public static IEnumerable<TItem> RemoveItem<TItem>(this IEnumerable<TItem> values, TItem item)
+    public static IList<TItem> RemoveItem<TItem>(this IList<TItem> values, TItem item)
         where TItem : BaseDto
     {
         var valueToRemove = values.FirstOrDefaultByKey(item);
         if (valueToRemove == null)
             return values;
 
-        var valuesNew = values.ToList();
-        valuesNew.Remove(valueToRemove);
-        values = valuesNew;
+        values.Remove(valueToRemove);
         return values;
     }
-    public static IEnumerable<TItem> ReplaceItem<TItem>(this IEnumerable<TItem> values, TItem oldItem, TItem newItem, bool addIfNotExists = true)
+    public static IList<TItem> ReplaceItem<TItem>(this IList<TItem> values, TItem oldItem, TItem newItem, bool addIfNotExists = true)
         where TItem : BaseDto
     {
         if (values == null)
-            return Enumerable.Empty<TItem>();
-        var valuesNew = values.ToList();
-        var itemFounded = valuesNew.FirstOrDefaultByKey(oldItem);
+            return new List<TItem>();
+        var itemFounded = values.FirstOrDefaultByKey(oldItem);
         if (itemFounded != null)
         {
-            var index = valuesNew.IndexOf(itemFounded);
-            valuesNew.Remove(itemFounded);
-            valuesNew.Insert(index, newItem);
+            var index = values.IndexOf(itemFounded);
+            values.Remove(itemFounded);
+            values.Insert(index, newItem);
         }
         else if (addIfNotExists)
-            valuesNew.Add(newItem);
+            values.Add(newItem);
 
-        values = valuesNew;
         return values;
     }
     public static IDictionary<string, (TItem Item, bool StyleGrid)> ReplaceItem<TItem>(

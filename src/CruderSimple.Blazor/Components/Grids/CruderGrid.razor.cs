@@ -19,12 +19,12 @@ public partial class CruderGrid<TGridEntity, TGridDto> : CruderGridBase<TGridEnt
     /// <summary>
     /// Data modified will reflected in this property
     /// </summary>
-    [Parameter] public IEnumerable<TGridDto> Data { get; set; } = Enumerable.Empty<TGridDto>();
+    [Parameter] public IList<TGridDto> Data { get; set; } = new List<TGridDto>();
 
     /// <summary>
     /// two-way-data-bind of Data
     /// </summary>
-    [Parameter] public EventCallback<IEnumerable<TGridDto>> DataChanged { get; set; }
+    [Parameter] public Action<IList<TGridDto>> DataChanged { get; set; }
 
 
     [Parameter] public TGridDto CurrentSelected { get; set; }
@@ -72,16 +72,6 @@ public partial class CruderGrid<TGridEntity, TGridDto> : CruderGridBase<TGridEnt
     [Parameter] public string ModalFormTitle { get; set; }
 
     /// <summary>
-    /// Start new command template
-    /// </summary>
-    [Parameter] public RenderFragment StartNewCommandTemplate { get; set; }
-
-    /// <summary>
-    /// End new command template
-    /// </summary>
-    [Parameter] public RenderFragment EndNewCommandTemplate { get; set; }
-
-    /// <summary>
     /// Start command template
     /// </summary>
     [Parameter] public RenderFragment<TGridDto> StartCommandTemplate { get; set; }
@@ -99,37 +89,34 @@ public partial class CruderGrid<TGridEntity, TGridDto> : CruderGridBase<TGridEnt
     /// <summary>
     /// Event called before the item is created.
     /// </summary>
-    [Parameter] public EventCallback<TGridDto> ItemCreating { get; set; }
+    [Parameter] public Func<TGridDto, Task> ItemCreating { get; set; }
 
     /// <summary>
     /// Event called after the item is created.
     /// </summary>
-    [Parameter] public EventCallback<TGridDto> ItemCreated { get; set; }
+    [Parameter] public Func<TGridDto, Task> ItemCreated { get; set; }
 
     /// <summary>
     /// Event called before the item is updated.
     /// </summary>
-    [Parameter] public EventCallback<(TGridDto OldItem, TGridDto NewItem)> ItemUpdating { get; set; }
+    [Parameter] public Func<(TGridDto OldItem, TGridDto NewItem), Task> ItemUpdating { get; set; }
 
     /// <summary>
     /// Event called after the item is updated.
     /// </summary>
-    [Parameter] public EventCallback<(TGridDto OldItem, TGridDto NewItem)> ItemUpdated { get; set; }
+    [Parameter] public Func<(TGridDto OldItem, TGridDto NewItem), Task> ItemUpdated { get; set; }
 
     /// <summary>
     /// Event called before the item is deleted.
     /// </summary>
-    [Parameter] public EventCallback<TGridDto> ItemDeleting { get; set; }
+    [Parameter] public Func<TGridDto, Task> ItemDeleting { get; set; }
 
     /// <summary>
     /// Event called after the item is deleted.
     /// </summary>
-    [Parameter] public EventCallback<TGridDto> ItemDeleted { get; set; }
-
-
+    [Parameter] public Func<TGridDto, Task> ItemDeleted { get; set; }
 
     [Parameter] public bool IsDebug { get; set; } = false;
-
 
     #endregion Parameters
 
@@ -214,7 +201,8 @@ public partial class CruderGrid<TGridEntity, TGridDto> : CruderGridBase<TGridEnt
     {
         IsNewItem = true;
         await Select(Activator.CreateInstance<TGridDto>());
-        await ItemCreating.InvokeAsync(CurrentSelected);
+        if (ItemCreating != null)
+            await ItemCreating(CurrentSelected);
 
         if (ModalFormTemplate == null)
             await AddItem(CurrentSelected);
@@ -228,18 +216,19 @@ public partial class CruderGrid<TGridEntity, TGridDto> : CruderGridBase<TGridEnt
         IsNewItem = false;
         var oldEntity = SearchedData.FirstOrDefaultByKey(CurrentSelected);
         await Select(item.Adapt<TGridDto>());
-        await ItemUpdating.InvokeAsync((oldEntity, CurrentSelected));
+        if (ItemUpdating != null)
+            await ItemUpdating((oldEntity, CurrentSelected));
 
         if (ModalFormTemplate == null)
         {
-            UpdateItem(oldEntity, CurrentSelected);
+            await UpdateItem(oldEntity, CurrentSelected);
 
             //if (OnAfterAdd != null)
             //    await OnAfterAdd(CurrentSelected);
         }
         else
         {
-            CruderGridModal.OpenEdit(CurrentSelected);
+            await CruderGridModal.OpenEdit(CurrentSelected);
             //if (ModalFormOpened != null)
             //    await ModalFormOpened(CurrentSelected);
         }
@@ -262,13 +251,14 @@ public partial class CruderGrid<TGridEntity, TGridDto> : CruderGridBase<TGridEnt
             Inserted.Add(item.GetKey, (item, style));
 
         SearchedData = await FilterData(SearchedData);
-        await ItemCreated.InvokeAsync(item);
+        if (ItemCreated != null)
+            await ItemCreated(item);
     }
 
     public async Task UpdateItem(TGridDto oldItem, TGridDto newItem, bool style = true)
     {
-        //if (OnBeforeUpdate != null)
-        //    await OnBeforeUpdate(oldItem, newItem);
+        if (ItemUpdated != null)
+            await ItemUpdated((oldItem, newItem));
 
         if (Inserted.ContainsKey(oldItem.GetKey))
             Inserted.ReplaceItem(newItem, newItem);
@@ -282,20 +272,16 @@ public partial class CruderGrid<TGridEntity, TGridDto> : CruderGridBase<TGridEnt
         }
 
         await RaiseDataChanged(Data.ReplaceItem(oldItem, newItem));
-        SearchedData = SearchedData.ReplaceItem(oldItem, newItem).ToList();
-
-        await ItemUpdated.InvokeAsync((oldItem, newItem));
-        //await DataGridRef.Refresh();
-
-        //if (OnAfterUpdate != null)
-        //    await OnAfterUpdate(oldItem, newItem);
+        SearchedData = SearchedData.ReplaceItem(oldItem, newItem).ToList();  
     }
 
     public async Task DeleteItem(TGridDto item)
     {
         var itemToSave = item.Adapt<TGridDto>();
-        await ItemUpdating.InvokeAsync((itemToSave, item));
-        await ItemDeleting.InvokeAsync(item);
+        if (ItemUpdating != null)
+            await ItemUpdating((itemToSave, item));
+        if (ItemDeleting != null)
+            await ItemDeleting(item);
 
         if (Inserted.ContainsKey(item.GetKey))
         {
@@ -317,8 +303,10 @@ public partial class CruderGrid<TGridEntity, TGridDto> : CruderGridBase<TGridEnt
             BackupDeleted.Add(item.GetKey, (itemToSave, item, true));
 
         await RaiseDataChanged(Data.ReplaceItem(item, item));
-        await ItemUpdated.InvokeAsync((itemToSave, item));
-        await ItemDeleted.InvokeAsync(item);
+        if (ItemUpdated != null)
+            await ItemUpdated((itemToSave, item));
+        if (ItemDeleted != null)
+            await ItemDeleted(item);
     }
 
     protected async Task UndoEdit(EditCommandContext<TGridDto> context)
@@ -329,7 +317,7 @@ public partial class CruderGrid<TGridEntity, TGridDto> : CruderGridBase<TGridEnt
             BackupModified.Remove(context.Item.GetKey);
             SearchedData = SearchedData.ReplaceItem(context.Item, itemBackup.OldItem).ToList();
             await RaiseDataChanged(Data.RemoveItem(itemBackup.OldItem));
-            await DataGridRef.Refresh();
+            //await DataGridRef.Refresh();
         }
     }
 
@@ -342,7 +330,7 @@ public partial class CruderGrid<TGridEntity, TGridDto> : CruderGridBase<TGridEnt
             BackupDeleted.Remove(context.Item.GetKey);
             await RaiseDataChanged(Data.RemoveItem(context.Item));
             SearchedData = SearchedData.ReplaceItem(context.Item, itemBackup.OldItem).ToList();
-            await DataGridRef.Refresh();
+            //await DataGridRef.Refresh();
         }
     }
 
@@ -356,25 +344,21 @@ public partial class CruderGrid<TGridEntity, TGridDto> : CruderGridBase<TGridEnt
             style.Color = Color.Warning;
     }
 
-    protected string CalculateWidthCommandColumn()
-    {
-        var widthBaseSimple = 32;
-
-        var widthFinal = widthBaseSimple;
-        if (StartNewCommandTemplate != null)
-            widthFinal += widthBaseSimple;
-        if (EndNewCommandTemplate != null)
-            widthFinal += widthBaseSimple;
-
-        widthFinal += widthBaseSimple;
-
-        return widthFinal.ToString();
-    }
-
-    private async Task RaiseDataChanged(IEnumerable<TGridDto> data)
+    private async Task RaiseDataChanged(IList<TGridDto> data)
     {
         Data = data;
-        await DataChanged.InvokeAsync(Data);
+        DataChanged(Data);
+    }
+
+    public async Task Refresh()
+    {
+        await DataGridRef.Refresh();
+        StateHasChanged();
+    }
+
+    private async Task Reload()
+    {
+        await DataGridRef.Reload();
     }
     
 }

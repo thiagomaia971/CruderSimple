@@ -70,6 +70,7 @@ namespace CruderSimple.Blazor.Components.Grids
         [Parameter] public string TooltipValueNull { get; set; }
 
         [Inject] protected PermissionService PermissionService { get; set; }
+        [CascadingParameter] public DataGrid<TColumnDto> DataGridRef { get; set; }
 
         protected Dictionary<string, object> Attributes { get; set; } = new Dictionary<string, object>();
         protected CruderGridEvents<TColumnDto> Events { get; set; }
@@ -84,14 +85,17 @@ namespace CruderSimple.Blazor.Components.Grids
 
         protected async void ValueInlineChanged(TColumnDto item, object value)
         {
+            var watch = System.Diagnostics.Stopwatch.StartNew();
             if (OldValue == null)
                 OldValue = item.Adapt<TColumnDto>();
             if (NewValue == null)
                 NewValue = item;
 
             item.SetValueByPropertyName(value, ColumnField);
-
             await OnBlur();
+
+            watch.Stop();
+            Console.WriteLine(watch.ElapsedMilliseconds);
         }
 
         protected async Task OnBlur()

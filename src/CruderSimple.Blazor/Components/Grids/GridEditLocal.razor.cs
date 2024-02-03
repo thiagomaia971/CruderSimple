@@ -22,8 +22,8 @@ public partial class GridEditLocal<TGridEntity, TGridDto> : CruderGridBase<TGrid
             .DistinctBy(x => x.Id)
             .ToList();
 
-    [Parameter] public IEnumerable<TGridDto> Data { get; set; } = Enumerable.Empty<TGridDto>();
-    [Parameter] public EventCallback<IEnumerable<TGridDto>> DataChanged { get; set; }
+    [Parameter] public IList<TGridDto> Data { get; set; } = new List<TGridDto>();
+    [Parameter] public EventCallback<IList<TGridDto>> DataChanged { get; set; }
 
     /// <summary>
     /// Filter API by Key
