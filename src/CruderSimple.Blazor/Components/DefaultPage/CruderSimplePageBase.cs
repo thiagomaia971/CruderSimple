@@ -11,7 +11,7 @@ namespace CruderSimple.Blazor.Components.DefaultPage;
 public class CruderSimplePageBase : ComponentBase
 {
     [Inject]
-    private PermissionService _permissionService { get; set; }
+    protected PermissionService PermissionService { get; set; }
 
     [Inject] 
     protected INotificationService NotificationService { get; set; }
@@ -37,8 +37,8 @@ public class CruderSimplePageBase : ComponentBase
 
     public Breadcrum[] Breadcrums { get => PageParameter.Breadcrums; set => PageParameter.Breadcrums = value; }
 
-    public bool CanRead => _permissionService.CanRead;
-    public bool CanWrite => _permissionService.CanWrite;
+    public bool CanRead => PermissionService.CanRead;
+    public bool CanWrite => PermissionService.CanWrite;
     
     public bool IsNew => NavigationManager.Uri.Contains("/new");
     public bool IsEdit => NavigationManager.Uri.Contains("/edit");

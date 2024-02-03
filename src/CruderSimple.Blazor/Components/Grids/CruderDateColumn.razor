@@ -1,0 +1,68 @@
+﻿@typeparam TColumnEntity
+@typeparam TColumnDto
+@inherits CruderColumnBase<TColumnEntity, TColumnDto>
+
+<DataGridDateColumn 
+                    @ref="DataGridDateColumn"
+                    TItem="TColumnDto"
+                    SortField="@GridSort"
+                    Field="@ColumnField"
+                    Sortable="@Sortable"
+                    Caption="@ColumnCaption" 
+                    DisplayFormat="{0:dd/MM/yyyy}" 
+                    Editable="@Editable"
+                    Filterable="@Filterable"
+                    Width="160px"
+                    HeaderTextAlignment="TextAlignment.Start"
+                    VerticalAlignment="VerticalAlignment.Middle"
+                    FilterTextAlignment="TextAlignment.Center"
+                    FilterVerticalAlignment="VerticalAlignment.Middle">
+    <DisplayTemplate>
+        <Div @onclick="@((_) => OnClick(context))">
+            @if (AlwaysEditable && PermissionService.CanWrite)
+            {
+                if (context.GetPropertyTypeByName(ColumnField) == typeof(DateTime))
+                {
+                    <DateEdit Date="@(context.GetValueByPropertyName<DateTime>(ColumnField))"
+                              DateChanged="@((DateTime value) => ValueInlineChanged(context, value))"
+                              Debounce="true"
+                              DebounceInterval="100"
+                              Blur="OnBlur"
+                              Disabled="@DisabledEditable(context)" />
+                }
+                else if (context.GetPropertyTypeByName(ColumnField) == typeof(DateTime?))
+                {
+                    <DateEdit Date="@(context.GetValueByPropertyName<DateTime?>(ColumnField))"
+                              DateChanged="@((DateTime? value) => ValueInlineChanged(context, value))"
+                              Debounce="true"
+                              DebounceInterval="100"
+                              Blur="OnBlur"
+                              Disabled="@DisabledEditable(context)" />
+                }
+                else
+                {
+                    <Tooltip Text="@TooltipValueNull" TextAlignment="TextAlignment.Center">
+                        @("-")
+                    </Tooltip>
+                }
+            }
+            else
+            {
+                if (context.GetPropertyTypeByName(ColumnField) == typeof(DateTime))
+                {
+                    @(context.GetValueByPropertyName<DateTime>(ColumnField).ToString("dd/MM/yyyy"))
+                }
+                else if (context.GetPropertyTypeByName(ColumnField) == typeof(DateTime?))
+                {
+                    @(context.GetValueByPropertyName<DateTime?>(ColumnField)?.ToString("dd/MM/yyyy"))
+                }
+                else
+                {
+                    <Tooltip Text="@TooltipValueNull" TextAlignment="TextAlignment.Center">
+                        @("-")
+                    </Tooltip>
+                }
+            }
+        </Div>
+    </DisplayTemplate>
+</DataGridDateColumn>

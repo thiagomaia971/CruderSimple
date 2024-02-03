@@ -1,5 +1,4 @@
-﻿@using Newtonsoft.Json
-@typeparam TEntity
+﻿@typeparam TEntity
 @typeparam TEntityResult
 
 <Div Width="@Width" Padding="@Padding">
@@ -12,15 +11,18 @@
                   ValueField="@((item) => item.GetKey)"
                   Placeholder="Search..."
                   HighlightSearch
+                  Debounce="true"
+                  DebounceInterval="300"
                   MinLength="0"
                   CloseOnSelection
+                  Virtualize
                   ReadData="@GetData"
                   SelectionMode="AutocompleteSelectionMode.Default"
                   SelectedValue="@(SelectedValue?.GetKey)"
                   SelectedValueChanged="ValueChanged"
                   AsyncValidator="@sIsValidValue"
-                  @onkeydown:preventDefault="ShouldPrevent"
-                  @onkeypress="KeyPressHandler"
+                  SearchFocus="@SearchFocus"
+                  SearchKeyDown="SearchChanged"
                   Disabled="@Disabled">
         <NotFoundContent> Sorry... @context was not found! :( </NotFoundContent>
         <ItemContent>

@@ -3,6 +3,7 @@ using CruderSimple.Core.EndpointQueries;
 using CruderSimple.Core.Entities;
 using CruderSimple.Core.Extensions;
 using CruderSimple.Core.ViewModels;
+using Mapster;
 using MediatR;
 
 namespace CruderSimple.Api.Requests;
@@ -21,7 +22,7 @@ public static class GetAllRequest
         {
             try
             {
-                var queryAsync = await repository.GetAll(request);
+                var queryAsync = await repository.GetAll(request, true);
 
                 return Pagination.CreateSuccess(
                     page: request.page, // TODO

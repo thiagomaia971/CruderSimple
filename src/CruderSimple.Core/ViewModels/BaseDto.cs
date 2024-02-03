@@ -5,9 +5,10 @@ namespace CruderSimple.Core.ViewModels;
 
 public class BaseDto : IComparable<BaseDto>
 {
-    public string Id { get; set; }
-    public DateTime CreatedAt { get; set; }
+    public string Id { get; set; } = Guid.NewGuid().ToString();
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
+    public DateTime? DeletedAt { get; set; }
 
     public virtual string GetKey => Id;
     

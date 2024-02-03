@@ -1,23 +1,26 @@
 ﻿@using static CruderSimple.Blazor.Components.BreadcrumbList
-<Row>
-    <Column ColumnSize="ColumnSize.Is12">
-        <Div Class="page-title-wrapper">
-            <Div Float="Float.End">
-                @if (MyBreadcrumb != null)
-                {
-                    <BreadcrumbList Items="@MyBreadcrumb.ToArray()" />
-                }
-                else if ( ChildContent != null )
-                {
-                    @ChildContent
-                }
+<CardHeader>
+    <Row>
+        <Column ColumnSize="ColumnSize.Is12">
+            <Div Class="page-title-wrapper">
+                <Div Float="Float.End">
+                    @if (MyBreadcrumb != null)
+                    {
+                        <BreadcrumbList Items="@MyBreadcrumb.ToArray()" />
+                    }
+                    else if ( ChildContent != null )
+                    {
+                        @ChildContent
+                    }
+                </Div>
+                <Heading Size="HeadingSize.Is4" Class="page-title" Margin="Margin.Is0">
+                    @Title
+                </Heading>
             </Div>
-            <Heading Size="HeadingSize.Is4" Class="page-title" Margin="Margin.Is0">
-                @Title
-            </Heading>
-        </Div>
-    </Column>
-</Row>
+        </Column>
+    </Row>
+</CardHeader>
+
 @code{
     [Parameter] public string Title { get; set; }
 

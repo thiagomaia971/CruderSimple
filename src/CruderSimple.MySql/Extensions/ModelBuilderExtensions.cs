@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Data.Entity;
+using System.Linq.Expressions;
 using System.Reflection;
 using CruderSimple.Core.Entities;
 using CruderSimple.MySql.Attributes;
@@ -21,26 +22,41 @@ public static class ModelBuilderExtensions
         foreach (var dbSetProperty in properties)
             AutoIncludeDbSet(ModelBuilder, dbSetProperty);
     }
-    
-    public static void DetachLocal(this DbContext context, IEntity t, string entryId)
+
+    public static void FilterSoftDelete<T>(this ModelBuilder ModelBuilder)
     {
-        var local = GetLocalDbSet(context, t, entryId);
-        // var local2 = context.Set<Entity>()
-        //     .Local
-        //     .FirstOrDefault(entry => entry.Id.Equals(entryId));
-        if (local is not null)
+        var properties = typeof(T)
+            .GetProperties(BindingFlags.Instance | BindingFlags.Public)
+            .Where(x => x.PropertyType.GenericTypeArguments.Any() &&  typeof(IEntity).IsAssignableFrom(x.PropertyType.GenericTypeArguments[0]));
+        
+        foreach (var dbSetProperty in properties)
+            SetSoftDeleteQueryDbSet(ModelBuilder, dbSetProperty);
+    }
+
+    public static void DetachLocal(this DbContext context, IEntity t)
+    {
+        try
         {
-            context.Entry(local).State = EntityState.Detached;
+            var local = GetLocalDbSet(context, t.GetType(), t.Id);
+
+            if (local != null)
+                context.Entry(local).State = EntityState.Detached;
         }
-        context.Entry(t).State = EntityState.Modified;
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+        }
+        finally
+        {
+            context.Entry(t).State = EntityState.Modified;
+        }
     }
     
-    private static IEntity GetLocalDbSet<T>(DbContext context, T t, string entryId)
-        where T : class, IEntity
+    private static IEntity GetLocalDbSet(DbContext context, Type entityType, string entryId)
     {
         var methodInfo = context.GetType().GetMethod("Set", new Type[0] {  });
         var methodGenericInfo =
-            methodInfo.MakeGenericMethod(t.GetType());
+            methodInfo.MakeGenericMethod(entityType);
 
         var dbSet = (dynamic) methodGenericInfo.Invoke(context, new string[0] {  });
         var local = (IEnumerable<IEntity>) dbSet.Local;
@@ -62,5 +78,20 @@ public static class ModelBuilderExtensions
 
         foreach (var propertyToInclude in propertiesToInclude)
             entity.Navigation(propertyToInclude.Name).AutoInclude();
+    }
+    
+    private static void SetSoftDeleteQueryDbSet(ModelBuilder modelBuilder, PropertyInfo dbSetProperty)
+    {
+        var entityType = dbSetProperty.PropertyType;
+        if (!typeof(IEntity).IsAssignableFrom(dbSetProperty.PropertyType))
+            entityType = dbSetProperty.PropertyType.GenericTypeArguments[0];
+        
+        var entity = modelBuilder.Entity(entityType);
+        var parameter = Expression.Parameter(entityType, $"{entityType.Name.Substring(0, 2)}");
+        
+        var property = Expression.Property(Expression.Property(parameter, "DeletedAt"), "HasValue");
+        var body = Expression.Not(property);
+        var lambda = Expression.Lambda(body, parameter);
+        entity.HasQueryFilter(lambda);
     }
 }

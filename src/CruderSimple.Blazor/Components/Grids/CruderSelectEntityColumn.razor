@@ -1,0 +1,48 @@
+﻿@typeparam TColumnEntity
+@typeparam TColumnDto
+@typeparam TSelectEntityDto
+@inherits CruderColumnBase<TColumnEntity, TColumnDto>
+
+<DataGridSelectColumn @ref="DataGridSelectColumn" 
+                      TItem="TColumnDto"
+                      Field="@ColumnField"
+                      Caption="@ColumnCaption"
+                      Editable="@Editable"
+                      Filterable="@Filterable"
+                      Sortable="@Sortable"
+                      Attributes="@Attributes"
+                      ValueField="(x) => ((TColumnDto)x).GetKey"
+                      TextField="(x) => ((TColumnDto)x).GetValue"
+                      SortField="Procedure.Code"
+                      HeaderCellStyle="line-height: 38px"
+                      HeaderTextAlignment="TextAlignment.Start"
+                      VerticalAlignment="VerticalAlignment.Middle"
+                      FilterTextAlignment="TextAlignment.Center"
+                      FilterVerticalAlignment="VerticalAlignment.Middle">
+    <DisplayTemplate>
+        
+        <Div @onclick="@((_) => OnClick(context))">
+            @if (AlwaysEditable && PermissionService.CanWrite)
+            {
+                @(SelectComponent = CreateSelectComponent(context.GetValueByPropertyName(ColumnField)))
+            }
+            else
+            {
+                @if (DisplayTemplate != null)
+                {
+                    DisplayTemplate(context);
+                }
+                else
+                {
+                    <Span>@GetGridName(context)</Span>
+                }
+            }
+        </Div>
+    </DisplayTemplate>
+    <EditTemplate>
+        @if (SelectComponent is not null)
+        {
+            @SelectComponent
+        }
+    </EditTemplate>
+</DataGridSelectColumn>

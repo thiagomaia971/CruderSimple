@@ -48,35 +48,41 @@ namespace CruderSimple.Core.Extensions
 
             foreach (var memberGroup in custom.GroupBy(path => path[depth]))
             {
-                var memberName = memberGroup.Key;
-                var targetMember = Expression.PropertyOrField(target, memberName);
-                var sourceMember = Expression.PropertyOrField(source, memberName);
-                var childMembers = memberGroup.Where(path => depth + 1 < path.Count).ToList();
-
-                Expression targetValue = null;
-                if (!childMembers.Any())
-                    targetValue = sourceMember;
-                else
+                try
                 {
-                    if (targetMember.Type.IsEnumerableType(out var sourceElementType) &&
-                        targetMember.Type.IsEnumerableType(out var targetElementType))
-                    { 
-                        var sourceElementParam = Expression.Parameter(sourceElementType, "e");
+                    var memberName = memberGroup.Key;
+                    var targetMember = Expression.PropertyOrField(target, memberName);
+                    var sourceMember = Expression.PropertyOrField(source, memberName);
+                    var childMembers = memberGroup.Where(path => depth + 1 < path.Count).ToList();
 
-                        targetValue = NewObject(targetElementType, sourceElementParam, childMembers, depth + 1);
-                        targetValue = Expression.Call(typeof(Enumerable), nameof(Enumerable.Select),
-                            new[] { sourceElementType, targetElementType }, sourceMember,
-                            Expression.Lambda(targetValue, sourceElementParam));
-
-                        targetValue = CorrectEnumerableResult(targetValue, targetElementType, targetMember.Type);
-                    }
+                    Expression targetValue = null;
+                    if (!childMembers.Any())
+                        targetValue = sourceMember;
                     else
                     {
-                        targetValue = NewObject(targetMember.Type, sourceMember, childMembers, depth + 1);
-                    }
-                }
+                        if (targetMember.Type.IsEnumerableType(out var sourceElementType) &&
+                            targetMember.Type.IsEnumerableType(out var targetElementType))
+                        { 
+                            var sourceElementParam = Expression.Parameter(sourceElementType, "e");
 
-                bindings.Add(Expression.Bind(targetMember.Member, targetValue));
+                            targetValue = NewObject(targetElementType, sourceElementParam, childMembers, depth + 1);
+                            targetValue = Expression.Call(typeof(Enumerable), nameof(Enumerable.Select),
+                                new[] { sourceElementType, targetElementType }, sourceMember,
+                                Expression.Lambda(targetValue, sourceElementParam));
+
+                            targetValue = CorrectEnumerableResult(targetValue, targetElementType, targetMember.Type);
+                        }
+                        else
+                        {
+                            targetValue = NewObject(targetMember.Type, sourceMember, childMembers, depth + 1);
+                        }
+                    }
+
+                    bindings.Add(Expression.Bind(targetMember.Member, targetValue));
+                }
+                catch (Exception e)
+                {
+                }
             }
             return Expression.MemberInit(Expression.New(targetType), bindings);
         }

@@ -1,0 +1,244 @@
+﻿@using Microsoft.AspNetCore.Components.Forms
+@typeparam TGridEntity
+@typeparam TGridDto
+@inherits CruderGridBase<TGridEntity, TGridDto>
+
+<CascadingValue Value="this">
+    <Row Padding="@Padding">
+        <Column ColumnSize="ColumnSize.Is12">
+            <DataGrid @ref="DataGridRef"
+                      TItem="TGridDto"
+                      Class="datagrid-listpage"
+                      Data="@AllData"
+                      Hoverable
+                      ShowPager
+                      ShowPageSizes
+                      Responsive
+                      EditMode="DataGridEditMode.Inline"
+                      CommandMode="DataGridCommandMode.Commands"
+                      RowRemoving="(async (e) => await DeleteItem(e.NewItem))"
+                      Editable
+                      Filterable
+                      Groupable
+                      Narrow
+                      Sortable
+                      Navigable
+                      FixedHeader
+                      Resizable
+                      Bordered
+                      RowSelectable="@((_) => false)"
+                      DetailRowStartsVisible="false"
+                      DetailRowTrigger="@((_) => DetailRowTemplate != null)"
+                      FixedHeaderDataGridHeight="@Height?.FixedSize.Value.ToString()"
+                      FixedHeaderDataGridMaxHeight="430px"
+                      SortMode="DataGridSortMode.Single"
+                      FilterMode="DataGridFilterMode.Menu"
+                      ReadData="@GetData"
+                      TotalItems="@TotalData"
+                      RowStyling="@RowModifiedStyle">
+                <DataGridColumns>
+                    <DataGridCommandColumn TItem="TGridDto"
+                                           PreventRowClick
+                                           FixedPosition="TableColumnFixedPosition.Start"
+                                           Field="Id"
+                                           Gap="Gap.Is2"
+                                           Width="@CalculateWidthCommandColumn()"
+                                           TextAlignment="TextAlignment.Center"
+                                           HeaderTextAlignment="TextAlignment.Center"
+                                           VerticalAlignment="VerticalAlignment.Middle"
+                                           FilterTextAlignment="TextAlignment.Center"
+                                           FilterVerticalAlignment="VerticalAlignment.Middle">
+                        <NewCommandTemplate>
+                            <Div Gap="Gap.Is2" Display="Display.InlineFlex">
+                                @if (StartNewCommandTemplate is not null)
+                                {
+                                    @StartNewCommandTemplate
+                                }
+                                <Tooltip Text="@PermissionService.CanWriteTooltip(TooltipNew)">
+                                    <Button Type="ButtonType.Link" Clicked="@((_) => CreateItem())" Color="Color.Success" Width="Width.Is100" Size="Size.Small" Disabled="@(!PermissionService.CanWrite)">
+                                        <Icon Name="IconName.Add" />
+                                    </Button>
+                                </Tooltip>
+                                <Tooltip Text="@PermissionService.CanWriteTooltip(TooltipRefresh)">
+                                    <Button Type="ButtonType.Link" Clicked="@((_) => DataGridRef.Reload())" Color="Color.Info" Width="Width.Is100" Size="Size.Small" Disabled="@(!PermissionService.CanWrite)">
+                                        <Icon Name="IconName.Sync" />
+                                    </Button>
+                                </Tooltip>
+                                @if (EndNewCommandTemplate is not null)
+                                {
+                                    @EndNewCommandTemplate
+                                }
+                            </Div>
+                        </NewCommandTemplate>
+                        
+                        <EditCommandTemplate>
+                            @if (StartCommandTemplate is not null)
+                            {
+                                @StartCommandTemplate(context.Item)
+                            }
+                            @if (!context.Item.DeletedAt.HasValue)
+                            {
+                                @if (BackupModified.TryGetValue(context.Item.GetKey, out var modified) && modified.StyleGrid)
+                                {
+                                    <Tooltip Text="@PermissionService.CanWriteTooltip(TooltipUndo)" Inline>
+                                        <Button Size="Size.Small" Clicked="@((e) => UndoEdit(context))" Disabled="@(!PermissionService.CanWrite)" Padding="Blazorise.Padding.Is1" @onclick:stopPropagation>
+                                            <Icon Name="IconName.Undo" />
+                                        </Button>
+                                    </Tooltip>
+                                }
+                                <Tooltip Text="@PermissionService.CanWriteTooltip(ModalFormTemplate == null ? TooltipEdit : TooltipView)" Inline>
+                                    <Button Size="Size.Small" Clicked="@((_) => EditItem(context.Item))" Disabled="@(!PermissionService.CanWrite)" Padding="Blazorise.Padding.Is1" @onclick:stopPropagation>
+                                        <Icon Name="@(ModalFormTemplate == null ? IconName.Edit : IconName.Eye)" />
+                                    </Button>
+                                </Tooltip>
+                            }
+                            @if (MiddleCommandTemplate is not null)
+                            {
+                                @MiddleCommandTemplate(context.Item)
+                            }
+                        </EditCommandTemplate>
+
+                        <DeleteCommandTemplate>
+                            @if (BackupDeleted.TryGetValue(context.Item.GetKey, out var deleted) && deleted.StyleGrid)
+                            {
+                                <Tooltip Text="@PermissionService.CanWriteTooltip(TooltipUndo)" Inline>
+                                    <Button Size="Size.Small" Clicked="@((e) => UndoDelete(context))" Disabled="@(!PermissionService.CanWrite)" Padding="Blazorise.Padding.Is1" @onclick:stopPropagation>
+                                        <Icon Name="IconName.Undo" />
+                                    </Button>
+                                </Tooltip>
+                            }
+                            else
+                            {
+                                <Tooltip Text="@PermissionService.CanWriteTooltip(TooltipDelete)" Inline>
+                                    <Button Size="Size.Small" Clicked="@context.Clicked" Disabled="@(!PermissionService.CanWrite)" Padding="Blazorise.Padding.Is1" @onclick:stopPropagation>
+                                        <Icon Name="IconName.Delete" />
+                                    </Button>
+                                </Tooltip>
+                            }
+                            @if (EndCommandTemplate is not null)
+                            {
+                                @EndCommandTemplate(context.Item)
+                            }
+                        </DeleteCommandTemplate>
+
+                        <SaveCommandTemplate>
+                            <Tooltip Text="@PermissionService.CanWriteTooltip("Salvar")" Inline>
+                                <Button Size="Size.Small" Type="ButtonType.Submit" PreventDefaultOnSubmit Clicked="context.Clicked" Disabled="@(!PermissionService.CanWrite)" Padding="Blazorise.Padding.Is1" Margin="Margin.Is2.FromStart.Is1.FromTop" @onclick:stopPropagation>
+                                    <Icon Name="IconName.Check" />
+                                </Button>
+                            </Tooltip>
+                        </SaveCommandTemplate>
+
+                        <CancelCommandTemplate>
+                            <Tooltip Text="Cancelar" Inline>
+                                <Button Size="Size.Small" Clicked="@context.Clicked" Padding="Blazorise.Padding.Is1" Margin="Margin.Is1.FromTop" @onclick:stopPropagation>
+                                    <Icon Name="IconName.TimesCircle" />
+                                </Button>
+                            </Tooltip>
+                        </CancelCommandTemplate>
+                    </DataGridCommandColumn>
+                    @Columns
+                </DataGridColumns>
+                <LoadingTemplate>
+                    <Row Flex="Flex.JustifyContent.Center" Width="Width.Is100" Height="@Height" Style="position: relative;">
+                        <Column ColumnSize="ColumnSize.Is4.OnWidescreen" Style="margin: 0; position: absolute; top: 45%; -ms-transform: translateY(-45%); transoform: translateY(-45%);">
+                            <Div TextAlignment="TextAlignment.Center">
+                                <Heading Size="HeadingSize.Is4" TextColor="TextColor.Danger">
+                                    Carregando...
+                                </Heading>
+                            </Div>
+                        </Column>
+                    </Row>
+                </LoadingTemplate>
+                <EmptyTemplate>
+                    @if (!Loading.Visible)
+                    {
+                        <Row Flex="Flex.JustifyContent.Center" Width="Width.Is100" Height="@(Height == null ? Blazorise.Height.Px(150) : Height)" Style="position: relative;">
+                            <Column ColumnSize="ColumnSize.Is4.OnWidescreen" Style="@(Height == null ? "margin: 0; position: absolute; top: 20%; -ms-transform: translateY(-20%); transoform: translateY(-20%);" : "margin: 0; position: absolute; top: 45%; -ms-transform: translateY(-45%); transoform: translateY(-45%);")">
+                                <Div TextAlignment="TextAlignment.Center">
+                                    <Heading Size="HeadingSize.Is4" TextColor="TextColor.Danger">
+                                        Nenhum registro encontrado
+                                    </Heading>
+                                    <Paragraph TextColor="TextColor.Muted" Margin="Margin.Is3.FromTop">
+                                        Verifique se existe dados ou se os filtros estão corretos.
+                                    </Paragraph>
+                                </Div>
+                            </Column>
+                        </Row>
+                    }
+                </EmptyTemplate>
+                <FilterMenuTemplate>
+                    <ListPageFilterMenu TGridEntity="TGridEntity" TGridDto="TGridDto" Column="context.Column" />
+                </FilterMenuTemplate>
+                <DetailRowTemplate>
+                    @if (DetailRowTemplate != null)
+                    {
+                        @DetailRowTemplate(context)
+                    }
+                </DetailRowTemplate>
+            </DataGrid>
+        </Column>
+    </Row>
+    
+    @if (IsDebug)
+    {
+        <Accordion Margin="Margin.Is3.FromTop">
+            <Collapse>
+                <CollapseHeader>
+                    <Heading Size="HeadingSize.Is5">
+                        <AccordionToggle>SearchedData</AccordionToggle>
+                    </Heading>
+                </CollapseHeader>
+                <CollapseBody>
+                    <CruderTable Data="@SearchedData"></CruderTable>
+                </CollapseBody>
+            </Collapse>
+            <Collapse>
+                <CollapseHeader>
+                    <Heading Size="HeadingSize.Is5">
+                        <AccordionToggle>Data</AccordionToggle>
+                    </Heading>
+                </CollapseHeader>
+                <CollapseBody>
+                    <CruderTable Data="@Data" />
+                </CollapseBody>
+            </Collapse>
+            <Collapse>
+                <CollapseHeader>
+                    <Heading Size="HeadingSize.Is5">
+                        <AccordionToggle>Inserted</AccordionToggle>
+                    </Heading>
+                </CollapseHeader>
+                <CollapseBody>
+                    <CruderTable Data="@Inserted.Select(x => x.Value.Item).ToList()" />
+                </CollapseBody>
+            </Collapse>
+            <Collapse>
+                <CollapseHeader>
+                    <Heading Size="HeadingSize.Is5">
+                        <AccordionToggle>BackupModified</AccordionToggle>
+                    </Heading>
+                </CollapseHeader>
+                <CollapseBody>
+                    <CruderTable Data="@BackupModified.Select(x => x.Value.NewItem).ToList()" />
+                </CollapseBody>
+            </Collapse>
+            <Collapse>
+                <CollapseHeader>
+                    <Heading Size="HeadingSize.Is5">
+                        <AccordionToggle>BackupDeleted</AccordionToggle>
+                    </Heading>
+                </CollapseHeader>
+                <CollapseBody>
+                    <CruderTable Data="@BackupDeleted.Select(x => x.Value.NewItem).ToList()" />
+                </CollapseBody>
+            </Collapse>
+        </Accordion>
+    }
+
+    <CruderGridModal @ref="CruderGridModal"
+                     TGridEntity="TGridEntity" 
+                     TGridDto="TGridDto"
+                     ModalFormTemplate="@ModalFormTemplate"
+                     ModalFormTitle="@ModalFormTitle" />
+</CascadingValue>

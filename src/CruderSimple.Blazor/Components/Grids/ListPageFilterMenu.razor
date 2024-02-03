@@ -1,0 +1,85 @@
+﻿@typeparam TGridEntity
+@typeparam TGridDto
+
+<Row Class="list-page-filter-menu" Padding="Padding.Is3.OnX">
+    @if (!IsDate)
+    {
+        <Column ColumnSize="ColumnSize.Is12">
+            <Field>
+                <Select 
+                        TValue="DataGridColumnFilterMethod"
+                        SelectedValue="@(FilterMethod)"
+                        SelectedValueChanged="@((e) => FilterMethod = e)">
+                    @if (IsNumeric)
+                    {
+                        <SelectItem TValue="DataGridColumnFilterMethod" Value="@DataGridColumnFilterMethod.Equals">Igual</SelectItem>
+                        <SelectItem TValue="DataGridColumnFilterMethod" Value="@DataGridColumnFilterMethod.NotEquals">Diferente</SelectItem>
+                        <SelectItem TValue="DataGridColumnFilterMethod" Value="@DataGridColumnFilterMethod.GreaterThan">Maior que</SelectItem>
+                        <SelectItem TValue="DataGridColumnFilterMethod" Value="@DataGridColumnFilterMethod.GreaterThanOrEqual">Maior ou igual</SelectItem>
+                        <SelectItem TValue="DataGridColumnFilterMethod" Value="@DataGridColumnFilterMethod.LessThan">Menor que</SelectItem>
+                        <SelectItem TValue="DataGridColumnFilterMethod" Value="@DataGridColumnFilterMethod.LessThanOrEqual">Menor ou igual</SelectItem>
+                    }
+                    else if (IsSelect)
+                    {
+                        <SelectItem TValue="DataGridColumnFilterMethod" Value="@DataGridColumnFilterMethod.Equals">Igual</SelectItem>
+                        @* <SelectItem TValue="DataGridColumnFilterMethod" Value="@DataGridColumnFilterMethod.Contains">Contém</SelectItem> *@
+                    }
+                    else
+                    {
+                        <SelectItem TValue="DataGridColumnFilterMethod" Value="@DataGridColumnFilterMethod.Contains">Contém</SelectItem>
+                        <SelectItem TValue="DataGridColumnFilterMethod" Value="@DataGridColumnFilterMethod.StartsWith">Começa com</SelectItem>
+                        <SelectItem TValue="DataGridColumnFilterMethod" Value="@DataGridColumnFilterMethod.EndsWith">Termina com</SelectItem>
+                        <SelectItem TValue="DataGridColumnFilterMethod" Value="@DataGridColumnFilterMethod.Equals">Igual</SelectItem>
+                        <SelectItem TValue="DataGridColumnFilterMethod" Value="@DataGridColumnFilterMethod.NotEquals">Diferente</SelectItem>
+                    }
+                </Select>
+            </Field>
+        </Column>
+    }
+
+    @if (IsSelect)
+    {
+        <Column ColumnSize="ColumnSize.Is12">
+            <Field>
+                @if (DataGridSelectColumn != null && SelectRender != null)
+                {
+                    @SelectRender
+                }
+            </Field>
+        </Column>
+    }
+    else @if (IsDate)
+    {
+        <Column ColumnSize="ColumnSize.Is6">
+            <Field>
+                <DatePicker TValue="DateTime?"
+                            Placeholder="Início"
+                            DisplayFormat="dd/MM/yyyy"
+                            Date="@(GetDate(true))"
+                            DateChanged="@((newValue) => DateChanged(true, newValue))"/>
+            </Field>
+        </Column>
+        <Column ColumnSize="ColumnSize.Is6">
+            <Field>
+                <DatePicker TValue="DateTime?"
+                            Placeholder="Fim"
+                            DisplayFormat="dd/MM/yyyy"
+                            Date="@(GetDate(false))"
+                            DateChanged="@((newValue) => DateChanged(false, newValue))"/>
+            </Field>
+        </Column>
+    }
+    else
+    {
+        <Column ColumnSize="ColumnSize.Is12">
+            <Field>
+                <TextEdit Text="@(SearchValue)" TextChanged="@((newValue) => SearchValue = newValue)" />
+            </Field>
+        </Column>
+    }
+
+    <Column ColumnSize="ColumnSize.Is12" Flex="Flex.JustifyContent.End.AlignItems.Center" Gap="Gap.Is2">
+        <Button Clicked="@Filter" Color="Color.Primary">Filter</Button>
+        <Button Clicked="@Clear" Color="Color.Light">Clear</Button>
+    </Column>
+</Row>

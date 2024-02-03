@@ -1,4 +1,5 @@
 using Blazorise;
+using CruderSimple.Blazor.Components.DefaultPage;
 using CruderSimple.Blazor.Interfaces.Services;
 using CruderSimple.Blazor.Services;
 using CruderSimple.Core.Entities;
@@ -16,9 +17,10 @@ public partial class CreateEditPage<TEntity, TDto> : ComponentBase
     where TEntity : IEntity
     where TDto : BaseDto
 {
-    [Parameter] 
-    public RenderFragment ChildContent { get; set; }
+    [Parameter] public RenderFragment ChildContent { get; set; }
+    [Parameter] public bool SelectAll { get; set; }
     [Parameter] public string CustomSelect { get; set; }
+    [CascadingParameter] public WindowDimension Dimension { get; set; }
 
     private TDto _model { get; set; }
 
@@ -72,7 +74,7 @@ public partial class CreateEditPage<TEntity, TDto> : ComponentBase
             {
                 IsLoading = true;
                 StateHasChanged();
-                var result = await Service.GetById(Id, CustomSelect);
+                var result = await Service.GetById(Id, SelectAll ? "*" : CustomSelect);
                 if (result.Success)
                     Model = result.Data.DeepCloneTo(Model);
                 IsLoading = false;

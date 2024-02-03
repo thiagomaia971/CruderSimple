@@ -14,8 +14,9 @@ public static class MultiTenantExtensions
             return;
         if (typed is null)
             typed = new List<Type> { entity.GetType() };
-        else
-            typed.Add(entity.GetType());
+        else if (typed.Contains(entity.GetType()))
+            return;
+        else typed.Add(entity.GetType());
         
         var allMultitenantProperties = entity.GetPropertiesWithAttribute<MultiTenantAttribute>();
         foreach (var multitenantProperty in allMultitenantProperties
@@ -30,9 +31,9 @@ public static class MultiTenantExtensions
         
         var properties = entity.GetType().GetProperties()
             .Where(c =>
-                tenantType.IsAssignableFrom(c.PropertyType) ||
+                typeof(IEntity).IsAssignableFrom(c.PropertyType) ||
                 (c.PropertyType.IsGenericType && 
-                tenantType.IsAssignableFrom(c.PropertyType.GenericTypeArguments[0]) && 
+                typeof(IEntity).IsAssignableFrom(c.PropertyType.GenericTypeArguments[0]) && 
                 (c.PropertyType.GetGenericTypeDefinition() == typeof(IEnumerable<>) ||
                  c.PropertyType.GetGenericTypeDefinition() == typeof(List<>) ||
                  c.PropertyType.GetGenericTypeDefinition() == typeof(ICollection<>))))

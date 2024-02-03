@@ -3,6 +3,7 @@ using CruderSimple.Core.EndpointQueries;
 using CruderSimple.Core.Entities;
 using CruderSimple.Core.Extensions;
 using CruderSimple.Core.ViewModels;
+using Mapster;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -25,10 +26,11 @@ public static class GetByIdRequest
         {
             try
             {
-                var single = await repository.FindById(request.id, request.select);
+                var single = await repository.FindById(request.id, request.select, true);
                 if (single is null)
                     return Result.CreateError("Recurso não encontrado", 404, "Recurso não encontrado");
 
+                //var outputDto = single.Adapt<TDto>();
                 var outputDto = single.ToOutput<TDto>();
                 return Result.CreateSuccess(outputDto);
             }

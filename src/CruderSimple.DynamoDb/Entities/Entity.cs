@@ -10,9 +10,26 @@ namespace CruderSimple.DynamoDb.Entities;
 [ExcludeFromCodeCoverage]
 public abstract class Entity : IEntity
 {
+    private DateTime _createdAt;
+    private DateTime? _updatedAt;
+
     [DynamoDBHashKey("Id")]
     [JsonProperty("Id")]
     public string Id { get; set; } = Guid.NewGuid().ToString();
+
+    DateTime IEntity.CreatedAt
+    {
+        get => _createdAt;
+        set => _createdAt = value;
+    }
+
+    DateTime? IEntity.UpdatedAt
+    {
+        get => _updatedAt;
+        set => _updatedAt = value;
+    }
+
+    public DateTime? DeletedAt { get; set; }
 
     [DynamoDBRangeKey("CreatedAt")]
     [DynamoDbGsi("GSI-CreatedAt")]
@@ -52,10 +69,20 @@ public abstract class Entity : IEntity
         EntityType = GetType().FullName;
     }
 
+    public void DeleteMethod(int modifiedBy)
+    {
+        throw new NotImplementedException();
+    }
+
     public virtual IEntity FromInput(BaseDto input)
     {
         Id = input.Id;
         return this;
+    }
+
+    public BaseDto ConvertToOutput()
+    {
+        throw new NotImplementedException();
     }
 
     public BaseDto ConvertToOutput(IDictionary<string, bool> cached = null)

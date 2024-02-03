@@ -1,0 +1,27 @@
+﻿@using Microsoft.AspNetCore.Components.Forms
+@inherits ComponentBase
+
+@if (Data != null)
+{
+    <Table Narrow>
+        <TableHeader>
+            <TableRow>
+                @foreach (var header in Headers)
+                {
+                    <TableHeaderCell>@header</TableHeaderCell>
+                }
+            </TableRow>
+        </TableHeader>
+        <TableBody>
+            @foreach (var item in Values)
+            {
+                <TableRow>
+                    @foreach (var value in item)
+                    {
+                        <TableRowHeader>@value</TableRowHeader>
+                    }
+                </TableRow>
+            }
+        </TableBody>
+    </Table>
+}

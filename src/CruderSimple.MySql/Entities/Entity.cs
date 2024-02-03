@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using CruderSimple.Core.Entities;
 using CruderSimple.Core.ViewModels;
+using Mapster;
 using Newtonsoft.Json;
 
 namespace CruderSimple.MySql.Entities;
@@ -14,31 +15,34 @@ public abstract class Entity : IEntity
     public string Id { get; set; } = Guid.NewGuid().ToString();
 
     [JsonProperty("CreatedAt")]
-    public DateTime CreatedAt { get; set; }
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     
     [JsonProperty("UpdatedAt")]
     public DateTime? UpdatedAt { get; set; }
+    
+    [JsonProperty("DeletedAt")]
+    public DateTime? DeletedAt { get; set; }
 
-    public virtual IEntity FromInput(BaseDto input)
+    protected BaseDto FromOutputBase<TEntity, TDto>()
+        where TEntity : IEntity
+        where TDto : BaseDto
     {
-        Id = string.IsNullOrEmpty(input.Id) ? Guid.NewGuid().ToString() : input.Id;
-        CreatedAt = CreatedAt == DateTime.MinValue ? DateTime.UtcNow : CreatedAt;
-        UpdatedAt= DateTime.UtcNow;
-        return this;
+        var userConfig = TypeAdapterConfig<TEntity, TDto>
+            .NewConfig()
+            .ShallowCopyForSameType(true)
+            .Config;
+        
+        return this.Adapt<TDto>(userConfig);
     }
 
-    public virtual BaseDto ConvertToOutput(IDictionary<string, bool> cached = null)
+    public abstract IEntity FromInput(BaseDto input);
+    public abstract BaseDto ConvertToOutput();
+    
+    
+    public virtual void DeleteMethod(int modifiedBy)
     {
-        if (cached is null)
-            cached = new Dictionary<string, bool>();
-        if (cached.ContainsKey(Id))
-            return null;
-        cached.Add(Id, true);
-        var output = new BaseDto(
-            Id,
-            CreatedAt,
-            UpdatedAt);
-        return output;
+        DeletedAt = DateTime.UtcNow;
+        // ModifiedMethod(modifiedBy);
     }
 
     public virtual string GetPrimaryKey() 

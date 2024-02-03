@@ -38,7 +38,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<PermissionService>(permissionsService);
         services.AddSingleton<PageHistoryState>();
         services.AddScoped<DebounceService>();
-        services.AddSingleton<DimensionService>();
+        services.AddSingleton<BrowserService>();
         //var pageParameter = new PageParameter();
         //services.AddSingleton(pageParameter);
         services.AddCruderServices();
@@ -51,8 +51,6 @@ public static class ServiceCollectionExtensions
     {
         var types = Core.Extensions.ServiceCollectionExtensions.GetTypes();
         var entityTypes = Core.Extensions.ServiceCollectionExtensions.GetByType<IEntity>().ToList();
-
-        Console.WriteLine("entityTypes: " + string.Join(",", entityTypes.Select(x => x.Name)));
 
         foreach (var entityType in entityTypes)
         {

@@ -11,6 +11,98 @@ namespace CruderSimple.Core.Extensions;
 
 public static class CollectionExtensions
 {
+
+    public static IEnumerable<TItem> AddItem<TItem>(this IEnumerable<TItem> values, TItem item)
+    {
+        if (values.Contains(item))
+            return values;
+        var valuesNew = values.ToList();
+        valuesNew.Add(item);
+        values = valuesNew;
+        return values;
+    }
+
+    public static IEnumerable<TItem> RemoveItem<TItem>(this IEnumerable<TItem> values, TItem item)
+        where TItem : BaseDto
+    {
+        var valueToRemove = values.FirstOrDefaultByKey(item);
+        if (valueToRemove == null)
+            return values;
+
+        var valuesNew = values.ToList();
+        valuesNew.Remove(valueToRemove);
+        values = valuesNew;
+        return values;
+    }
+    public static IEnumerable<TItem> ReplaceItem<TItem>(this IEnumerable<TItem> values, TItem oldItem, TItem newItem, bool addIfNotExists = true)
+        where TItem : BaseDto
+    {
+        if (values == null)
+            return Enumerable.Empty<TItem>();
+        var valuesNew = values.ToList();
+        var itemFounded = valuesNew.FirstOrDefaultByKey(oldItem);
+        if (itemFounded != null)
+        {
+            var index = valuesNew.IndexOf(itemFounded);
+            valuesNew.Remove(itemFounded);
+            valuesNew.Insert(index, newItem);
+        }
+        else if (addIfNotExists)
+            valuesNew.Add(newItem);
+
+        values = valuesNew;
+        return values;
+    }
+    public static IDictionary<string, (TItem Item, bool StyleGrid)> ReplaceItem<TItem>(
+        this IDictionary<string, (TItem Item, bool StyleGrid)> values, 
+        TItem oldItem, 
+        TItem newItem, 
+        bool addIfNotExists = true)
+        where TItem : BaseDto
+    {
+        if (values == null)
+            return new Dictionary<string, (TItem Item, bool StyleGrid)>();
+
+        if (values.TryGetValue(oldItem.GetKey, out var itemFounded))
+            itemFounded.Item = newItem;
+        else if (addIfNotExists)
+            values.Add(newItem.GetKey, (newItem, true));
+
+        return values;
+    }
+
+    public static TItem FirstOrDefaultByKey<TItem>(this List<TItem> values, TItem item)
+        where TItem : BaseDto
+    {
+        if ( item == null)
+            return null;
+        return values?.FirstOrDefault(x => x.GetKey.Equals(item.GetKey));
+    }
+
+    public static TItem FirstOrDefaultByKey<TItem>(this IEnumerable<TItem> values, TItem item)
+        where TItem : BaseDto
+    {
+        if (item == null)
+            return null;
+        return values?.FirstOrDefault(x => x.GetKey.Equals(item.GetKey));
+    }
+
+    public static IEnumerable<TItem> ForEach<TItem>(this IEnumerable<TItem> values, Action<TItem> action)
+    {
+        var currentValues = values.ToList();
+        currentValues.ForEach(action);
+        return currentValues.ToList();
+    }
+
+    public static bool AnyByKey<TItem>(this List<TItem> values, TItem item)
+        where TItem : BaseDto
+        => values.Any(x => x.GetKey.Equals(item.GetKey));
+
+    public static bool AnyByKey<TItem>(this IEnumerable<TItem> values, TItem item)
+        where TItem : BaseDto
+        => values.Any(x => x.GetKey.Equals(item.GetKey));
+
+
     public static ICollection<TEntity> FromInput<TEntity, TDto>(this ICollection<TEntity> entities,
         ICollection<TDto> inputs)
         where TEntity : IEntity
@@ -91,16 +183,12 @@ public static class CollectionExtensions
         if (query is null || string.IsNullOrEmpty(query.orderBy))
             return source;
 
-        var target = Expression.Parameter(typeof(TSource));
         if (query.orderBy.Contains("Ascending"))
-        {
-            var propertyName = query.orderBy.Split(" Ascending")[0];
-            return source.OrderBy(propertyName);
-        }
+            return source.OrderBy(query.orderBy.Split(" Ascending")[0]);
         else if (query.orderBy.Contains("Descending"))
         {
             var propertyName = query.orderBy.Split(" Descending")[0];
-            return source.OrderByDescending(propertyName);
+            return source.OrderBy($"{propertyName} desc");
         }
 
         return source;
@@ -110,8 +198,14 @@ public static class CollectionExtensions
     {
         if (query is null)
             return source;
-        var size = query.size > 0 ? query.size : 10;
-        var page = ((query.page > 0 ? query.page : 1) - 1) * size;
+
+        return source.ApplyPagination(query.size, query.page, query.skip);
+    }
+
+    public static IQueryable<TSource> ApplyPagination<TSource>(this IQueryable<TSource> source, int size = 0, int page = 0, int skip = 0)
+    {
+        size = size > 0 ? size : 10;
+        page = skip > 0 ? skip : ((page > 0 ? page : 1) - 1) * size;
         return source
             .Skip(page)
             .Take(size);
@@ -157,10 +251,16 @@ public static class CollectionExtensions
     {
         if (filter.Contains(key))
         {
-            var propertyName = filter.Split(key)[0];
-            var value = filter.Split(key)[1];
-            var query = CreateQuery(propertyName, value, operation);
-            source = source.Where(query);
+            // Handle OR situation
+            var filterSplitedByOr = filter.Split(" OR ");
+            var queryStringBuilder = new List<string>();
+            foreach (var expression in filterSplitedByOr)
+            {
+                var propertyName = expression.Split(key)[0];
+                var value = expression.Split(key)[1];
+                queryStringBuilder.Add(CreateQuery(propertyName, value, operation));
+            }
+            source = source.Where(string.Join(" OR ", queryStringBuilder));
         }
         
         return source;

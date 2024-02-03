@@ -1,4 +1,5 @@
-﻿<Layout Sider="true">
+﻿@using Microsoft.JSInterop
+<Layout Sider="true">
     <LayoutSider>
         <LayoutSiderContent>
             <SideMenu Routes="@Routes" TopBarStart="@TopBarStart" />
@@ -8,13 +9,15 @@
         @* <LayoutHeader Fixed="true"> *@
         @*     <TopMenu TopBarStart="@TopBarStart"/> *@
         @* </LayoutHeader> *@
-        <LayoutContent Padding="Padding.Is2.OnAll">
+        <LayoutContent>
             <Row>
-                <Column ColumnSize="ColumnSize.Is12">
-                    <Card Margin="@ThemeStyles.CardMargin" Shadow="@ThemeStyles.CardShadow" Style="min-height: 560px">
-                        <LoadingIndicator>
-                            @ChildContent
-                        </LoadingIndicator>
+                <Column ColumnSize="ColumnSize.Is12" Padding="Padding.Is3.FromStart.Is0.FromEnd">
+                    <Card Margin="@ThemeStyles.CardMargin" Shadow="@ThemeStyles.CardShadow" Style="@CardStyle">
+                        <CascadingValue Value="@Dimension">
+                            <LoadingIndicator>
+                                @ChildContent
+                            </LoadingIndicator>
+                        </CascadingValue>
                     </Card>
                 </Column>
             </Row>
@@ -24,10 +27,30 @@
 @code {
     [Parameter]
     public RenderFragment TopBarStart { get; set; }
-    
+
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
-    
+
     [Parameter]
     public ICollection<SideMenu.PageSide>? Routes { get; set; } = new List<SideMenu.PageSide>();
+
+    [Inject]
+    public BrowserService BrowserService { get; set; }
+
+    public WindowDimension Dimension { get; set; }
+
+    public string CardStyle { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Dimension = await BrowserService.Current();
+        CardStyle = $"min-height: {Dimension.Height}px";
+
+        BrowserService.Resize += (object sender, WindowDimension dimension) =>
+        {
+            Dimension = dimension;
+            CardStyle = $"min-height: {Dimension.Height}px";
+            StateHasChanged();
+        };
+    }
 }

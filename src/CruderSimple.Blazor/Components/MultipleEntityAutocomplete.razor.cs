@@ -104,8 +104,9 @@ public partial class MultipleEntityAutocomplete<TEntity, TEntityResult> : Compon
                     select,
                     filter,
                     orderBy,
-                    e?.VirtualizeCount ?? 0,
-                    e?.VirtualizeOffset ?? 0));
+                    e.VirtualizeCount,
+                    0,
+                    e.VirtualizeOffset));
 
                 SearchedOriginalData = result.Data
                     .ToList();

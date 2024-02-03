@@ -10,17 +10,22 @@ using CruderSimple.Core.Extensions;
 using CruderSimple.Core.Services;
 using CruderSimple.Core.ViewModels;
 using Microsoft.AspNetCore.Components;
+using System.Security.Claims;
 
-namespace CruderSimple.Blazor.Components.Crud
+namespace CruderSimple.Blazor.Components.Grids
 {
     public class CruderGridBase<TEntity, TDto> : ComponentBase
     where TEntity : IEntity
     where TDto : BaseDto
-    { 
+    {
         [Parameter] public RenderFragment Columns { get; set; }
+        [Parameter] public RenderFragment<TDto> DetailRowTemplate { get; set; }
         [Parameter] public string CustomSelect { get; set; }
+        [Parameter] public IFluentSizing Height { get; set; }
+        [Parameter] public IFluentSpacing Padding { get; set; }
 
         [CascadingParameter] public LoadingIndicator Loading { get; set; }
+        [CascadingParameter] public WindowDimension Dimension { get; set; }
 
         [Inject] public PermissionService PermissionService { get; set; }
         [Inject] public ICrudService<TEntity, TDto> Service { get; set; }
@@ -28,21 +33,39 @@ namespace CruderSimple.Blazor.Components.Crud
         [Inject] protected virtual ILocalStorageService LocalStorage { get; set; }
         [Inject] public INotificationService NotificationService { get; set; }
         [Inject] public IMessageService UiMessageService { get; set; }
+        [Inject] public IdentityAuthenticationStateProvider State { get; set; }
+        public CardBody CardBody { get; set; }
+        public int HeightDimension;
+        protected bool IsLoading { get; set; }
 
-        public IEnumerable<TDto> Data { get; set; }
+        protected Claim TenantClaim { get; set; }
+        public virtual IList<TDto> AllData => SearchedData?.ToList();
+        public List<TDto> SearchedData { get; set; } = new List<TDto>();
         public int TotalData { get; set; }
-        public DataGrid<TDto> DataGridRef { get; set; }
+        private DataGrid<TDto> _dataGridRef { get; set; }
+        public DataGrid<TDto> DataGridRef { get => _dataGridRef; set 
+            { 
+                _dataGridRef = value; 
+                if (_dataGridRef is not null)
+                {
+                    if (_dataGridRef.Attributes is null)
+                        _dataGridRef.Attributes = new Dictionary<string, object>
+                        {
+                            { "Events", CruderGridEvents }
+                        };
+                    else
+                        _dataGridRef.Attributes.Add("Events", CruderGridEvents);
+                }
+            } 
+        }
         public bool IsFirstRender { get; set; } = true;
-        public string StorageKey => $"{GetType().Name}<{typeof(TEntity).Name},{typeof(TDto).Name}>";
+        public virtual string StorageKey => $"{GetType().Name}<{typeof(TEntity).Name},{typeof(TDto).Name}>:{TenantClaim?.Value}";
+        public CruderGridEvents<TDto> CruderGridEvents { get; set; } = new CruderGridEvents<TDto>();
 
-        protected override async Task OnAfterRenderAsync(bool firstRender)
+        protected override async Task OnInitializedAsync()
         {
-            if (firstRender)
-            {
-                await Loading.Show();
-                await SearchSelects();
-                await Loading.Hide();
-            }
+            var state = await State.GetAuthenticationStateAsync();
+            TenantClaim = state.User.Claims.FirstOrDefault(x => x.Type == "TenantId");
         }
 
         protected virtual async Task GetData(DataGridReadDataEventArgs<TDto> e)
@@ -55,8 +78,12 @@ namespace CruderSimple.Blazor.Components.Crud
                 if (IsFirstRender)
                 {
                     IsFirstRender = false;
-                    await LoadColumns();
+                    await DataGridRef.Refresh();
+                    await LoadColumns(e);
+
+                    await Loading.Hide();
                     StateHasChanged();
+                    return;
                 }
 
                 await Search(e);
@@ -66,41 +93,44 @@ namespace CruderSimple.Blazor.Components.Crud
             }
         }
 
-        protected virtual async Task SearchSelects()
-        {
-            var selects = DataGridRef.GetColumns().Where(x => x.ColumnType == DataGridColumnType.Select).ToList();
-            foreach (var select in selects)
-            {
-                var selectColumn = (DataGridSelectColumn<TDto>)select;
-                var field = (string)selectColumn.Attributes["Field"];
-                var attributeService = (dynamic)selectColumn.Attributes["Service"];
-                var defaultValue = (object)selectColumn.Attributes["Default"];
-                if (string.IsNullOrEmpty(field) || attributeService is null)
-                    return;
-
-                var result = await attributeService.GetAll(new GetAllEndpointQuery(field, null, null, 0, 0));
-                var list = new List<object> { defaultValue };
-                list.AddRange((IEnumerable<object>)result.Data);
-                selectColumn.Data = list;
-            }
-        }
-
         protected virtual async Task Search(DataGridReadDataEventArgs<TDto> e)
         {
-            var select = GetQuerySelect(e.Columns);
-            var filter = GetQueryFilter(e.Columns);
-            var orderByColumn = e.Columns.FirstOrDefault(x => x.SortIndex == 0);
-            var orderBy = orderByColumn is null ? null : $"{orderByColumn.SortField} {orderByColumn.SortDirection}";
-
-            var data = await Service.GetAll(new GetAllEndpointQuery(select, filter, orderBy, e.PageSize, e.Page));
+            var query = CreateQuery(e.Columns);
+            var data = await Service.GetAll(query);
 
             TotalData = data.Size;
-            Data = data.Data;
+            SearchedData = await FilterData(data.Data.ToList(), query);
+            //await DataGridRef.Refresh();
             await SaveColumns();
         }
 
+        protected GetAllEndpointQuery CreateQuery(IEnumerable<DataGridColumnInfo> e)
+        {
+            var select = GetQuerySelect(e);
+            var filter = GetQueryFilter(e);
+            var orderBy = GetOrderBy(e);
+
+            var query = new GetAllEndpointQuery(select, filter, orderBy, DataGridRef.PageSize, DataGridRef.CurrentPage);
+            return query;
+        }
+
+        private string GetOrderBy(IEnumerable<DataGridColumnInfo> e)
+        {
+            var orderByColumn = e.FirstOrDefault(x => x.SortIndex >= 0);
+            if (orderByColumn == null)
+                return null;
+
+            return orderByColumn is null ? null : $"{orderByColumn.SortField} {orderByColumn.SortDirection}";
+        }
+
+        protected virtual async Task<List<TDto>> FilterData(List<TDto> data, GetAllEndpointQuery query = null) 
+            => data;
+
         protected virtual string GetQuerySelect(IEnumerable<DataGridColumnInfo> dataGridFields)
         {
+            if (string.IsNullOrEmpty(CustomSelect))
+                return "*";
+
             var select = string.Join(",", dataGridFields
                 .Where(x => !string.IsNullOrEmpty(x.Field))
                 .Select(x =>
@@ -146,13 +176,27 @@ namespace CruderSimple.Blazor.Components.Crud
                     case DataGridColumnType.MultiSelect:
                     case DataGridColumnType.Select:
                         // TODO: implementar AnyContains e MultiSelect
+                        // Field is a IEntity or Enumerable<IEntity>
 
                         var selectColumn = (DataGridSelectColumn<TDto>)DataGridRef.GetColumns().FirstOrDefault(x => x.Field == columnInfo.Field);
-                        var field = (string)selectColumn.Attributes["KeySearch"];
-                        if (field != null)
-                            filters.Add($"{field} {Op.AnyEquals} {searchValues[0]}");
+                        var itemType = selectColumn.GetType().GenericTypeArguments[0];
+                        var property = itemType.GetProperty(selectColumn.Field);
+                        var field = (string)selectColumn.Attributes["Field"];
+
+                        if (property.PropertyType.IsEnumerableType(out _))
+                        {
+                            if (field != null)
+                                filters.Add($"{field} {Op.AnyEquals} {searchValues[0]}");
+                            else
+                                filters.Add($"{columnInfo.Field}.Id {Op.AnyEquals} {searchValues[0]}");
+                        }
                         else
-                            filters.Add($"{columnInfo.Field}.Id {Op.AnyEquals} {searchValues[0]}");
+                        {
+                            if (field != null)
+                                filters.Add($"{field} {Op.Equals} {searchValues[0]}");
+                            else
+                                filters.Add($"{selectColumn.Field}.Id {Op.Equals} {searchValues[0]}");
+                        }
                         break;
                     case DataGridColumnType.Command:
                         break;
@@ -161,7 +205,26 @@ namespace CruderSimple.Blazor.Components.Crud
             return string.Join(",", filters);
         }
 
-        protected virtual async Task LoadColumns()
+        protected virtual async Task LoadColumns(DataGridReadDataEventArgs<TDto> e)
+        {
+            var columns = await LoadColumnsFromLocalStorage();
+            CruderGridEvents.RaiseOnColumnsLoaded();
+
+            var columnToSort = columns.FirstOrDefault(x => x.CurrentSortDirection != SortDirection.Default);
+            var x = DataGridRef.GetColumns().FirstOrDefault(x => x.Field == columnToSort?.Field);
+            await DataGridRef.Refresh();
+            if (columnToSort != null)
+            {
+                //    await DataGridRef.Sort(
+                //            columnToSort.Field,
+                //            columnToSort.CurrentSortDirection);
+                await DataGridRef.ApplySorting(new DataGridSortColumnInfo(columnToSort.Field, columnToSort.CurrentSortDirection));
+            }
+            //else
+                await Search(e);
+        }
+
+        protected async Task<List<ListPageColumnLocalStorage<TDto>>> LoadColumnsFromLocalStorage()
         {
             var data = await LocalStorage.GetItemAsync<ListPageLocalStorage<TDto>>(StorageKey);
             var columns = DataGridRef.GetColumns();
@@ -180,20 +243,11 @@ namespace CruderSimple.Blazor.Components.Crud
                     column.Filter.SearchValue = columnSaved.Filter;
                     column.SortDirection = columnSaved.CurrentSortDirection;
                     column.SortOrder = columnSaved.SortOrder;
-                    column.SortField = column.Field;
+                    column.SortField = columnSaved.SortField;
                     column.Width = string.IsNullOrEmpty(columnSaved.Width) ? column.Width : columnSaved.Width;
                 }
             }
-
-            var columnToSort = columns.FirstOrDefault(x => x.SortDirection != SortDirection.Default);
-            if (columnToSort is null)
-                await DataGridRef.Refresh();
-            else
-                await DataGridRef.Sort(
-                    string.IsNullOrEmpty(columnToSort.SortField) ? columnToSort.Field : columnToSort.SortField,
-                    columnToSort.SortDirection);
-
-            await DataGridRef.Refresh();
+            return data?.Columns ?? new List<ListPageColumnLocalStorage<TDto>>();
         }
 
         protected virtual async Task SaveColumns()
@@ -203,13 +257,13 @@ namespace CruderSimple.Blazor.Components.Crud
                 x.Field,
                 x.Filter?.SearchValue as ListPageFilter,
                 x.CurrentSortDirection,
-                x.SortOrder,
+                string.IsNullOrEmpty(x.SortField) ? x.Field : x.SortField,
+                x.CurrentSortDirection != SortDirection.Default ? 1 : 0,
                 x.Width)
             ).ToList();
             var data = new ListPageLocalStorage<TDto>(DataGridRef.CurrentPage, DataGridRef.PageSize, columns);
             await LocalStorage.SetItemAsync(StorageKey, data);
         }
-
 
         protected virtual async Task RemovingAsync(CancellableRowChange<TDto> context)
         {
@@ -242,6 +296,7 @@ namespace CruderSimple.Blazor.Components.Crud
         string Field,
         ListPageFilter Filter,
         SortDirection CurrentSortDirection,
+        string SortField,
         int SortOrder,
         string Width)
         where TDto : BaseDto;
@@ -249,6 +304,44 @@ namespace CruderSimple.Blazor.Components.Crud
     public class ListPageFilter
     {
         public string SearchValue { get; set; }
+        public string SelectItem { get; set; }
         public DataGridColumnFilterMethod FilterMethod { get; set; }
+    }
+
+    public delegate void ColumnsLoaded();
+    public delegate void EditMode();
+    public delegate void ColumnValueChanged<TItem>(TItem oldItem, TItem newItem) where TItem : BaseDto;
+    public delegate void ColumnSelected<TItem>(TItem item) where TItem : BaseDto;
+    public class CruderGridEvents<TItem>
+         where TItem : BaseDto
+    {
+        public event ColumnsLoaded OnColumnsLoaded;
+        public event EditMode OnEditMode;
+        public event ColumnValueChanged<TItem> OnColumnValueChanged;
+        public event ColumnSelected<TItem> OnColumnSelected;
+
+        public void RaiseOnColumnsLoaded()
+        {
+            if (OnColumnsLoaded != null)
+                OnColumnsLoaded();
+        }
+
+        public void RaiseOnEditMode()
+        {
+            if (OnEditMode != null)
+                OnEditMode();
+        }
+
+        public void RaiseOnColumnValueChanged(TItem oldItem, TItem newItem)
+        {
+            if (OnColumnValueChanged != null)
+                OnColumnValueChanged(oldItem, newItem);
+        }
+
+        public void RaiseColumnSelected(TItem item) 
+        {
+            if (OnColumnSelected != null)
+                OnColumnSelected(item);
+        }
     }
 }
