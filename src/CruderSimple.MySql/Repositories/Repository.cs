@@ -1,4 +1,5 @@
-﻿using CruderSimple.Core.EndpointQueries;
+﻿using System.Collections;
+using CruderSimple.Core.EndpointQueries;
 using CruderSimple.Core.Entities;
 using CruderSimple.Core.Extensions;
 using CruderSimple.Core.Interfaces;
@@ -59,16 +60,17 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
         
         if (withoutTracking)
         {
+            var referencesId = GetReferences(Saved);
             var entries = dbContext.ChangeTracker.Entries().ToList();
             dbContext.ChangeTracker.Clear();
-            var tracked = new List<string>();
-            foreach (var group in entries.GroupBy(x => ((IEntity)x.Entity).Id))
+            var groupBy = entries
+                .Where(x => referencesId.ContainsKey(((IEntity)x.Entity).Id))
+                .GroupBy(x => ((IEntity)x.Entity).Id)
+                .ToList();
+            foreach (var group in groupBy)
             {
                 var entry = group.FirstOrDefault();
                 var entryEntity = (IEntity) entry.Entity;
-                if (tracked.Contains(entryEntity.Id))
-                    continue;
-                tracked.Add(entryEntity.Id);
                 
                 if (group.Count() > 1)
                 {
@@ -78,28 +80,84 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
                 }
                 else
                 {
-                    
                     if (entryEntity.DeletedAt.HasValue)
                         entryEntity.DeleteMethod(0);
+                    
                     if (entry.State == EntityState.Deleted)
-                    {
-                        // ((IEntity) entry.Entity).DeleteMethod(0);
                         dbContext.Entry(entry.Entity).State = EntityState.Modified;
-                    }
                     else
                         dbContext.Entry(entry.Entity).State = entry.State;
                 }
             }
-            
-            // foreach (var entry in entries.DistinctBy(x => ((IEntity)x.Entity).Id))
+            // var tracked = new List<string>();
+            // foreach (var group in entries.GroupBy(x => ((IEntity)x.Entity).Id))
             // {
-            //     if (entry.State == EntityState.Deleted)
+            //     var entry = group.FirstOrDefault();
+            //     var entryEntity = (IEntity) entry.Entity;
+            //     if (tracked.Contains(entryEntity.Id))
+            //         continue;
+            //     tracked.Add(entryEntity.Id);
+            //     
+            //     if (group.Count() > 1)
+            //     {
+            //         if (entryEntity.DeletedAt.HasValue)
+            //             entryEntity.DeleteMethod(0);
             //         dbContext.Entry(entry.Entity).State = EntityState.Modified;
+            //     }
             //     else
-            //         dbContext.Entry(entry.Entity).State = entry.State;
+            //     {
+            //         
+            //         if (entryEntity.DeletedAt.HasValue)
+            //             entryEntity.DeleteMethod(0);
+            //         if (entry.State == EntityState.Deleted)
+            //         {
+            //             // ((IEntity) entry.Entity).DeleteMethod(0);
+            //             dbContext.Entry(entry.Entity).State = EntityState.Modified;
+            //         }
+            //         else
+            //             dbContext.Entry(entry.Entity).State = entry.State;
+            //     }
             // }
         }
         await DbContext.SaveChangesAsync();
+    }
+
+    private Dictionary<string, IEntity> GetReferences(IEntity entity, Dictionary<string, IEntity> references = null)
+    {
+        if (references == null)
+            references = new Dictionary<string, IEntity>();
+        if (references.ContainsKey(entity.Id))
+            return references;
+        
+        references.Add(entity.Id, entity);
+        var allEntities = entity.GetPropertiesFromInhiredType<IEntity>();
+
+        foreach (var innerEntityProperty in allEntities)
+        {
+            if (innerEntityProperty.GetValue(entity) is IEntity innerEntity)
+            {
+                var innerReferences = GetReferences(innerEntity, references);
+                foreach (var reference in innerReferences.Where(x => !references.ContainsKey(x.Key)))
+                    references.Add(reference.Key, reference.Value);
+            }
+            else
+            {
+                var list = (innerEntityProperty.GetValue(entity) as IEnumerable);
+                if (list is null)
+                    continue;
+                foreach (var v in list.Adapt<IEnumerable>())
+                {
+                    if (v is null)
+                        continue;
+                    var innerEntityList = (IEntity)v;
+                    var innerReferences = GetReferences(innerEntityList, references);
+                    foreach (var reference in innerReferences.Where(x => !references.ContainsKey(x.Key)))
+                        references.Add(reference.Key, reference.Value);
+                }
+            }
+        }
+
+        return references;
     }
 
     public virtual Task<TEntity> FindById(string id, string select = "*", bool asNoTracking = false) 
