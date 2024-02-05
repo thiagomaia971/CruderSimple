@@ -22,32 +22,53 @@ public partial class CruderGridModal<TGridEntity, TGridDto> : ComponentBase
     [Parameter] public RenderFragment<TGridDto> ModalFormTemplate { get; set; }
     [Parameter] public string ModalFormTitle { get; set; }
 
+    [Inject] public CruderLogger<CruderGridModal<TGridEntity, TGridDto>> Logger { get; set; }
     [Inject] public INotificationService NotificationService { get; set; }
     [Inject] public PermissionService PermissionService { get; set; }
 
     [CascadingParameter] public WindowDimension Dimension { get; set; }
 
-    public TGridDto CurrentSelected => CruderGrid?.CurrentSelected;
+    public TGridDto CurrentSelected { get; set; }
     public TGridDto CurrentSelectedBackup { get; set; }
     private bool IsNewItem { get; set; }
     protected bool IsLoading { get; set; }
+    private bool IsOpen { get; set; }
 
     private Modal ModalRef { get; set; }
     protected Validations ValidationsRef { get; set; }
     private string Errors { get; set; }
+    public double ModalPercentage { get; set; } = 0.85;
+
+    public int CalculateBy(int? value)
+        => value.HasValue ? (int)(value * ModalPercentage) : 0;
+    public int CalculateMarginBy(int? value)
+        => value.HasValue ? (int)(value * ((1 - ModalPercentage) / 2)) : 0;
+
+    public int ModalBodyHeight => CalculateBy(Dimension?.Heigth) - (CalculateMarginBy(Dimension?.Heigth) * 2) - 15;
+
+    protected override Task OnInitializedAsync()
+    {
+        return base.OnInitializedAsync();
+    }
 
     public async Task OpenCreate(TGridDto item)
     {
+        Logger.LogDebug("OpenCreate");
         IsNewItem = true;
+        CurrentSelected = item;
         CurrentSelectedBackup = item.Adapt<TGridDto>();
-        await ModalRef.Show();
+        IsOpen = true;
+        StateHasChanged();
     }
 
     public async Task OpenEdit(TGridDto item)
     {
+        Logger.LogDebug("OpenEdit");
         IsNewItem = false;
+        CurrentSelected = item;
         CurrentSelectedBackup = item.Adapt<TGridDto>();
-        await ModalRef.Show();
+        IsOpen = true;
+        StateHasChanged();
     }
 
     public async Task SaveModal()
@@ -65,6 +86,9 @@ public partial class CruderGridModal<TGridEntity, TGridDto> : ComponentBase
                 await CruderGrid.Select(null);
                 await ModalRef.Close(CloseReason.None);
                 await CruderGrid.Refresh();
+                IsOpen = false;
+                StateHasChanged();
+
             }
             catch (Exception ex)
             {

@@ -72,8 +72,11 @@ public partial class CruderSelectEntityColumn<TColumnEntity, TColumnDto, TSelect
         Loaded = true;
         Events.OnEditMode += () =>
         {
-            SelectComponent = CreateSelectComponent(DataGrid.ReadCellEditValue(ColumnField));
-            StateHasChanged();
+            InvokeAsync(async () =>
+            {
+                SelectComponent = CreateSelectComponent(DataGrid.ReadCellEditValue(ColumnField));
+                StateHasChanged();
+            });
         };
     }
 
@@ -91,7 +94,6 @@ public partial class CruderSelectEntityColumn<TColumnEntity, TColumnDto, TSelect
             Console.WriteLine("Service is null");
             return null;
         }
-
         var entity = service.GetType().GenericTypeArguments[0];
         var entityDto = service.GetType().GenericTypeArguments[1];
 
@@ -109,13 +111,16 @@ public partial class CruderSelectEntityColumn<TColumnEntity, TColumnDto, TSelect
 
     public async Task SelectChanged((string Key, object Value) value/*, CellEditContext<TColumnDto> cellEdit*/)
     {
-        OldValue = CurrentSelect.Adapt<TColumnDto>();
-        CurrentSelect.SetValueByPropertyName(value.Value, ColumnField);
-        NewValue = CurrentSelect;
+        InvokeAsync(async () =>
+        {
+            OldValue = CurrentSelect.Adapt<TColumnDto>();
+            CurrentSelect.SetValueByPropertyName(value.Value, ColumnField);
+            NewValue = CurrentSelect;
 
-        DataGrid.UpdateCellEditValue(ColumnField, value.Value);
-        await OnBlur();
-        SelectComponent = CreateSelectComponent(DataGrid.ReadCellEditValue(ColumnField));
+            DataGrid.UpdateCellEditValue(ColumnField, value.Value);
+            await OnBlur();
+            SelectComponent = CreateSelectComponent(DataGrid.ReadCellEditValue(ColumnField));
+        });
     }
 
     protected string GetGridName(TColumnDto item)

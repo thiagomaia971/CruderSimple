@@ -8,7 +8,7 @@ namespace CruderSimple.Blazor.Services
         public void LogDebug(string? message, params object[]? args)
         {
             if (!environment.IsProduction())
-                logger.LogDebug(message, args);
+                logger.LogInformation(message, args);
         }
 
         public void LogInformation(string? message, params object[]? args)

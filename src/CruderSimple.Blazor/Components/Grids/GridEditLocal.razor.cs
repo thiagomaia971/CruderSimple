@@ -66,20 +66,6 @@ public partial class GridEditLocal<TGridEntity, TGridDto> : CruderGridBase<TGrid
     public Dictionary<string, (TGridDto OldItem, TGridDto NewItem)> BackupModified { get; set;} = new Dictionary<string, (TGridDto, TGridDto)>();
     public Dictionary<string, (TGridDto OldItem, TGridDto NewItem)> BackupDeleted { get; set; } = new Dictionary<string, (TGridDto, TGridDto)>();
 
-    protected override Task OnInitializedAsync()
-    {
-        CruderGridEvents.OnColumnValueChanged += async (oldItem, newItem) =>
-        {
-            await UpdateData(oldItem, newItem);
-        };
-        CruderGridEvents.OnColumnSelected += async (item) =>
-        {
-            await OpenEditMode(item);
-        };
-
-        return base.OnInitializedAsync();
-    }
-
 
     protected override async Task OnParametersSetAsync()
     {

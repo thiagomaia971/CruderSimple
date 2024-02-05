@@ -87,7 +87,35 @@
                                     </Tooltip>
                                 }
                                 <Tooltip Text="@PermissionService.CanWriteTooltip(ModalFormTemplate == null ? TooltipEdit : TooltipView)" Inline>
-                                    <Button Size="Size.Small" Clicked="@((_) => EditItem(context.Item))" Disabled="@(!PermissionService.CanWrite)" Padding="Blazorise.Padding.Is1" @onclick:stopPropagation>
+                                    <button @ref="ButtonReference"
+                                            id="button-view"
+                                            data-toggle="modal"
+                                            data-target="#exampleModal"
+                                            @onclick:preventDefault
+                                            @onclick:stopPropagation>
+                                            yey
+                                    </button>
+
+
+                                    <script suppress-error="bl9992">
+                                        console.log("asdasd");
+                                        const viewButton = document.querySelector('#button-view');
+                                        viewButton.addEventListener('click', () => {
+                                            setTimeout(() => DotNet.invokeMethodAsync('IncrementJsInterop'), 50);
+                                        });
+                                        function init(dotnetref, elementref) {
+                                            console.log(dotnetref);
+                                            console.log(elementref);
+                                            elementref.addEventListener('click', () => {
+                                                settimeout(() => DotNet.invokeMethodAsync('IncrementJsInterop'), 50);
+                                            });
+                                        }
+                                    </script>
+                                    <Button Size="Size.Small" 
+                                            Disabled="@(!PermissionService.CanWrite)" 
+                                            Padding="Blazorise.Padding.Is1" 
+                                            Clicked="@(() => EditItem(context.Item))"
+                                            @onclick:preventDefault>
                                         <Icon Name="@(ModalFormTemplate == null ? IconName.Edit : IconName.Eye)" />
                                     </Button>
                                 </Tooltip>

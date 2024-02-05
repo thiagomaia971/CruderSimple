@@ -338,15 +338,12 @@ namespace CruderSimple.Blazor.Components.Grids
 
     public delegate void ColumnsLoaded();
     public delegate void EditMode();
-    public delegate void ColumnValueChanged<TItem>(TItem oldItem, TItem newItem) where TItem : BaseDto;
     public delegate void ColumnSelected<TItem>(TItem item) where TItem : BaseDto;
     public class CruderGridEvents<TItem>
          where TItem : BaseDto
     {
         public event ColumnsLoaded OnColumnsLoaded;
         public event EditMode OnEditMode;
-        public event ColumnValueChanged<TItem> OnColumnValueChanged;
-        public event ColumnSelected<TItem> OnColumnSelected;
 
         public void RaiseOnColumnsLoaded()
         {
@@ -358,18 +355,6 @@ namespace CruderSimple.Blazor.Components.Grids
         {
             if (OnEditMode != null)
                 OnEditMode();
-        }
-
-        public void RaiseOnColumnValueChanged(TItem oldItem, TItem newItem)
-        {
-            if (OnColumnValueChanged != null)
-                OnColumnValueChanged(oldItem, newItem);
-        }
-
-        public void RaiseColumnSelected(TItem item) 
-        {
-            if (OnColumnSelected != null)
-                OnColumnSelected(item);
         }
     }
 }

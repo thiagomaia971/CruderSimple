@@ -1,10 +1,14 @@
-﻿using Blazorise.DataGrid;
+﻿using Blazorise;
+using Blazorise.DataGrid;
+using CruderSimple.Blazor.Services;
 using CruderSimple.Core.Entities;
 using CruderSimple.Core.Extensions;
 using CruderSimple.Core.Services;
 using CruderSimple.Core.ViewModels;
 using Mapster;
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Logging;
+using System.Formats.Asn1;
 
 namespace CruderSimple.Blazor.Components.Grids
 {
@@ -70,12 +74,15 @@ namespace CruderSimple.Blazor.Components.Grids
         [Parameter] public string TooltipValueNull { get; set; }
 
         [Inject] protected PermissionService PermissionService { get; set; }
+        [Inject] protected CruderLogger<CruderColumnBase<TColumnEntity, TColumnDto>> Logger { get; set; }
         [CascadingParameter] public DataGrid<TColumnDto> DataGridRef { get; set; }
+        [CascadingParameter] public CruderGrid<TColumnEntity, TColumnDto> CruderGrid { get; set; }
 
         protected Dictionary<string, object> Attributes { get; set; } = new Dictionary<string, object>();
         protected CruderGridEvents<TColumnDto> Events { get; set; }
         protected TColumnDto OldValue { get; set; }
         protected TColumnDto NewValue { get; set; }
+        public bool FirstChanged { get; set; }
 
         protected override Task OnInitializedAsync()
         {
@@ -92,16 +99,25 @@ namespace CruderSimple.Blazor.Components.Grids
                 NewValue = item;
 
             item.SetValueByPropertyName(value, ColumnField);
-            await OnBlur();
-
+            await Update();
+            if (!FirstChanged)
+                await CruderGrid.DataGridRef.Refresh();
+            FirstChanged = true;
+            
             watch.Stop();
-            Console.WriteLine(watch.ElapsedMilliseconds);
+            Logger.LogDebug("ValueInlineChanged: {time}", watch.ElapsedMilliseconds);
         }
 
         protected async Task OnBlur()
         {
+            await Update();
+            await CruderGrid.Refresh();
+        }
+
+        protected async Task Update()
+        {
             if (OldValue != null && NewValue != null)
-                Events.RaiseOnColumnValueChanged(OldValue, NewValue);
+                await CruderGrid.UpdateItem(OldValue, NewValue);
             OldValue = null;
             NewValue = null;
         }
@@ -112,7 +128,7 @@ namespace CruderSimple.Blazor.Components.Grids
         protected virtual async Task OnClick(TColumnDto item)
         {
             if (!AlwaysEditable)
-                Events.RaiseColumnSelected(item);
+                CruderGrid.EditItem(item);
         }
     }
 }

@@ -3,50 +3,54 @@
 @typeparam TGridDto
 @inherits ComponentBase
 
-@Dimension?.Width
-@((int) (Dimension?.Width * 0.8))
-@((int) (Dimension.Width * 0.1))
+@if (IsOpen)
+{
+    <Modal @ref="ModalRef"
+           Closing="@ModalClosed"
+           Class="cruder-grid-modal"
+           Animated="true"
+           AnimationDuration="100"
+           @bind-Visible="IsOpen">
+        <Animate Animation="Animations.FadeDown" DelayMilliseconds="100">
 
-<Modal @ref="ModalRef" 
-       Closing="@ModalClosed"
-       Class="cruder-grid-modal">
-    @if (ModalFormTemplate != null && CurrentSelected != null)
-    {
-        <ModalContent Size="ModalSize.ExtraLarge"
-                      Width="Blazorise.Width.Px((int) (Dimension.Width * 0.8))"
-                      Margin="@(Blazorise.Margin.Is($"{(int) (Dimension.Width * 0.1)}px"))">
-            <ModalHeader>
-                <h4 style="margin: 0px;">
-                    @ModalFormTitle
-                </h4>
-            </ModalHeader>
-            <EditForm class="form-signin" OnValidSubmit="SaveModal" Model="@CurrentSelected">
-                <ModalBody>
-                    <Row>
-                        <Column ColumnSize="ColumnSize.Is12">
-                            <Validations @ref="@ValidationsRef" Model="@CurrentSelected" Mode="ValidationMode.Auto" MissingFieldsErrorMessage="Error" ValidateOnLoad="false">
-                                <Blazorise.ValidationSummary Label="Segue os erros:" />
-                                @ModalFormTemplate(CurrentSelected)
-                            </Validations>
-                        </Column>
-                    </Row>
-                </ModalBody>
-                <ModalFooter>
-                    <Button Color="Color.Warning" Clicked="@(() => ModalRef.Close(CloseReason.UserClosing))">
-                        Cancelar
-                    </Button>
-                    <Button Color="Color.Primary" Type="ButtonType.Submit" Loading="@IsLoading" Disabled="@(!PermissionService.CanWrite || IsLoading)" Margin="Margin.Is1.OnX">
-                        @if (IsNewItem)
-                        {
-                            @("Adicionar")
-                        }
-                        else
-                        {
-                            @("Editar")
-                        }
-                    </Button>
-                </ModalFooter>
-            </EditForm>
-        </ModalContent>
-    }
-</Modal>
+            <ModalContent Size="ModalSize.ExtraLarge"
+                          Width="Blazorise.Width.Px(CalculateBy(Dimension?.Width))"
+                          Height="Blazorise.Height.Px(CalculateBy(Dimension?.Heigth))"
+                          Style="@($"margin-left: {CalculateMarginBy(Dimension?.Width)}px; margin-top: {CalculateMarginBy(Dimension?.Heigth)}px; max-width: {CalculateBy(Dimension?.Width)}px;")">
+                <ModalHeader>
+                    <h4 style="margin: 0px;">
+                        @ModalFormTitle
+                    </h4>
+                </ModalHeader>
+                    <EditForm class="form-signin" OnValidSubmit="SaveModal" Model="@CurrentSelected">
+                        <ModalBody Height="Blazorise.Height.Px(ModalBodyHeight)" Style="@($"overflow-y: auto; max-height: {ModalBodyHeight}px")">
+                            <Row>
+                                <Column ColumnSize="ColumnSize.Is12">
+                                    <Validations @ref="@ValidationsRef" Model="@CurrentSelected" Mode="ValidationMode.Auto" MissingFieldsErrorMessage="Error" ValidateOnLoad="false">
+                                        <Blazorise.ValidationSummary Label="Segue os erros:" />
+                                        @ModalFormTemplate(CurrentSelected)
+                                    </Validations>
+                                </Column>
+                            </Row>
+                        </ModalBody>
+                        <ModalFooter>
+                            <Button Color="Color.Warning" Clicked="@(() => ModalRef.Close(CloseReason.UserClosing))">
+                                Cancelar
+                            </Button>
+                            <Button Color="Color.Primary" Type="ButtonType.Submit" Loading="@IsLoading" Disabled="@(!PermissionService.CanWrite || IsLoading)" Margin="Margin.Is1.OnX">
+                                @if (IsNewItem)
+                                {
+                                    @("Adicionar")
+                                }
+                                else
+                                {
+                                    @("Editar")
+                                }
+                            </Button>
+                        </ModalFooter>
+                    </EditForm>
+            </ModalContent>
+        </Animate>
+    </Modal>
+
+}

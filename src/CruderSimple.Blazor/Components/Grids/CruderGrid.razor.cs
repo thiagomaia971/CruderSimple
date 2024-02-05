@@ -6,6 +6,7 @@ using CruderSimple.Core.Extensions;
 using CruderSimple.Core.ViewModels;
 using Mapster;
 using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 
 namespace CruderSimple.Blazor.Components.Grids;
 
@@ -28,7 +29,7 @@ public partial class CruderGrid<TGridEntity, TGridDto> : CruderGridBase<TGridEnt
 
 
     [Parameter] public TGridDto CurrentSelected { get; set; }
-    [Parameter] public EventCallback<TGridDto> CurrentSelectedChanged { get; set; }
+    [Parameter] public Func<TGridDto, Task> CurrentSelectedChanged { get; set; }
 
     /// <summary>
     /// Filter Request API
@@ -121,6 +122,8 @@ public partial class CruderGrid<TGridEntity, TGridDto> : CruderGridBase<TGridEnt
     #endregion Parameters
 
     #region Properties
+
+    [Inject] public IModalService ModalService { get; set; }
     private CruderGridModal<TGridEntity, TGridDto> CruderGridModal { get; set; }
     private bool HasInitialData { get; set; }
     private bool IsInitialDataLoaded { get; set; }
@@ -133,21 +136,6 @@ public partial class CruderGrid<TGridEntity, TGridDto> : CruderGridBase<TGridEnt
     #endregion
 
     #region Overrides
-
-    protected override Task OnInitializedAsync()
-    {
-        CruderGridEvents.OnColumnSelected += async (item) =>
-        {
-            await EditItem(item);
-        };
-
-        CruderGridEvents.OnColumnValueChanged += async (oldItem, newItem) =>
-        {
-            await UpdateItem(oldItem, newItem);
-        };
-
-        return base.OnInitializedAsync();
-    }
 
     protected override async Task OnParametersSetAsync()
     {
@@ -211,6 +199,10 @@ public partial class CruderGrid<TGridEntity, TGridDto> : CruderGridBase<TGridEnt
 
     }
 
+    public ElementReference ButtonReference { get; set; }
+    [JSInvokable]
+    public void IncrementJsInterop(TGridDto item) => EditItem(item);
+
     public async Task EditItem(TGridDto item)
     {
         IsNewItem = false;
@@ -228,7 +220,8 @@ public partial class CruderGrid<TGridEntity, TGridDto> : CruderGridBase<TGridEnt
         }
         else
         {
-            await CruderGridModal.OpenEdit(CurrentSelected);
+
+            //await CruderGridModal.OpenEdit(CurrentSelected);
             //if (ModalFormOpened != null)
             //    await ModalFormOpened(CurrentSelected);
         }
@@ -237,8 +230,9 @@ public partial class CruderGrid<TGridEntity, TGridDto> : CruderGridBase<TGridEnt
     public async Task Select(TGridDto item = null)
     {
         CurrentSelected = item;
-        await CurrentSelectedChanged.InvokeAsync(CurrentSelected);
-        await DataGridRef.Select(item);
+        if (CurrentSelectedChanged != null)
+            await CurrentSelectedChanged(CurrentSelected);
+        //await DataGridRef.Select(item);
         //await DataGridRef.Refresh();
     }
 
@@ -257,6 +251,7 @@ public partial class CruderGrid<TGridEntity, TGridDto> : CruderGridBase<TGridEnt
 
     public async Task UpdateItem(TGridDto oldItem, TGridDto newItem, bool style = true)
     {
+        var watch = System.Diagnostics.Stopwatch.StartNew();
         if (ItemUpdated != null)
             await ItemUpdated((oldItem, newItem));
 
@@ -272,7 +267,9 @@ public partial class CruderGrid<TGridEntity, TGridDto> : CruderGridBase<TGridEnt
         }
 
         await RaiseDataChanged(Data.ReplaceItem(oldItem, newItem));
-        SearchedData = SearchedData.ReplaceItem(oldItem, newItem).ToList();  
+        SearchedData = SearchedData.ReplaceItem(oldItem, newItem).ToList();
+        watch.Stop();
+        Logger.LogDebug("UpdateItem watch: {time}", watch.ElapsedMilliseconds);
     }
 
     public async Task DeleteItem(TGridDto item)
