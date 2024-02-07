@@ -3,7 +3,7 @@
 @typeparam TGridDto
 @inherits CruderGridBase<TGridEntity, TGridDto>
 
-<CascadingValue Value="this">
+<CascadingValue Value="this" IsFixed>
     <Row Padding="@Padding">
         <Column ColumnSize="ColumnSize.Is12">
             <DataGrid @ref="DataGridRef"
@@ -14,7 +14,7 @@
                       ShowPager
                       ShowPageSizes
                       Responsive
-                      EditMode="DataGridEditMode.Inline"
+                      EditMode="DataGridEditMode.Popup"
                       CommandMode="DataGridCommandMode.Commands"
                       RowRemoving="(async (e) => await DeleteItem(e.NewItem))"
                       Editable
@@ -26,16 +26,13 @@
                       FixedHeader
                       Resizable
                       Bordered
-                      RowSelectable="@((_) => false)"
                       DetailRowStartsVisible="false"
-                      DetailRowTrigger="@((_) => DetailRowTemplate != null)"
                       FixedHeaderDataGridHeight="@Height?.FixedSize.Value.ToString()"
                       FixedHeaderDataGridMaxHeight="430px"
                       SortMode="DataGridSortMode.Single"
                       FilterMode="DataGridFilterMode.Menu"
                       ReadData="@GetData"
-                      TotalItems="@TotalData"
-                      RowStyling="@RowModifiedStyle">
+                      TotalItems="@TotalData">
                 <DataGridColumns>
                     <DataGridCommandColumn TItem="TGridDto"
                                            PreventRowClick
@@ -50,10 +47,10 @@
                                            FilterVerticalAlignment="VerticalAlignment.Middle">
                         <NewCommandTemplate>
                             <Div Gap="Gap.Is2" Display="Display.InlineFlex">
-                                @if (StartNewCommandTemplate is not null)
+@*                                 @if (StartNewCommandTemplate is not null)
                                 {
                                     @StartNewCommandTemplate
-                                }
+                                } *@
                                 <Tooltip Text="@PermissionService.CanWriteTooltip(TooltipNew)">
                                     <Button Type="ButtonType.Link" Clicked="@CreateItem" Color="Color.Success" Width="Width.Is100" Size="Size.Small" Disabled="@(!PermissionService.CanWrite)">
                                         <Icon Name="IconName.Add" />
@@ -72,62 +69,57 @@
                         </NewCommandTemplate>
                         
                         <EditCommandTemplate>
+
+@*                             @if (ModalFormTemplate != null)
+                            {
+                                <CruderGridModal @ref="CruderGridModal"
+                                                 TGridEntity="TGridEntity"
+                                                 TGridDto="TGridDto"
+                                                 CurrentSelected="context.Item"
+                                                 IsNewItem="false"
+                                                 ModalFormTemplate="@ModalFormTemplate"
+                                                 ModalFormTitle="@ModalFormTitle" />
+                            }
                             @if (StartCommandTemplate is not null)
                             {
                                 @StartCommandTemplate(context.Item)
-                            }
+                            } *@
                             @if (!context.Item.DeletedAt.HasValue)
                             {
                                 @if (BackupModified.TryGetValue(context.Item.GetKey, out var modified) && modified.StyleGrid)
                                 {
-                                    <Tooltip Text="@PermissionService.CanWriteTooltip(TooltipUndo)" Inline>
+                                    @* <Tooltip Text="@PermissionService.CanWriteTooltip(TooltipUndo)" Inline> *@
                                         <Button Size="Size.Small" Clicked="@((_) => UndoEdit(context))" Disabled="@(!PermissionService.CanWrite)" Padding="Blazorise.Padding.Is1" @onclick:stopPropagation>
                                             <Icon Name="IconName.Undo" />
                                         </Button>
-                                    </Tooltip>
+                                    @* </Tooltip> *@
                                 }
-                                <Tooltip Text="@PermissionService.CanWriteTooltip(ModalFormTemplate == null ? TooltipEdit : TooltipView)" Inline>
-                                    <button @ref="ButtonReference"
-                                            id="button-view"
+                                @* <Tooltip Text="@PermissionService.CanWriteTooltip(ModalFormTemplate == null ? TooltipEdit : TooltipView)" Inline> *@
+@*                                     <button @ref="ButtonReference"
+                                            class="btn btn-sm p-1"
                                             data-toggle="modal"
-                                            data-target="#exampleModal"
+                                            data-target="#cruderGridModal@(context.Item.GetKey)"
                                             @onclick:preventDefault
                                             @onclick:stopPropagation>
-                                            yey
+                                            <i class="fas @(ModalFormTemplate == null ? "fa-edit" : "fa-eye")"></i>
+                                    </button> *@
+                                    <button @ref="ButtonReference"
+                                            class="btn btn-sm p-1"
+                                            @onclick="@context.Clicked"
+                                            @onclick:preventDefault
+                                            @onclick:stopPropagation>
+                                        <i class="fas @(ModalFormTemplate == null ? "fa-edit" : "fa-eye")"></i>
                                     </button>
-
-
-                                    <script suppress-error="bl9992">
-                                        console.log("asdasd");
-                                        const viewButton = document.querySelector('#button-view');
-                                        viewButton.addEventListener('click', () => {
-                                            setTimeout(() => DotNet.invokeMethodAsync('IncrementJsInterop'), 50);
-                                        });
-                                        function init(dotnetref, elementref) {
-                                            console.log(dotnetref);
-                                            console.log(elementref);
-                                            elementref.addEventListener('click', () => {
-                                                settimeout(() => DotNet.invokeMethodAsync('IncrementJsInterop'), 50);
-                                            });
-                                        }
-                                    </script>
-                                    <Button Size="Size.Small" 
-                                            Disabled="@(!PermissionService.CanWrite)" 
-                                            Padding="Blazorise.Padding.Is1" 
-                                            Clicked="@(() => EditItem(context.Item))"
-                                            @onclick:preventDefault>
-                                        <Icon Name="@(ModalFormTemplate == null ? IconName.Edit : IconName.Eye)" />
-                                    </Button>
-                                </Tooltip>
+                                @* </Tooltip> *@
                             }
-                            @if (MiddleCommandTemplate is not null)
+@*                             @if (MiddleCommandTemplate is not null)
                             {
                                 @MiddleCommandTemplate(context.Item)
-                            }
+                            } *@
                         </EditCommandTemplate>
 
                         <DeleteCommandTemplate>
-                            @if (BackupDeleted.TryGetValue(context.Item.GetKey, out var deleted) && deleted.StyleGrid)
+@*                             @if (BackupDeleted.TryGetValue(context.Item.GetKey, out var deleted) && deleted.StyleGrid)
                             {
                                 <Tooltip Text="@PermissionService.CanWriteTooltip(TooltipUndo)" Inline>
                                     <Button Size="Size.Small" Clicked="@((_) => UndoDelete(context))" Disabled="@(!PermissionService.CanWrite)" Padding="Blazorise.Padding.Is1" @onclick:stopPropagation>
@@ -136,17 +128,17 @@
                                 </Tooltip>
                             }
                             else
-                            {
+                            { *@
                                 <Tooltip Text="@PermissionService.CanWriteTooltip(TooltipDelete)" Inline>
                                     <Button Size="Size.Small" Clicked="@context.Clicked" Disabled="@(!PermissionService.CanWrite)" Padding="Blazorise.Padding.Is1" @onclick:stopPropagation>
                                         <Icon Name="IconName.Delete" />
                                     </Button>
                                 </Tooltip>
-                            }
-                            @if (EndCommandTemplate is not null)
+                            @* } *@
+@*                             @if (EndCommandTemplate is not null)
                             {
                                 @EndCommandTemplate(context.Item)
-                            }
+                            } *@
                         </DeleteCommandTemplate>
 
                         <SaveCommandTemplate>
@@ -198,16 +190,19 @@
                 <FilterMenuTemplate>
                     <ListPageFilterMenu TGridEntity="TGridEntity" TGridDto="TGridDto" Column="context.Column" />
                 </FilterMenuTemplate>
-                <DetailRowTemplate>
-                    @if (DetailRowTemplate != null)
-                    {
-                        @DetailRowTemplate(context)
-                    }
-                </DetailRowTemplate>
             </DataGrid>
         </Column>
     </Row>
-    
+
+    @if (IsModalOpen)
+    {
+        <CruderGridModal @ref="CruderGridModal"
+                         TGridEntity="TGridEntity"
+                         TGridDto="TGridDto"
+                         IsModalOpen="@IsModalOpen"
+                         ModalFormTemplate="@ModalFormTemplate"
+                         ModalFormTitle="@ModalFormTitle" />
+    }
     @if (IsDebug)
     {
         <Accordion Margin="Margin.Is3.FromTop">
@@ -263,10 +258,4 @@
             </Collapse>
         </Accordion>
     }
-
-    <CruderGridModal @ref="CruderGridModal"
-                     TGridEntity="TGridEntity" 
-                     TGridDto="TGridDto"
-                     ModalFormTemplate="@ModalFormTemplate"
-                     ModalFormTitle="@ModalFormTitle" />
 </CascadingValue>

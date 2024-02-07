@@ -2,7 +2,9 @@
 @typeparam TColumnDto
 @typeparam TSelectEntityDto
 @inherits CruderColumnBase<TColumnEntity, TColumnDto>
+@using CruderSimple.Core.ViewModels
 
+@_Id
 <DataGridSelectColumn @ref="DataGridSelectColumn" 
                       TItem="TColumnDto"
                       Field="@ColumnField"
@@ -24,7 +26,8 @@
         <Div @onclick="@((_) => OnClick(context))">
             @if (AlwaysEditable && PermissionService.CanWrite)
             {
-                @(SelectComponent = CreateSelectComponent(context.GetValueByPropertyName(ColumnField)))
+                @(((BaseDto) context.GetValueByPropertyName(ColumnField)).GetValue)
+                @(CreateSelectComponent(context.GetValueByPropertyName(ColumnField)))
             }
             else
             {
@@ -40,9 +43,6 @@
         </Div>
     </DisplayTemplate>
     <EditTemplate>
-        @if (SelectComponent is not null)
-        {
-            @SelectComponent
-        }
+        @(CreateSelectComponent(context.CellValue))
     </EditTemplate>
 </DataGridSelectColumn>

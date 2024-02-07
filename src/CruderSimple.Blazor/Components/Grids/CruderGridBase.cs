@@ -102,7 +102,6 @@ namespace CruderSimple.Blazor.Components.Grids
                 await Search(e);
 
                 await Loading.Hide();
-                StateHasChanged();
             }
         }
 
@@ -115,6 +114,7 @@ namespace CruderSimple.Blazor.Components.Grids
             SearchedData = await FilterData(data.Data.ToList(), query);
             //await DataGridRef.Refresh();
             await SaveColumns();
+            StateHasChanged();
         }
 
         protected GetAllEndpointQuery CreateQuery(IEnumerable<DataGridColumnInfo> e)

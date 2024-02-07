@@ -19,5 +19,41 @@ namespace CruderSimple.Blazor.Services
 
         public void LogError(Exception? exception, string? message, params object[]? args)
             => logger.LogError(exception, message, args);
+
+
+        public TResult Watch<TResult>(string stopName, Func<TResult> action)
+        {
+
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+            var result = action();
+            watch.Stop();
+            LogDebug($"{stopName}: {watch.ElapsedMilliseconds}ms");
+            return result;
+        }
+
+        public async Task<TResult> Watch<TResult>(string stopName, Func<Task<TResult>> action)
+        {
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+            var result = await action();
+            watch.Stop();
+            LogDebug($"{stopName}: {watch.ElapsedMilliseconds}ms");
+            return result;
+        }
+
+        public async Task Watch(string stopName, Func<Task> action)
+        {
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+            await action();
+            watch.Stop();
+            LogDebug($"{stopName}: {watch.ElapsedMilliseconds}ms");
+        }
+
+        public async void Watch(string stopName, Action action)
+        {
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+            action();
+            watch.Stop();
+            LogDebug($"{stopName}: {watch.ElapsedMilliseconds}ms");
+        }
     }
 }

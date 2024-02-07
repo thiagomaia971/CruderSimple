@@ -128,7 +128,7 @@ namespace CruderSimple.Blazor.Components.Grids
         protected virtual async Task OnClick(TColumnDto item)
         {
             if (!AlwaysEditable)
-                CruderGrid.EditItem(item);
+                await CruderGrid.EditItem(item);
         }
     }
 }
