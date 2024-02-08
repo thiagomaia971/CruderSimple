@@ -16,7 +16,7 @@
                       Attributes="@Attributes"
                       ValueField="(x) => ((TColumnDto)x).GetKey"
                       TextField="(x) => ((TColumnDto)x).GetValue"
-                      SortField="Procedure.Code"
+                      SortField="@GridSort"
                       HeaderCellStyle="line-height: 38px"
                       HeaderTextAlignment="TextAlignment.Start"
                       VerticalAlignment="VerticalAlignment.Middle"
@@ -31,7 +31,8 @@
                                     TEntityResult="TSelectEntityDto"
                                     SearchKey="@SelectSearchKey"
                                     SelectedValue="@((TSelectEntityDto) context.GetValueByPropertyName(ColumnField))"
-                                     Required="false" />
+                                    SelectedObjectValueChanged="SelectChanged"
+                                    Required="false" />
                 @* @(CreateSelectComponent(context.GetValueByPropertyName(ColumnField))) *@
             }
             else

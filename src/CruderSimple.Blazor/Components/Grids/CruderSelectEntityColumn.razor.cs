@@ -135,22 +135,22 @@ public partial class CruderSelectEntityColumn<TColumnEntity, TColumnDto, TSelect
     //    });
     //}
 
-    //public async Task SelectChanged((string Key, object Value) value/*, CellEditContext<TColumnDto> cellEdit*/)
-    //{
-    //    Logger.Watch($"SelectChanged - {_Id}", () => 
-    //    {
-    //        InvokeAsync(async () =>
-    //        {
-    //            OldValue = CurrentSelect.Adapt<TColumnDto>();
-    //            CurrentSelect.SetValueByPropertyName(value.Value, ColumnField);
-    //            NewValue = CurrentSelect;
+    public async Task SelectChanged((string Key, object Value) value/*, CellEditContext<TColumnDto> cellEdit*/)
+    {
+        Logger.Watch($"SelectChanged - {_Id}", () =>
+        {
+            InvokeAsync(async () =>
+            {
+                OldValue = CurrentSelect.Adapt<TColumnDto>();
+                CurrentSelect.SetValueByPropertyName(value.Value, ColumnField);
+                NewValue = CurrentSelect;
 
-    //            DataGrid.UpdateCellEditValue(ColumnField, value.Value);
-    //            await OnBlur();
-    //            //CreateSelectComponent(DataGrid.ReadCellEditValue(ColumnField), null, true);
-    //        });
-    //    });
-    //}
+                DataGrid.UpdateCellEditValue(ColumnField, value.Value);
+                await OnBlur();
+                //CreateSelectComponent(DataGrid.ReadCellEditValue(ColumnField), null, true);
+            });
+        });
+    }
 
     protected string GetGridName(TColumnDto item)
     { 

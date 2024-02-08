@@ -11,6 +11,7 @@ using CruderSimple.Core.ViewModels;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Newtonsoft.Json;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace CruderSimple.Blazor.Components;
 
@@ -24,7 +25,7 @@ public partial class EntityAutocomplete<TEntity, TEntityResult> : ComponentBase
     [Parameter] public string CustomSelect { get; set; }
     [Parameter] public string OrderBy { get; set; }
     [Parameter] public TEntityResult SelectedValue { get; set; }
-    [Parameter] public Func<TEntityResult, Task> SelectedValueChanged { get; set; }
+    [Parameter] public EventCallback<TEntityResult> SelectedValueChanged { get; set; }
     [Parameter] public Func<(string Key, object Value), Task> SelectedObjectValueChanged { get; set; }
     [Parameter] public RenderFragment<ItemContext<TEntityResult, string>> ItemContent { get; set; }
     [Parameter] public bool Required { get; set; } = true;
@@ -46,19 +47,40 @@ public partial class EntityAutocomplete<TEntity, TEntityResult> : ComponentBase
     public int TotalData { get;set;}
     public bool IsLoading { get; set; }
     public bool ShouldPrevent { get; set; }
-    private bool IsSetData { get; set; }
-
-
-    protected override Task OnAfterRenderAsync(bool firstRender)
+    private bool IsSetData { get; set; } = true;
+    protected override void OnParametersSet()
     {
-        if (firstRender)
+
+        if (autoComplete != null && SelectedValue != null && (SearchedOriginalData is null || !SearchedOriginalData.Any()))
         {
-            Logger.LogDebug("Initialized: " + SelectedValue.ToJson());
             SearchedData = new List<TEntityResult> { SelectedValue };
             SearchedOriginalData = new List<TEntityResult> { SelectedValue };
         }
-        return base.OnAfterRenderAsync(firstRender);
+        base.OnParametersSet();
     }
+
+    //protected override Task OnInitializedAsync()
+    //{
+    //    if (IsSetData)
+    //    {
+    //        Logger.LogDebug("Initialized: " + SelectedValue.ToJson());
+    //        SearchedData = new List<TEntityResult> { SelectedValue };
+    //        SearchedOriginalData = new List<TEntityResult> { SelectedValue };
+    //        IsSetData = false;
+    //    }
+    //    return base.OnInitializedAsync();
+    //}
+
+    //protected override Task OnAfterRenderAsync(bool firstRender)
+    //{
+    //    if (firstRender)
+    //    {
+    //        Logger.LogDebug("Initialized: " + SelectedValue.ToJson());
+    //        SearchedData = new List<TEntityResult> { SelectedValue };
+    //        SearchedOriginalData = new List<TEntityResult> { SelectedValue };
+    //    }
+    //    return base.OnAfterRenderAsync(firstRender);
+    //}
 
     private async Task SearchFocus(FocusEventArgs e)
     {
@@ -147,8 +169,7 @@ public partial class EntityAutocomplete<TEntity, TEntityResult> : ComponentBase
         await Logger.Watch("ValueChanged", async () =>
         {
             SelectedValue = SearchedOriginalData.FirstOrDefault(x => values == x.GetKey);
-            if (SelectedValueChanged != null)
-                await SelectedValueChanged(SelectedValue);
+            await SelectedValueChanged.InvokeAsync(SelectedValue);
             if (SelectedObjectValueChanged != null)
             {
                 Console.WriteLine("Value changed");
