@@ -1,5 +1,8 @@
-﻿@typeparam TEntity
-@typeparam TEntityResult
+﻿@using CruderSimple.Core.Entities
+@using CruderSimple.Core.ViewModels
+
+@typeparam TEntity where TEntity : IEntity
+@typeparam TEntityResult where TEntityResult : BaseDto
 
 <Div Width="@Width" Padding="@Padding">
     <Autocomplete @ref="@autoComplete"
@@ -19,10 +22,11 @@
                   ReadData="@GetData"
                   SelectionMode="AutocompleteSelectionMode.Default"
                   SelectedValue="@(SelectedValue?.GetKey)"
-                  SelectedValueChanged="ValueChanged"
+                  SelectedValueChanged="@ValueChanged"
                   AsyncValidator="@sIsValidValue"
                   SearchFocus="@SearchFocus"
                   SearchKeyDown="SearchChanged"
+                  SearchBlur="@((_) => autoComplete.Close())"
                   Disabled="@Disabled">
         <NotFoundContent> Sorry... @context was not found! :( </NotFoundContent>
         <ItemContent>
@@ -36,4 +40,5 @@
         </ItemContent>
     </Autocomplete>
     <ValidationError>Invalid</ValidationError>
+
 </Div>

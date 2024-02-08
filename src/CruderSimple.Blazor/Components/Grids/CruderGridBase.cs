@@ -51,7 +51,6 @@ namespace CruderSimple.Blazor.Components.Grids
         protected bool IsLoading { get; set; }
 
         protected Claim TenantClaim { get; set; }
-        public virtual IList<TDto> AllData => SearchedData?.ToList();
         public List<TDto> SearchedData { get; set; } = new List<TDto>();
         public int TotalData { get; set; }
         private DataGrid<TDto> _dataGridRef { get; set; }

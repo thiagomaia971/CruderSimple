@@ -17,11 +17,6 @@ public partial class GridEditLocal<TGridEntity, TGridDto> : CruderGridBase<TGrid
     where TGridEntity : IEntity
     where TGridDto : BaseDto
 {
-    public override IList<TGridDto> AllData 
-        => SearchedData
-            .DistinctBy(x => x.Id)
-            .ToList();
-
     [Parameter] public IList<TGridDto> Data { get; set; } = new List<TGridDto>();
     [Parameter] public EventCallback<IList<TGridDto>> DataChanged { get; set; }
 

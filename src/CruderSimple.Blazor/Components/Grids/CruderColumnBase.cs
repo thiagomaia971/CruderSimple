@@ -76,7 +76,7 @@ namespace CruderSimple.Blazor.Components.Grids
         [Inject] protected PermissionService PermissionService { get; set; }
         [Inject] protected CruderLogger<CruderColumnBase<TColumnEntity, TColumnDto>> Logger { get; set; }
         [CascadingParameter] public DataGrid<TColumnDto> DataGridRef { get; set; }
-        [CascadingParameter] public CruderGrid<TColumnEntity, TColumnDto> CruderGrid { get; set; }
+        [CascadingParameter] public _CruderGrid<TColumnEntity, TColumnDto> CruderGrid { get; set; }
 
         protected Dictionary<string, object> Attributes { get; set; } = new Dictionary<string, object>();
         protected CruderGridEvents<TColumnDto> Events { get; set; }
@@ -128,7 +128,7 @@ namespace CruderSimple.Blazor.Components.Grids
         protected virtual async Task OnClick(TColumnDto item)
         {
             if (!AlwaysEditable)
-                await CruderGrid.EditItem(item);
+                CruderGrid.EditItem(item);
         }
     }
 }

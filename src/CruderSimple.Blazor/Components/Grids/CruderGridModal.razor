@@ -1,41 +1,39 @@
-﻿@using Microsoft.AspNetCore.Components.Forms
+﻿@using Blazorise.Animate
+@using Microsoft.AspNetCore.Components.Forms
 @typeparam TGridEntity
 @typeparam TGridDto
 @inherits ComponentBase
 
-<!-- Modal -->
-@* <div class="modal fade cruder-grid-modal" id="cruderGridModal@(CurrentSelected?.GetKey ?? "New")" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        @if (CurrentSelected != null)
-        {
-            <div class="modal-content" style="@($"width: {CalculateBy(Dimension?.Width)}px; height: {CalculateBy(Dimension?.Heigth)}px; margin-left: {CalculateMarginBy(Dimension?.Width)}px; margin-top: {CalculateMarginBy(Dimension?.Heigth)}px; max-width: {CalculateBy(Dimension?.Width)}px;")">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">
-                        @ModalFormTitle
-                    </h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <Validations @ref="@ValidationsRef" Model="@CurrentSelectedBackup" Mode="ValidationMode.Auto" MissingFieldsErrorMessage="Error" ValidateOnLoad="false">
-                        <Blazorise.ValidationSummary Label="Segue os erros:" />
-                        @ModalFormTemplate(CurrentSelectedBackup)
-                    </Validations>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" @onclick="@SaveModal">Save changes</button>
-                </div>
-            </div>
-        }
-    </div>
-</div>
- *@
- EditState: @(CruderGrid?.DataGridRef?.EditState == DataGridEditState.Edit)
-@if (IsOpen)
+<Modal Class="cruder-grid-modal"
+       Animated="true"
+       AnimationDuration="250"
+       Closing="@ModalClosed"
+       @bind-Visible="@IsOpen">
+    @if (IsOpen)
+    {
+        <Animate Animation="Animations.FadeDown" DurationMilliseconds="250">
+            <ModalContent Size="ModalSize.ExtraLarge"
+                          Width="Blazorise.Width.Px(CalculateBy(Dimension?.Width))"
+                          Height="Blazorise.Height.Px(CalculateBy(Dimension?.Heigth))"
+                          Style="@($"cursor: default; margin-left: {CalculateMarginBy(Dimension?.Width)}px; margin-top: {CalculateMarginBy(Dimension?.Heigth)}px; max-width: {CalculateBy(Dimension?.Width)}px;")">
+                <ModalHeader>
+                    Test
+                </ModalHeader>
+                <ModalBody>
+                    Body
+                </ModalBody>
+                <ModalFooter>
+                    Footer
+                </ModalFooter>
+            </ModalContent>
+        </Animate>
+    }
+</Modal>
+
+@*
+@if (IsOpen && CurrentSelected != null)
 {
-    
+
     <Modal @ref="ModalRef"
            ElementId="@($"cruderGridModal{CurrentSelected?.GetKey ?? "New"}")"
            Closing="@ModalClosed"
@@ -85,4 +83,4 @@
         </Animate>
     </Modal>
 
-}
+} *@

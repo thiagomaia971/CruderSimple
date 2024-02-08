@@ -11,6 +11,7 @@ using CruderSimple.Core.Services;
 using CruderSimple.Core.Extensions;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
 namespace CruderSimple.Blazor.Extensions;
 
@@ -45,7 +46,32 @@ public static class ServiceCollectionExtensions
         services.AddCruderServices();
         services.AddPermissionsAuthorization();
 
+        services.AddCors(options =>
+        {
+            options.AddDefaultPolicy(
+                              policy =>
+                              {
+                                  policy
+                                      .AllowAnyOrigin()
+                                      .AllowAnyHeader()
+                                      .AllowAnyMethod();
+                              });
+            options.AddPolicy(name: "AllCors",
+                              policy =>
+                              {
+                                  policy
+                                      .AllowAnyOrigin()
+                                      .AllowAnyHeader()
+                                      .AllowAnyMethod();
+                              });
+        });
+
         return services;
+    }
+
+    public static WebAssemblyHost UseCruderSimpleBlazor(this WebAssemblyHost app)
+    {
+        return app;
     }
 
     private static IServiceCollection AddCruderServices(this IServiceCollection services) 

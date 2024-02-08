@@ -1,5 +1,6 @@
 ﻿@typeparam TColumnEntity
 @typeparam TColumnDto
+@typeparam TSelectEntity
 @typeparam TSelectEntityDto
 @inherits CruderColumnBase<TColumnEntity, TColumnDto>
 @using CruderSimple.Core.ViewModels
@@ -26,8 +27,12 @@
         <Div @onclick="@((_) => OnClick(context))">
             @if (AlwaysEditable && PermissionService.CanWrite)
             {
-                @(((BaseDto) context.GetValueByPropertyName(ColumnField)).GetValue)
-                @(CreateSelectComponent(context.GetValueByPropertyName(ColumnField)))
+                <EntityAutocomplete TEntity="TSelectEntity"
+                                    TEntityResult="TSelectEntityDto"
+                                    SearchKey="@SelectSearchKey"
+                                    SelectedValue="@((TSelectEntityDto) context.GetValueByPropertyName(ColumnField))"
+                                     Required="false" />
+                @* @(CreateSelectComponent(context.GetValueByPropertyName(ColumnField))) *@
             }
             else
             {
@@ -43,6 +48,6 @@
         </Div>
     </DisplayTemplate>
     <EditTemplate>
-        @(CreateSelectComponent(context.CellValue))
+        @* @(CreateSelectComponent(context.CellValue)) *@
     </EditTemplate>
 </DataGridSelectColumn>

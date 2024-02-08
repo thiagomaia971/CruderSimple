@@ -6,13 +6,14 @@ using CruderSimple.Core.Extensions;
 using CruderSimple.Core.ViewModels;
 using Mapster;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 
 namespace CruderSimple.Blazor.Components.Grids;
 
 [CascadingTypeParameter(nameof(TGridEntity))]
 [CascadingTypeParameter(nameof(TGridDto))]
-public partial class CruderGrid<TGridEntity, TGridDto> : CruderGridBase<TGridEntity, TGridDto>
+public partial class _CruderGrid<TGridEntity, TGridDto> : CruderGridBase<TGridEntity, TGridDto>
     where TGridEntity : IEntity
     where TGridDto : BaseDto
 {
@@ -226,8 +227,8 @@ public partial class CruderGrid<TGridEntity, TGridDto> : CruderGridBase<TGridEnt
 
             if (ModalFormTemplate == null)
                 await AddItem(CurrentSelected);
-            else
-                await CruderGridModal.OpenCreate(CurrentSelected);
+            //else
+            //    await CruderGridModal.OpenCreate(CurrentSelected);
         });
     }
 
@@ -239,26 +240,26 @@ public partial class CruderGrid<TGridEntity, TGridDto> : CruderGridBase<TGridEnt
     {
         await Logger.Watch("EditItem", async () =>
         {
-            IsNewItem = false;
+            //IsNewItem = false;
             var oldEntity = SearchedData.FirstOrDefaultByKey(CurrentSelected);
             await Select(item.Adapt<TGridDto>());
-            if (ItemUpdating != null)
-                ItemUpdating((oldEntity, CurrentSelected));
+            //if (ItemUpdating != null)
+            //    ItemUpdating((oldEntity, CurrentSelected));
 
-            if (ModalFormTemplate == null)
-            {
-                UpdateItem(oldEntity, CurrentSelected);
+            //if (ModalFormTemplate == null)
+            //{
+            //    await UpdateItem(oldEntity, CurrentSelected);
 
-                //if (OnAfterAdd != null)
-                //    await OnAfterAdd(CurrentSelected);
-            }
-            else
-            {
+            //    //if (OnAfterAdd != null)
+            //    //    await OnAfterAdd(CurrentSelected);
+            //}
+            //else
+            //{
 
-                CruderGridModal.OpenEdit(CurrentSelected);
+            //await CruderGridModal.OpenEdit(CurrentSelected);
                 //if (ModalFormOpened != null)
                 //    await ModalFormOpened(CurrentSelected);
-            }
+            //}
         });
     }
 
