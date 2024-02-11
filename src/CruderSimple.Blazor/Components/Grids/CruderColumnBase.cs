@@ -1,5 +1,6 @@
 ﻿using Blazorise;
 using Blazorise.DataGrid;
+using CruderSimple.Blazor.Interfaces.Services;
 using CruderSimple.Blazor.Services;
 using CruderSimple.Core.Entities;
 using CruderSimple.Core.Extensions;
@@ -74,7 +75,7 @@ namespace CruderSimple.Blazor.Components.Grids
         [Parameter] public string TooltipValueNull { get; set; }
 
         [Inject] protected PermissionService PermissionService { get; set; }
-        [Inject] protected CruderLogger<CruderColumnBase<TColumnEntity, TColumnDto>> Logger { get; set; }
+        [Inject] protected ICruderLogger<CruderColumnBase<TColumnEntity, TColumnDto>> Logger { get; set; }
         [CascadingParameter] public DataGrid<TColumnDto> DataGridRef { get; set; }
         [CascadingParameter] public _CruderGrid<TColumnEntity, TColumnDto> CruderGrid { get; set; }
 

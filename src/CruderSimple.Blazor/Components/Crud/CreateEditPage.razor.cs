@@ -76,7 +76,7 @@ public partial class CreateEditPage<TEntity, TDto> : ComponentBase
                 StateHasChanged();
                 var result = await Service.GetById(Id, SelectAll ? "*" : CustomSelect);
                 if (result.Success)
-                    Model = result.Data.DeepCloneTo(Model);
+                    Model = result.Result.DeepCloneTo(Model);
                 IsLoading = false;
                 StateHasChanged();
             });
@@ -94,7 +94,7 @@ public partial class CreateEditPage<TEntity, TDto> : ComponentBase
             Errors = null;
             try
             {
-                Result<TDto> result = null;
+                ResultViewModel<TDto> result = null;
                 if (string.IsNullOrEmpty(Id))
                     result = await Service.Create(Model);
                 else

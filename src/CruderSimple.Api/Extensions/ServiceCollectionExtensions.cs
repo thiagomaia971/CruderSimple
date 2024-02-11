@@ -36,7 +36,7 @@ namespace CruderSimple.Api.Extensions
             foreach (var handler in requestHandlers)
             {
                 var query = handler.BaseType.GetGenericArguments().First();
-                var @interface = typeof(IRequestHandler<,>).MakeGenericType(query, typeof(Result));
+                var @interface = typeof(IRequestHandler<,>).MakeGenericType(query, typeof(ResultViewModel));
                 services.AddScoped(@interface, handler);
             }
         }

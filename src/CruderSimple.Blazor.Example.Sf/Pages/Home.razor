@@ -1,0 +1,76 @@
+﻿@page "/"
+@using CruderSimple.Core.Extensions
+@using CruderSimple.Core.Entities
+@using CruderSimple.Core.ViewModels
+
+<PageTitle>Home</PageTitle>
+
+<SfGrid @ref="Grid" TValue="TestDto" 
+        DataSource="@Data"
+        AllowPaging="true"
+        AllowSorting="true"
+        AllowSelection="true"
+        AllowFiltering="true"
+        Height="315">
+@*     <SfDataManager @ref="DataManagerRef"
+                   Adaptor=" Syncfusion.Blazor.Adaptors.UrlAdaptor"
+                   HttpClientInstance="@HttpClient"/> *@
+    <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+    <GridColumns>
+        <GridColumn Field="Id"
+                    HeaderText="Id"
+                    IsPrimaryKey="true"
+                    AllowFiltering="true">
+        </GridColumn>
+        <GridColumn Field="@nameof(TestDto.Name)"
+                    HeaderText="Nome"
+                    AllowFiltering="true">
+        </GridColumn>
+    </GridColumns>
+</SfGrid>
+
+<CruderSimple.Blazor.Sf.Components.SfCruderGrid 
+    TGridEntity="Test" 
+    TGridDto="TestDto"
+    Data="@Data">
+    <Columns>
+        <GridColumn Field="@nameof(TestDto.Name)"
+                    HeaderText="Nome"
+                    AllowFiltering="true">
+        </GridColumn>
+    </Columns>
+</CruderSimple.Blazor.Sf.Components.SfCruderGrid>
+
+@code {
+    public List<TestDto> Data { get; set; } = new List<TestDto>();
+    public SfGrid<TestDto> Grid { get; set; }
+
+    protected override Task OnInitializedAsync()
+    {
+        for (int i = 0; i < 15; i++)
+        {
+            Data.Add(new TestDto
+            {
+                Id = Guid.NewGuid().ToString(),
+                Name = $"Name: {i +1}"
+            });
+        }
+        return base.OnInitializedAsync();
+    }
+
+    public class Test : Entity
+    {
+        public string Name { get; set; }
+
+        public override IEntity FromInput(BaseDto input)
+        => this.ParseWithContext<Test, TestDto>(input);
+
+        public override BaseDto ConvertToOutput()
+        => FromOutputBase<Test, TestDto>();
+    }
+
+    public class TestDto : BaseDto
+    {
+        public string Name { get; set; }
+    }
+}

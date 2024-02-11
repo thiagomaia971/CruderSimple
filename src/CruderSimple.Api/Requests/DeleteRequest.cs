@@ -14,29 +14,29 @@ public static class DeleteRequest
 
     public class Handler<TQuery, TEntity, TDto, TRepository>
         (TRepository repository)
-        : HttpHandlerBase<TQuery, TEntity, Result>, IRequestHandler<TQuery, Result> 
+        : HttpHandlerBase<TQuery, TEntity, ResultViewModel>, IRequestHandler<TQuery, ResultViewModel> 
         where TQuery : Query
         where TEntity : IEntity
         where TDto : BaseDto 
-        where TRepository : Core.Interfaces.IRepositoryBase<TEntity>
+        where TRepository : Core.Interfaces.IRepository<TEntity>
     {
-        public override async Task<Result> Handle(TQuery request, CancellationToken cancellationToken)
+        public override async Task<ResultViewModel> Handle(TQuery request, CancellationToken cancellationToken)
         {
             try
             {
                 var entity = await repository.FindById(request.id);
             
                 if (entity is null)
-                    return Result.CreateError("Recurso não encontrado", 404, "Recurso não encontrado");
+                    return ResultViewModel.CreateError("Recurso não encontrado", 404, "Recurso não encontrado");
 
                 await repository.Remove(entity)
                     .Save();
 
-                return Result.CreateSuccess(entity.ToOutput<TDto>());
+                return ResultViewModel.CreateSuccess(entity.ToOutput<TDto>());
             }
             catch (Exception exception)
             {
-                return Result.CreateError(exception.StackTrace, 500, exception.Message);
+                return ResultViewModel.CreateError(exception.StackTrace, 500, exception.Message);
             }
         }
     }

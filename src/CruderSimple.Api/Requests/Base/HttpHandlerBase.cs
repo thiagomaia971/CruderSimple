@@ -50,20 +50,20 @@ public abstract class HttpHandlerBase<TQuery, TEntity, TResult> : IHttpRequestHa
 
     private async Task<IResult> SendRequest(IMediator mediator, TQuery query)
     {
-        Result result = await mediator.Send(query);
-        switch (result.HttpStatusCode)
+        ResultViewModel resultViewModel = await mediator.Send(query);
+        switch (resultViewModel.HttpStatusCode)
         {
             case 200:
-                return Results.Ok(result);
+                return Results.Ok(resultViewModel);
             case 201:
-                return Results.Created(string.Empty, result);
+                return Results.Created(string.Empty, resultViewModel);
             case 400:
-                return Results.BadRequest(result);
+                return Results.BadRequest(resultViewModel);
             case 404:
-                return Results.NotFound(result);
+                return Results.NotFound(resultViewModel);
             case 500:
             default:
-                return Results.Json(result, JsonSerializerOptions.Default, null, 500);
+                return Results.Json(resultViewModel, JsonSerializerOptions.Default, null, 500);
         }
     }
 

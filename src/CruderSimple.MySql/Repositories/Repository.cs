@@ -1,13 +1,8 @@
-﻿using System.Collections;
-using CruderSimple.Core.EndpointQueries;
+﻿using CruderSimple.Core.EndpointQueries;
 using CruderSimple.Core.Entities;
 using CruderSimple.Core.Extensions;
 using CruderSimple.Core.Interfaces;
-using CruderSimple.Core.ViewModels;
-using CruderSimple.MySql.Entities;
 using CruderSimple.MySql.Extensions;
-using CruderSimple.MySql.Interfaces;
-using Mapster;
 using Microsoft.EntityFrameworkCore;
 
 namespace CruderSimple.MySql.Repositories;
@@ -21,7 +16,7 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
     protected MultiTenantScoped MultiTenant { get; } = multiTenant;
     protected TEntity Saved { get; set; }
 
-    public virtual IRepositoryBase<TEntity> Add(TEntity entity, AutoDetachOptions autoDetach = AutoDetachOptions.BEFORE)
+    public virtual IRepository<TEntity> Add(TEntity entity, AutoDetachOptions autoDetach = AutoDetachOptions.BEFORE)
     {
         entity.CreatedAt = DateTime.UtcNow;
         entity.UpdatedAt = DateTime.UtcNow;
@@ -34,7 +29,7 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
         return this;
     }
 
-    public virtual IRepositoryBase<TEntity> Update(TEntity entity, AutoDetachOptions autoDetach = AutoDetachOptions.BEFORE)
+    public virtual IRepository<TEntity> Update(TEntity entity, AutoDetachOptions autoDetach = AutoDetachOptions.BEFORE)
     {
         entity.UpdatedAt = DateTime.UtcNow;
         Saved = entity;
@@ -46,9 +41,9 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
         return this;
     }
 
-    public virtual IRepositoryBase<TEntity> Remove(TEntity entity)
+    public virtual IRepository<TEntity> Remove(TEntity entity)
     {
-        entity.DeleteMethod(0);
+        // entity.DeleteMethod(0);
         Saved = entity;
         DbContext.Update(entity);
         return this;

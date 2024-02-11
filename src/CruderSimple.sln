@@ -1,14 +1,23 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CruderSimple.Core", "CruderSimple.Core\CruderSimple.Core.csproj", "{8D896232-729C-43AF-B20C-F770C8446675}"
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34321.82
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CruderSimple.Core", "CruderSimple.Core\CruderSimple.Core.csproj", "{8D896232-729C-43AF-B20C-F770C8446675}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CruderSimple.DynamoDb", "CruderSimple.DynamoDb\CruderSimple.DynamoDb.csproj", "{EFF791FA-2109-487E-BE3D-A57B66746250}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CruderSimple.DynamoDb", "CruderSimple.DynamoDb\CruderSimple.DynamoDb.csproj", "{EFF791FA-2109-487E-BE3D-A57B66746250}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CruderSimple.MySql", "CruderSimple.MySql\CruderSimple.MySql.csproj", "{923AD6EF-5D3D-4F6F-94CF-B31A4BE826E0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CruderSimple.MySql", "CruderSimple.MySql\CruderSimple.MySql.csproj", "{923AD6EF-5D3D-4F6F-94CF-B31A4BE826E0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CruderSimple.Api", "CruderSimple.Api\CruderSimple.Api.csproj", "{0A8251AB-1A81-4376-87C7-9ADC8761BFB5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CruderSimple.Api", "CruderSimple.Api\CruderSimple.Api.csproj", "{0A8251AB-1A81-4376-87C7-9ADC8761BFB5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CruderSimple.Blazor", "CruderSimple.Blazor\CruderSimple.Blazor.csproj", "{75908EC5-8A79-47B7-B88F-4DBF4D86CA81}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CruderSimple.Blazor", "CruderSimple.Blazor\CruderSimple.Blazor.csproj", "{75908EC5-8A79-47B7-B88F-4DBF4D86CA81}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CruderSimple.Blazor.Sf", "CruderSimple.Blazor.Sf\CruderSimple.Blazor.Sf.csproj", "{F4222512-0D06-4CAA-871D-76E10507B399}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Examples", "Examples", "{70450BED-9736-49DE-BB59-C5F7420E33D2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CruderSimple.Blazor.Example.Sf", "CruderSimple.Blazor.Example.Sf\CruderSimple.Blazor.Example.Sf.csproj", "{8DA06330-A1ED-4886-B1AC-CC7DC13F2AF2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -36,5 +45,19 @@ Global
 		{75908EC5-8A79-47B7-B88F-4DBF4D86CA81}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{75908EC5-8A79-47B7-B88F-4DBF4D86CA81}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{75908EC5-8A79-47B7-B88F-4DBF4D86CA81}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F4222512-0D06-4CAA-871D-76E10507B399}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F4222512-0D06-4CAA-871D-76E10507B399}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F4222512-0D06-4CAA-871D-76E10507B399}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F4222512-0D06-4CAA-871D-76E10507B399}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8DA06330-A1ED-4886-B1AC-CC7DC13F2AF2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8DA06330-A1ED-4886-B1AC-CC7DC13F2AF2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8DA06330-A1ED-4886-B1AC-CC7DC13F2AF2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8DA06330-A1ED-4886-B1AC-CC7DC13F2AF2}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{8DA06330-A1ED-4886-B1AC-CC7DC13F2AF2} = {70450BED-9736-49DE-BB59-C5F7420E33D2}
 	EndGlobalSection
 EndGlobal

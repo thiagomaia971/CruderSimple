@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System;
 using System.Collections;
 using System.Linq.Dynamic.Core;
 using System.Text;
@@ -54,6 +55,50 @@ namespace CruderSimple.Core.Extensions
             }
             elementType = null;
             return false;
+        }
+
+        public static Op ToOperation(this string _operator)
+        {
+            switch (_operator)
+            {
+                case "contains":
+                    return Op.Contains;
+                case "equal":
+                    return Op.Equals;
+                case "greaterthan":
+                    return Op.GreaterThan;
+                case "lessthan":
+                    return Op.LessThan;
+                case "greaterthanorequal":
+                    return Op.GreaterThanOrEqual;
+                case "lessthanorequal":
+                    return Op.LessThanOrEqual;
+                case "startswith":
+                    return Op.StartsWith;
+                case "endswith":
+                    return Op.EndsWith;
+                case "anyequals":
+                    return Op.AnyEquals;
+                case "anycontain":
+                    return Op.AnyContains;
+                default:
+                    return Op.Contains;
+            }
+        }
+
+        public static string ToSortDirection(this string sortDirection)
+        {
+            switch (sortDirection)
+            {
+                case "default":
+                    return "Default";
+                case "ascending":
+                    return "Ascending";
+                case "descending":
+                    return "Descending";
+                default:
+                    return "Default";
+            }
         }
     }
 }

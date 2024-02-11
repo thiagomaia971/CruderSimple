@@ -108,7 +108,7 @@ public partial class MultipleEntityAutocomplete<TEntity, TEntityResult> : Compon
                     0,
                     e.VirtualizeOffset));
 
-                SearchedOriginalData = result.Data
+                SearchedOriginalData = result.Result
                     .ToList();
 
                 StateHasChanged();

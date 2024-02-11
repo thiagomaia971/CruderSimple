@@ -1,4 +1,5 @@
-﻿@using CruderSimple.Core.Entities
+﻿@using CruderSimple.Blazor.Interfaces.Services
+@using CruderSimple.Core.Entities
 @using CruderSimple.Core.ViewModels
 @using Microsoft.AspNetCore.Components.Forms
 
@@ -184,7 +185,7 @@
     #endregion Parameters
 
     #region Injects
-    [Inject] public CruderLogger<CruderGrid<TGridEntity, TGridDto>> Logger { get; set; }
+    [Inject] public ICruderLogger<CruderGrid<TGridEntity, TGridDto>> Logger { get; set; }
     [Inject] public IModalService ModalService { get; set; }
     #endregion
 

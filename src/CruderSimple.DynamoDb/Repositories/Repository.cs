@@ -12,14 +12,14 @@ namespace CruderSimple.DynamoDb.Repositories;
 
 public class Repository<T>(IDynamoDBContext dynamoDbContext, IAmazonDynamoDB amazonDynamoDb,
         MultiTenantScoped multiTenant)
-    : IRepository<T>
+    : Interfaces.IRepository<T>
     where T : Entity
 {
     protected readonly IDynamoDBContext _dynamoDbContext = dynamoDbContext;
     protected string _entityType = typeof(T).FullName;
     private IDictionary<Type, BatchWrite<object>> batchWrites = new Dictionary<Type, BatchWrite<object>>();
 
-    public IRepositoryBase<T> Add(T entity)
+    public Core.Interfaces.IRepository<T> Add(T entity)
     {
         var oldEntities = entity.Id is null ? new List<Entity>() : (FindById(entity.Id, "*").GetAwaiter().GetResult())?.SegregateEntities() ?? new List<Entity>();
         var entitiesToSave = entity.SegregateEntities();
@@ -67,7 +67,7 @@ public class Repository<T>(IDynamoDBContext dynamoDbContext, IAmazonDynamoDB ama
         return this;
     }
 
-    public IRepositoryBase<T> Update(T entity) 
+    public Core.Interfaces.IRepository<T> Update(T entity) 
         => Add(entity);
 
     private BatchWrite<object> AddBatchWrite(Entity entityToSave)
@@ -81,17 +81,17 @@ public class Repository<T>(IDynamoDBContext dynamoDbContext, IAmazonDynamoDB ama
         return batchWrite;
     }
 
-    public IRepositoryBase<T> Add(T entity, AutoDetachOptions autoDetach = AutoDetachOptions.BEFORE)
+    public Core.Interfaces.IRepository<T> Add(T entity, AutoDetachOptions autoDetach = AutoDetachOptions.BEFORE)
     {
         throw new NotImplementedException();
     }
 
-    public IRepositoryBase<T> Update(T entity, AutoDetachOptions autoDetach = AutoDetachOptions.BEFORE)
+    public Core.Interfaces.IRepository<T> Update(T entity, AutoDetachOptions autoDetach = AutoDetachOptions.BEFORE)
     {
         throw new NotImplementedException();
     }
 
-    public virtual IRepositoryBase<T> Remove(T entity)
+    public virtual Core.Interfaces.IRepository<T> Remove(T entity)
     {
         var batchWrite = AddBatchWrite(entity);
         batchWrite.AddDeleteItem(entity);

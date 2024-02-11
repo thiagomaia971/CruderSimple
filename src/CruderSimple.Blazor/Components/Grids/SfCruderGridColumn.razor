@@ -1,0 +1,63 @@
+﻿@using CruderSimple.Core.Entities
+@using CruderSimple.Core.ViewModels
+
+@typeparam TGridEntity where TGridEntity : IEntity
+@typeparam TGridDto where TGridDto : BaseDto
+
+<GridColumn @ref="GridColumnRef" 
+            Field="@Field"
+            HeaderText="@HeaderText"
+            HeaderTextAlign="@HeaderTextAlign"
+            TextAlign="@TextAlign"
+            CustomAttributes="@CustomAttributes"
+            ShowInColumnChooser
+            ClipMode="ClipMode.EllipsisWithTooltip"
+            Width="@Width"
+            AutoFit="@AutoFit">
+    <Template>
+        @if (Content == null)
+        {
+            @(((TGridDto)context).GetValueByPropertyName(Field))
+        }
+        else
+        {
+            @(Content((TGridDto)context))
+        }
+    </Template>
+</GridColumn>
+
+@code {
+    #region Parameters
+
+    [Parameter, EditorRequired] public string Field { get; set; }
+    [Parameter, EditorRequired] public string HeaderText { get; set; }
+    [Parameter] public Func<TGridDto, object> Content { get; set; }
+    [Parameter] public string SelectBy { get; set; }
+    [Parameter] public string SortBy { get; set; }
+    [Parameter] public string FilterBy { get; set; }
+
+    [Parameter] public TextAlign HeaderTextAlign { get; set; }
+    [Parameter] public TextAlign TextAlign { get; set; }
+    [Parameter] public string Width { get; set; }
+    [Parameter] public bool AutoFit { get; set; }
+
+    #endregion
+
+    #region Properties
+
+    public GridColumn GridColumnRef { get; set; }
+    public Dictionary<string, object> CustomAttributes { get; set; } = new Dictionary<string, object>();
+
+    #endregion
+
+    public override Task SetParametersAsync(ParameterView parameters)
+    {
+        if (parameters.TryGetValue<string>(nameof(SelectBy), out var selectBy) && !CustomAttributes.ContainsKey(nameof(SelectBy)))
+            CustomAttributes.Add(nameof(SelectBy), selectBy);
+        if (parameters.TryGetValue<string>(nameof(SortBy), out var sortBy) && !CustomAttributes.ContainsKey(nameof(SortBy)))
+            CustomAttributes.Add(nameof(SortBy), sortBy);
+        if (parameters.TryGetValue<string>(nameof(FilterBy), out var filterBy) && !CustomAttributes.ContainsKey(nameof(FilterBy)))
+            CustomAttributes.Add(nameof(FilterBy), filterBy);
+        return base.SetParametersAsync(parameters);
+    }
+}

@@ -93,7 +93,7 @@ td:not(.text-left) {
     height: 31px;
     /*line-height: 31px;*/
 }
-
+/*
 .cruder-grid-base {
     border-top: 2px solid #dee2e6 !important;
     margin-bottom: 0px;
@@ -113,18 +113,12 @@ td:not(.text-left) {
 }
 
 .cruder-grid-base th {
-    /*vertical-align: middle !important;*/
     padding-top: 2px;
     padding-bottom: 2px;
-    /*position: relative !important;*/
 }
 
 .row .justify-content-between {
     height: 37px;
-}
-
-.col-auto .d-flex .flex-row-reverse {
-    /*height: 40px !important;*/
 }
 
 .table-responsive {
@@ -133,11 +127,6 @@ td:not(.text-left) {
 
 .list-page {
     table-layout: fixed;
-}
-
-.cruder-grid-base th .d-inline-flex {
-    /*position: absolute;*/
-    /*top: 25%*/
 }
 
 .cruder-grid-base thead tr:nth-of-type(2) {
@@ -157,7 +146,7 @@ td:not(.text-left) {
 .cruder-grid-modal .modal-dialog {
     margin-left: initial;
 }
-
+*/
 .navbar {
     padding: 0px !important;
 }
@@ -169,7 +158,7 @@ td:not(.text-left) {
 .card-body {
     padding: 9px !important;
 }
-
+/*
 .list-page-filter-menu .dropdown-menu {
     left: 0px !important;
     top: 38px !important;
@@ -177,4 +166,4 @@ td:not(.text-left) {
 
 .list-page-filter-menu .dropdown-menu a {
     padding: 10px;
-}
+}*/

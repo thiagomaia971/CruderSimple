@@ -38,7 +38,7 @@ namespace CruderSimple.Blazor.Components.Grids
         [CascadingParameter] public LoadingIndicator Loading { get; set; }
         [CascadingParameter] public WindowDimension Dimension { get; set; }
 
-        [Inject] public CruderLogger<CruderGridBase<TEntity, TDto>> Logger { get; set; }
+        [Inject] public ICruderLogger<CruderGridBase<TEntity, TDto>> Logger { get; set; }
         [Inject] public PermissionService PermissionService { get; set; }
         [Inject] public ICrudService<TEntity, TDto> Service { get; set; }
         [Inject] public PageHistoryState PageHistorysState { get; set; }
@@ -109,8 +109,8 @@ namespace CruderSimple.Blazor.Components.Grids
             var query = CreateQuery(e.Columns);
             var data = await Service.GetAll(query);
 
-            TotalData = data.Size;
-            SearchedData = await FilterData(data.Data.ToList(), query);
+            TotalData = data.Count;
+            SearchedData = await FilterData(data.Result.ToList(), query);
             //await DataGridRef.Refresh();
             await SaveColumns();
             StateHasChanged();

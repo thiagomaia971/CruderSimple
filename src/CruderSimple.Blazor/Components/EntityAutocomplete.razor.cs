@@ -34,7 +34,7 @@ public partial class EntityAutocomplete<TEntity, TEntityResult> : ComponentBase
     [Parameter] public IFluentSpacing Padding { get; set; }
 
     [Inject] public ICrudService<TEntity, TEntityResult> Service { get; set; }
-    [Inject] public CruderLogger<EntityAutocomplete<TEntity, TEntityResult>> Logger { get; set; }
+    [Inject] public ICruderLogger<EntityAutocomplete<TEntity, TEntityResult>> Logger { get; set; }
 
     public bool IsFirstRender { get; set; } = true;
     public bool IgnoreSearchText { get; set; }
@@ -122,8 +122,8 @@ public partial class EntityAutocomplete<TEntity, TEntityResult> : ComponentBase
                     0,
                     e.VirtualizeOffset));
 
-            TotalData = result.Size;
-            SearchedOriginalData = result.Data.ToList();
+            TotalData = result.Count;
+            SearchedOriginalData = result.Result.ToList();
             
             var list = new List<TEntityResult>();
             //if (Data != null)

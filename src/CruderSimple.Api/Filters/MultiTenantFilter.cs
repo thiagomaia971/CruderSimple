@@ -32,12 +32,12 @@ public class MultiTenantActionFilter([FromServices] MultiTenantScoped multiTenan
 public class PermissionAuthorizationActionFilter<TUser> : IEndpointFilter
     where TUser : IUser
 {
-    private readonly IRepositoryBase<TUser> _repository;
+    private readonly IRepository<TUser> _repository;
     private readonly IMemoryCache _memoryCache;
     private bool _disableCache = true;
     private int MillisecondsAbsoluteExpiration { get; set; } = 7200;
 
-    public PermissionAuthorizationActionFilter(IRepositoryBase<TUser> repository, IMemoryCache memoryCache)
+    public PermissionAuthorizationActionFilter(IRepository<TUser> repository, IMemoryCache memoryCache)
     {
         _repository = repository;
         _memoryCache = memoryCache;
@@ -65,7 +65,7 @@ public class PermissionAuthorizationActionFilter<TUser> : IEndpointFilter
         if (allowed)
             return await next(context);
 
-        var result = Result.CreateError("Usuário não autorizado", 403, "Usuário não autorizado"); 
+        var result = ResultViewModel.CreateError("Usuário não autorizado", 403, "Usuário não autorizado"); 
         return Results.Json(result, JsonSerializerOptions.Default, null, 403);
     }
 }

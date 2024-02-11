@@ -1,24 +1,24 @@
 ﻿namespace CruderSimple.Core.ViewModels
 {
-    public class Result<T>
+    public class ResultViewModel<T>
     {
         public bool Success { get; set; }
         public List<string> Errors { get; set; }
         public string StackTrace { get; set; }
-        public T Data { get; set; }
+        public T Result { get; set; }
 
-        public static Result<T> CreateSuccess(T data)
+        public static ResultViewModel<T> CreateSuccess(T data)
         {
-            return new Result<T>
+            return new ResultViewModel<T>
             {
                 Success = true,
-                Data = data
+                Result = data
             };
         }
 
-        public static Result<T> CreateError(string stackTrace, params string[] errors)
+        public static ResultViewModel<T> CreateError(string stackTrace, params string[] errors)
         {
-            return new Result<T>
+            return new ResultViewModel<T>
             {
                 Success = false,
                 Errors = errors.ToList(),
@@ -26,27 +26,27 @@
             };
         }
     }
-    public class Result
+    public class ResultViewModel
     {
         public int HttpStatusCode { get; set; }
         public bool Success { get; set; }
         public List<string> Errors { get; set; }
         public string StackTrace { get; set; }
-        public object Data { get; set; }
+        public object Result { get; set; }
 
-        public static Result CreateSuccess(object data, int httpStatusCode = 200)
+        public static ResultViewModel CreateSuccess(object data, int httpStatusCode = 200)
         {
-            return new Result
+            return new ResultViewModel
             {
                 Success = true,
-                Data = data,
+                Result = data,
                 HttpStatusCode = httpStatusCode
             };
         }
 
-        public static Result CreateError(string stackTrace, int httpStatusCode = 400, params string[] errors)
+        public static ResultViewModel CreateError(string stackTrace, int httpStatusCode = 400, params string[] errors)
         {
-            return new Result
+            return new ResultViewModel
             {
                 Success = false,
                 HttpStatusCode = httpStatusCode,

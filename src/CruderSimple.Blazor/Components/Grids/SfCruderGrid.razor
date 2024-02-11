@@ -1,0 +1,132 @@
+﻿@using CruderSimple.Blazor.Adaptors
+@using CruderSimple.Blazor.Interfaces.Services
+@using CruderSimple.Core.EndpointQueries
+@using CruderSimple.Core.Entities
+@using CruderSimple.Core.ViewModels
+@using Microsoft.AspNetCore.Components.Forms
+@using Syncfusion.Blazor
+@using Syncfusion.Blazor.Data
+@using CruderSimple.Core.Extensions
+@using System.Text
+
+@typeparam TGridEntity where TGridEntity : IEntity
+@typeparam TGridDto where TGridDto : BaseDto
+
+<SfGrid @ref="Grid" 
+        TValue="TGridDto" 
+        DataSource=@Data
+        ID="@($"SfCruderGrid{nameof(TGridEntity)}{nameof(TGridDto)}")"
+        Toolbar=@ToolbarItems
+        AllowPaging
+        AllowSorting
+        AllowSelection
+        AllowFiltering
+        AllowReordering
+        AllowExcelExport
+        AllowPdfExport
+        AllowMultiSorting="false"
+        EnableHover
+        EnableStickyHeader
+        EnablePersistence
+        ShowColumnChooser
+        AllowResizing
+        RowRenderingMode="RowDirection.Vertical"
+        Height="315"
+        RowHeight="38"
+        >
+    <SfDataManager @ref="DataManagerRef"
+                   Adaptor=" Syncfusion.Blazor.Adaptors.UrlAdaptor"
+                   HttpClientInstance="@HttpClient"/>
+    <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Menu" />
+    <GridPageSettings PageSize="10" />
+    <GridEditSettings AllowEditing 
+                      AllowAdding 
+                      AllowDeleting 
+                      Mode="Syncfusion.Blazor.Grids.EditMode.Dialog" 
+                      Dialog="new DialogSettings{ 
+                        EnableResize = true, 
+                        AllowDragging = true, 
+                        AnimationDelay = 0,
+                        AnimationDuration = 300,
+                        AnimationEffect = Syncfusion.Blazor.Popups.DialogEffect.SlideBottom, 
+                        CloseOnEscape = true, 
+                        ShowCloseIcon = true }">
+        
+    </GridEditSettings>
+    <GridColumns>
+        <GridColumn Field="#" AllowFiltering="false" AllowSorting="false" >
+            <HeaderTemplate>
+                <Syncfusion.Blazor.Buttons.SfButton IconCss="">
+
+                </Syncfusion.Blazor.Buttons.SfButton>
+                <Button Type="ButtonType.Link" Color="Color.Success" Width="Width.Is100" Size="Size.Small" >
+                    <Icon Name="IconName.Add" />
+                </Button>
+            </HeaderTemplate>
+        </GridColumn>
+        <SfCruderGridColumn TGridEntity="TGridEntity"
+                            TGridDto="TGridDto"
+                            Field="Id"
+                            HeaderText="Id">
+        </SfCruderGridColumn>
+        @Columns
+    </GridColumns>
+</SfGrid>
+
+@code {
+    #region Parameters
+    [Parameter, EditorRequired] public string FilterBy { get; set; }
+
+    [Parameter, EditorRequired] public RenderFragment Columns { get; set; }
+
+    /// <summary>
+    /// Data modified will reflected in this property
+    /// </summary>
+    [Parameter] public List<TGridDto> Data { get; set; } = new List<TGridDto>();
+
+    /// <summary>
+    /// two-way-data-bind of Data
+    /// </summary>
+    [Parameter] public EventCallback<List<TGridDto>> DataChanged { get; set; }
+    #endregion
+
+    #region Injects
+    [Inject] public ICrudService<TGridEntity, TGridDto> Service { get; set; }
+    // [Inject] public CruderLogger<SfCruderGrid<TGridEntity, TGridDto>> Logger { get; set; }
+    // [Inject] public ICrudService<TGridEntity, TGridDto> CruderService { get; set; }
+    #endregion
+
+    #region Properties
+    protected SfGrid<TGridDto> Grid { get; set; }
+    protected SfDataManager DataManagerRef { get; set; }
+    protected HttpClient HttpClient { get; set; }
+    protected string[] ToolbarItems = new string[] { "Add", "Edit", "Delete", "Update", "Cancel" };
+    #endregion
+
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            DataManagerRef.DataAdaptor = new CruderGridAdaptor<TGridEntity, TGridDto>(
+                new CruderGridApatorParameters<TGridEntity, TGridDto>(
+                    DataManagerRef, 
+                    Service, 
+                    Grid,
+                    FilterBy)
+            );
+
+            if (Grid != null)
+            {
+                Data?.ForEach(x => Grid.AddRecordAsync(x));
+                //Grid.SaveCellAsync
+            }
+        }
+        return base.OnAfterRenderAsync(firstRender);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        HttpClient = await Service.CreateHttpClient();
+        await base.OnInitializedAsync();
+    }
+}

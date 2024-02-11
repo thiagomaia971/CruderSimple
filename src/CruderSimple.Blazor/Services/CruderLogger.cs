@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+﻿using CruderSimple.Blazor.Interfaces.Services;
+using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace CruderSimple.Blazor.Services
 {
-    public class CruderLogger<T> (ILogger<T> logger, IWebAssemblyHostEnvironment environment)
+    internal class CruderLogger<T> (ILogger<T> logger, IWebAssemblyHostEnvironment environment)
+        : ICruderLogger<T>
     {
         public void LogDebug(string? message, params object[]? args)
         {
