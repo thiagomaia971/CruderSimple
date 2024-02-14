@@ -198,6 +198,9 @@ public static class CollectionExtensions
 
     public static IQueryable<TSource> ApplyPagination<TSource>(this IQueryable<TSource> source, int size = 0, int page = 0, int skip = 0)
     {
+        if (size == 0)
+            return source.Skip(skip);
+        
         size = size > 0 ? size : 10;
         page = skip > 0 ? skip : ((page > 0 ? page : 1) - 1) * size;
         return source

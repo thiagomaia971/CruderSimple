@@ -2,7 +2,7 @@
 using CruderSimple.Core.Attributes;
 using CruderSimple.Core.Entities;
 using CruderSimple.Core.Extensions;
-using CruderSimple.MySql.Attributes;
+using CruderSimple.Core.Attributes;
 
 namespace CruderSimple.MySql.Extensions;
 

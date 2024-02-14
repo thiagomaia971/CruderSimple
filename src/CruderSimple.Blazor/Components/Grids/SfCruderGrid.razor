@@ -1,4 +1,5 @@
 ﻿@using CruderSimple.Blazor.Adaptors
+@using CruderSimple.Blazor.Components.Grids.Args
 @using CruderSimple.Blazor.Interfaces.Services
 @using CruderSimple.Core.EndpointQueries
 @using CruderSimple.Core.Entities
@@ -8,13 +9,14 @@
 @using Syncfusion.Blazor.Data
 @using CruderSimple.Core.Extensions
 @using System.Text
+@using Syncfusion.Blazor.Navigations
 
 @typeparam TGridEntity where TGridEntity : IEntity
 @typeparam TGridDto where TGridDto : BaseDto
 
 <SfGrid @ref="Grid" 
         TValue="TGridDto" 
-        DataSource=@Data
+        DataSource=@AllData
         ID="@($"SfCruderGrid{nameof(TGridEntity)}{nameof(TGridDto)}")"
         Toolbar=@ToolbarItems
         AllowPaging
@@ -30,15 +32,25 @@
         EnablePersistence
         ShowColumnChooser
         AllowResizing
-        RowRenderingMode="RowDirection.Vertical"
-        Height="315"
+        RowRenderingMode="RowDirection.Horizontal"
+        Height="380"
         RowHeight="38"
         >
-    <SfDataManager @ref="DataManagerRef"
+
+@*     <SfDataManager @ref="DataManagerRef"
                    Adaptor=" Syncfusion.Blazor.Adaptors.UrlAdaptor"
-                   HttpClientInstance="@HttpClient"/>
+                   HttpClientInstance="@HttpClient"
+                   UpdateUrl="/update"
+                   InsertUrl="/insert"/> *@
+@*     <SfDataManager @ref="DataManagerRef"
+                   Adaptor=" Syncfusion.Blazor.Adaptors.BlazorAdaptor"
+                   Data="@Data"
+                   Offline/> *@
+
     <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Menu" />
+
     <GridPageSettings PageSize="10" />
+
     <GridEditSettings AllowEditing 
                       AllowAdding 
                       AllowDeleting 
@@ -48,47 +60,94 @@
                         AllowDragging = true, 
                         AnimationDelay = 0,
                         AnimationDuration = 300,
-                        AnimationEffect = Syncfusion.Blazor.Popups.DialogEffect.SlideBottom, 
+                        AnimationEffect = Syncfusion.Blazor.Popups.DialogEffect.SlideTop, 
                         CloseOnEscape = true, 
-                        ShowCloseIcon = true }">
-        
-    </GridEditSettings>
+                        ShowCloseIcon = true }" />
+
+    <GridEvents TValue="TGridDto" 
+                OnToolbarClick="ToolbarClickHandler"
+                RowCreated="RowCreated"
+                RowUpdated="RowUpdated"
+                RowDeleted="RowDeleted" />
+@* 
+    <GridTemplates>
+        <ToolbarTemplate>
+            <Syncfusion.Blazor.Navigations.SfToolbar>
+                <Syncfusion.Blazor.Navigations.SfToolbar>
+                    <Syncfusion.Blazor.Navigations.ToolbarEvents Clicked="ToolbarClickHandler"></Syncfusion.Blazor.Navigations.ToolbarEvents>
+                    <Syncfusion.Blazor.Navigations.ToolbarItems>
+                        <Syncfusion.Blazor.Navigations.ToolbarItem Type="@ItemType.Button" PrefixIcon="e-chevron-up icon" Id="collapseall" Text="Collapse All"></Syncfusion.Blazor.Navigations.ToolbarItem>
+                        <Syncfusion.Blazor.Navigations.ToolbarItem Type="@ItemType.Button" PrefixIcon="e-chevron-down icon" Id="ExpandAll" Text="Expand All"></Syncfusion.Blazor.Navigations.ToolbarItem>
+                </Syncfusion.Blazor.Navigations.ToolbarItems>
+            </Syncfusion.Blazor.Navigations.SfToolbar>
+            </Syncfusion.Blazor.Navigations.SfToolbar>
+        </ToolbarTemplate>
+    </GridTemplates>
+ *@
     <GridColumns>
-        <GridColumn Field="#" AllowFiltering="false" AllowSorting="false" >
+@*         <GridColumn 
+                    AllowFiltering="false" 
+                    AllowSorting="false" 
+                    AllowEditing="false" 
+                    Width="50px"
+                    MaxWidth="50px"
+                    Freeze="FreezeDirection.Left">
             <HeaderTemplate>
                 <Syncfusion.Blazor.Buttons.SfButton IconCss="">
-
                 </Syncfusion.Blazor.Buttons.SfButton>
                 <Button Type="ButtonType.Link" Color="Color.Success" Width="Width.Is100" Size="Size.Small" >
                     <Icon Name="IconName.Add" />
                 </Button>
-            </HeaderTemplate>
-        </GridColumn>
+            </HeaderTemplate> 
+        </GridColumn>*@
         <SfCruderGridColumn TGridEntity="TGridEntity"
                             TGridDto="TGridDto"
                             Field="Id"
                             HeaderText="Id"
-                            Visible="false">
+                            Visible="false"
+                            Editable="false"
+                            Width="170"
+                            IsPrimaryKey>
         </SfCruderGridColumn>
+        <GridColumn HeaderText="Manage Records" Width="150" HeaderTextAlign="TextAlign.Center" TextAlign="TextAlign.Center">
+            <GridCommandColumns>
+                <GridCommandColumn Type="CommandButtonType.Edit" ButtonOption="@(new CommandButtonOptions() { IconCss = "e-icons e-edit", CssClass = "e-flat" })"></GridCommandColumn>
+                <GridCommandColumn Type="CommandButtonType.Delete" ButtonOption="@(new CommandButtonOptions() { IconCss = "e-icons e-delete", CssClass = "e-flat" })"></GridCommandColumn>
+                <GridCommandColumn Type="CommandButtonType.Save" ButtonOption="@(new CommandButtonOptions() { IconCss = "e-icons e-update", CssClass = "e-flat" })"></GridCommandColumn>
+                <GridCommandColumn Type="CommandButtonType.Cancel" ButtonOption="@(new CommandButtonOptions() { IconCss = "e-icons e-cancel-icon", CssClass = "e-flat" })"></GridCommandColumn>
+                @* <GridCommandColumn ButtonOption="@(new CommandButtonOptions() { Content = "Details", CssClass = "e-flat" })"></GridCommandColumn> *@
+            </GridCommandColumns>
+        </GridColumn>
         @Columns
     </GridColumns>
 </SfGrid>
 
 @code {
     #region Parameters
+    /// <summary>
+    /// Query to retrive data to back-end
+    /// </summary>
     [Parameter, EditorRequired] public string FilterBy { get; set; }
 
+    /// <summary>
+    /// All columns
+    /// </summary>
     [Parameter, EditorRequired] public RenderFragment Columns { get; set; }
 
     /// <summary>
     /// Data modified will reflected in this property
     /// </summary>
-    [Parameter] public List<TGridDto> Data { get; set; } = new List<TGridDto>();
+    [Parameter, EditorRequired] public List<TGridDto> Data { get; set; }
 
     /// <summary>
     /// two-way-data-bind of Data
     /// </summary>
     [Parameter] public EventCallback<List<TGridDto>> DataChanged { get; set; }
+
+    /// <summary>
+    /// Action to be executed before a item was Updated.
+    /// </summary>
+    [Parameter, EditorRequired] public Action<SfCruderGridBeforeUpdateEventArgs<TGridDto>> BeforeUpdate { get; set; }
     #endregion
 
     #region Injects
@@ -99,35 +158,145 @@
 
     #region Properties
     protected SfGrid<TGridDto> Grid { get; set; }
-    protected SfDataManager DataManagerRef { get; set; }
-    protected HttpClient HttpClient { get; set; }
-    protected string[] ToolbarItems = new string[] { "Add", "Edit", "Delete", "Update", "Cancel" };
+    // protected SfDataManager DataManagerRef { get; set; }
+    // protected HttpClient HttpClient { get; set; }
+    private List<object> ToolbarItems = new List<object>() {
+        new ItemModel() { Text = "Novo", PrefixIcon = "e-add", Id = "Grid_add"},
+        // new ItemModel(){ Text = "Editar", PrefixIcon= "e-edit", Id="Grid_edit"},
+        // new ItemModel(){ Text = "Deletar", PrefixIcon= "e-delete", Id="Grid_delete"},
+        // new ItemModel(){ Text = "Atualizar", PrefixIcon= "e-update", Id="Grid_update"},
+        // new ItemModel(){ Text = "Cancelar", PrefixIcon= "e-cancel", Id="Grid_cancel"},
+        new ItemModel(){ Text = "Excel",TooltipText="Exportar para Excel", PrefixIcon = "e-excelexport", Id = "Grid_excelexport", Align = ItemAlign.Right}, //Here Grid is SfGrid ID
+        new ItemModel(){ Text = "Pdf",TooltipText="Exportar para PDF", PrefixIcon= "e-pdfexport", Id="Grid_pdfexport", Align = ItemAlign.Right},
+        new ItemModel(){ Text = "CSV",TooltipText="Exportar para CSV", PrefixIcon= "e-csvexport", Id="Grid_csvexport", Align = ItemAlign.Right},
+        "ColumnChooser"
+    };
+    protected Pagination<TGridDto> Result { get; set; }
+    protected List<TGridDto> AllData { get; set; } = new List<TGridDto>();
+    protected bool DataHasLoaded { get; set; }
     #endregion
 
-    protected override Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            DataManagerRef.DataAdaptor = new CruderGridAdaptor<TGridEntity, TGridDto>(
-                new CruderGridApatorParameters<TGridEntity, TGridDto>(
-                    DataManagerRef, 
-                    Service, 
-                    Grid,
-                    FilterBy)
-            );
-
             if (Grid != null)
             {
-                Data?.ForEach(x => Grid.AddRecordAsync(x));
-                //Grid.SaveCellAsync
+                var columns = await Grid.GetColumnsAsync();
+                var select = GetQuerySelect(columns);
+                Result = await Service.GetAll(new Core.EndpointQueries.GetAllEndpointQuery(select));
+                AllData.AddRange(Result.Result);
+                Console.WriteLine(AllData.Count());
+                await Grid.AddRecordAsync();
+                await Grid.Refresh();
+                // Data.AddRange(Result.Result.ToList());
             }
         }
-        return base.OnAfterRenderAsync(firstRender);
+        await base.OnAfterRenderAsync(firstRender);
     }
 
-    protected override async Task OnInitializedAsync()
+    public async Task ToolbarClickHandler(Syncfusion.Blazor.Navigations.ClickEventArgs args)
     {
-        HttpClient = await Service.CreateHttpClient();
-        await base.OnInitializedAsync();
+        var config = new ExcelExportProperties
+            {
+                // IncludeTemplateColumn = true,
+                DataSource = AllData,
+                ExportType = ExportType.AllPages,
+                HierarchyExportMode = HierarchyExportMode.Expanded
+            };
+        switch (args.Item.Id)
+        {
+            case "Grid_excelexport":
+                await Grid.ExportToExcelAsync(config);
+                break;
+            case "Grid_pdfexport":
+                await Grid.ExportToPdfAsync(new PdfExportProperties
+                {
+                    IncludeTemplateColumn = true,
+                    DataSource = AllData,
+                    ExportType = ExportType.AllPages,
+                    HierarchyExportMode = HierarchyExportMode.Expanded
+                });
+                break;
+            case "Grid_csvexport":
+                await Grid.ExportToCsvAsync(config);
+                break;
+        }
     }
+
+    protected async Task RowCreated(RowCreatedEventArgs<TGridDto> args)
+    {
+        var oldValue = Data.FirstOrDefault(x => x.GetKey == args.Data.GetKey);
+        // if (BeforeUpdate != null)
+        //     BeforeUpdate(new SfCruderGridBeforeUpdateEventArgs<TGridDto>(oldValue == null ? args.PreviousData : oldValue, args.Data));
+
+        if (oldValue == null)
+            Data.Add(args.Data);
+        else
+            Data = Data.ReplaceItem(oldValue, args.Data).ToList();
+
+        await DataChanged.InvokeAsync(Data);
+    }
+
+    protected async Task RowUpdated(RowUpdatedEventArgs<TGridDto> args)
+    {
+        var oldValue = Data.FirstOrDefault(x => x.GetKey == args.Data.GetKey);
+        if (BeforeUpdate != null)
+            BeforeUpdate(new SfCruderGridBeforeUpdateEventArgs<TGridDto>(oldValue == null ? args.PreviousData : oldValue, args.Data));
+
+        if (oldValue == null)
+            Data.Add(args.Data);
+        else
+            Data = Data.ReplaceItem(oldValue, args.Data).ToList();
+
+        await DataChanged.InvokeAsync(Data);
+    }
+
+    protected async Task RowDeleted(RowDeletedEventArgs<TGridDto> args)
+    {
+        foreach (var item in args.Datas)
+        {
+            item.DeletedAt = DateTime.UtcNow;
+            var oldValue = Data.FirstOrDefault(x => x.GetKey == item.GetKey);
+            // if (BeforeUpdate != null)
+            //     BeforeUpdate(new SfCruderGridBeforeUpdateEventArgs<TGridDto>(oldValue == null ? args.PreviousData : oldValue, args.Data));
+
+            if (oldValue == null)
+                Data.Add(item);
+            else
+                Data = Data.ReplaceItem(oldValue, item).ToList();
+        }
+
+        await DataChanged.InvokeAsync(Data);
+    }
+
+    public override Task SetParametersAsync(ParameterView parameters)
+    {
+        if (!DataHasLoaded && parameters.TryGetValue<List<TGridDto>>(nameof(Data), out var data))
+        {
+            DataHasLoaded = true;
+            AllData.AddRange(data);
+            Console.WriteLine(AllData.Count());
+        }
+        return base.SetParametersAsync(parameters);
+    }
+
+    protected virtual string GetQuerySelect(List<GridColumn> columns)
+    {
+        var select = string.Join(",", columns
+            .Where(x => !string.IsNullOrEmpty(x.Field))
+            .Select(x =>
+            {
+                var selectBy = x.CustomAttributes?.ContainsKey(nameof(SfCruderGridColumn<TGridEntity, TGridDto>.SelectBy)) ?? false ?
+                    x.CustomAttributes[nameof(SfCruderGridColumn<TGridEntity, TGridDto>.SelectBy)] :
+                    x.Field;
+                return selectBy;
+            })
+            .Distinct()
+            .ToList());
+
+        return select;
+    }
+    
+    
 }

@@ -14,7 +14,11 @@
             ClipMode="ClipMode.EllipsisWithTooltip"
             Width="@Width"
             AutoFit="@AutoFit"
-            Visible="@Visible">
+            Visible="@Visible"
+            AllowEditing="@Editable"
+            AllowSorting="@Sortable"
+            IsPrimaryKey="@IsPrimaryKey"
+            >
     <Template>
         @if (Content == null)
         {
@@ -37,7 +41,10 @@
     [Parameter] public string SortBy { get; set; }
     [Parameter] public string FilterBy { get; set; }
 
+    [Parameter] public bool IsPrimaryKey { get; set; } = false;
     [Parameter] public bool Visible { get; set; } = true;
+    [Parameter] public bool Editable { get; set; } = true;
+    [Parameter] public bool Sortable { get; set; } = true;
     [Parameter] public TextAlign HeaderTextAlign { get; set; }
     [Parameter] public TextAlign TextAlign { get; set; }
     [Parameter] public string Width { get; set; }

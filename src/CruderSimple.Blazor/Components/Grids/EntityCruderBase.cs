@@ -1,18 +1,24 @@
-﻿using CruderSimple.Core.Entities;
+﻿using CruderSimple.Blazor.Interfaces.Services;
+using CruderSimple.Core.Entities;
+using CruderSimple.Core.Extensions;
 using CruderSimple.Core.ViewModels;
 using Microsoft.AspNetCore.Components;
 
 namespace CruderSimple.Blazor.Components.Grids
 {
-    public class EntityCruderBase<TGridEntity, TGridDto> : ComponentBase
+    public abstract class EntityCruderBase<TGridEntity, TGridDto> : ComponentBase
         where TGridEntity : IEntity
         where TGridDto : BaseDto
     {
-        [Parameter, EditorRequired] public string FilterBy { get; set; }
-        [Parameter] public List<TGridDto> Data { get; set; }
+        [Parameter, EditorRequired] public string ForeignKeyValue { get; set; }
+        [Parameter] public Op ForeignKeyOperation { get; set; } = Op.Equals;
+        [Parameter] public List<TGridDto> Data { get; set; } = new List<TGridDto>();
         [Parameter] public EventCallback<List<TGridDto>> DataChanged { get; set; }
 
-        protected CruderGrid<TGridEntity, TGridDto> CruderGrid { get; set; }
+        public string FilterBy => $"{ForeignKey} {ForeignKeyOperation} {ForeignKeyValue}";
+        public abstract string ForeignKey { get; }
+
+        //protected CruderGrid<TGridEntity, TGridDto> CruderGrid { get; set; }
 
         //public override async Task SetParametersAsync(ParameterView parameters)
         //{
@@ -24,10 +30,10 @@ namespace CruderSimple.Blazor.Components.Grids
         //        DataChanged = dataChanged;
         //}
 
-        protected void DataHasChanged(List<TGridDto> data)
-        {
-            Data = data;
-            DataChanged.InvokeAsync(data);
-        }
+        //protected void DataHasChanged(List<TGridDto> data)
+        //{
+        //    Data = data;
+        //    DataChanged.InvokeAsync(data);
+        //}
     }
 }

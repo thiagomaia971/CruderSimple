@@ -45,7 +45,7 @@ namespace CruderSimple.Blazor.Adaptors
         {
             try
             {
-                Console.WriteLine(Queries.ToJson());
+                //Console.WriteLine(Queries.ToJson());
                 var query = await CreateQuery();
                 var url = CreateUrlEndpoint(query);
 
@@ -58,30 +58,6 @@ namespace CruderSimple.Blazor.Adaptors
                 Console.WriteLine(e.StackTrace);
                 throw;
             }
-        }
-
-        public override object Update(DataManager dataManager, string keyField, object data, string tableName = null, Query query = null, object original = null, IDictionary<string, object> updateProperties = null)
-        {
-            Console.WriteLine("Update");
-            return base.Update(dataManager, keyField, data, tableName, query, original, updateProperties);
-        }
-
-        public override object Update(DataManager dataManager, string keyField, IDynamicMetaObjectProvider data, string tableName = null, Query query = null, object original = null)
-        {
-            Console.WriteLine("Update");
-            return base.Update(dataManager, keyField, data, tableName, query, original);
-        }
-
-        public override Task<object> ProcessResponse<T>(object data, DataManagerRequest queries)
-        {
-            Console.WriteLine("ProcessResponse");
-            return base.ProcessResponse<T>(data, queries);
-        }
-
-        public override Task<object> ProcessCrudResponse<T>(object data, DataManagerRequest queries)
-        {
-            Console.WriteLine("ProcessCrudResponse: "+ data.ToJson());
-            return base.ProcessCrudResponse<T>(data, queries);
         }
 
         private async Task<GetAllEndpointQuery> CreateQuery()
@@ -152,8 +128,6 @@ namespace CruderSimple.Blazor.Adaptors
                 {
                     var filter = $"{predicate.Field} {predicate.Operator.ToOperation()} {predicate.value}";
                     filters.Add(filter);
-                    Console.WriteLine(predicate.Operator);
-                    Console.WriteLine(filter);
                 }
             }
             return string.Join(",", filters);
@@ -170,8 +144,6 @@ namespace CruderSimple.Blazor.Adaptors
                     column.CustomAttributes[nameof(SfCruderGridColumn<TItem, TDto>.SortBy)] :
                     sorted.Name;
                 var sort = $"{sortBy} {sorted.Direction.ToSortDirection()}";
-                Console.WriteLine(sorted.Direction);
-                Console.WriteLine(sort);
                 sorters.Add(sort);
             }
             return string.Join(",", sorters);
