@@ -58,7 +58,7 @@
                             }
                             <Tooltip Text="@PermissionService.CanWriteTooltip("Novo")">
                                 <Button Type="ButtonType.Link" Clicked="@((_) => NewCommand(context))" Color="Color.Success" Width="Width.Is100" Size="Size.Small" Disabled="@(!PermissionService.CanWrite)">
-                                    <Icon Name="IconName.Add" />
+                                    <Icon Name="Blazorise.IconName.Add" />
                                     @if (!SimpleNewCommand)
                                     {
                                         <Span> Novo</Span>
@@ -67,7 +67,7 @@
                             </Tooltip>
                             <Tooltip Text="@PermissionService.CanWriteTooltip("Atualizar")">
                                 <Button Type="ButtonType.Link" Clicked="@((_) => DataGridRef.Reload())" Color="Color.Info" Width="Width.Is100" Size="Size.Small" Disabled="@(!PermissionService.CanWrite)">
-                                    <Icon Name="IconName.Sync" />
+                                    <Icon Name="Blazorise.IconName.Sync" />
                                 </Button>
                             </Tooltip>
                             @if (EndNewCommandTemplate is not null)
@@ -84,7 +84,7 @@
                         }
                         <Tooltip Text="@PermissionService.CanWriteTooltip("Editar")" Inline>
                             <Button Size="Size.Small" Clicked="@((_) => OpenEditMode(context.Item, context))" Disabled="@(!PermissionService.CanWrite)" Padding="Blazorise.Padding.Is1" @onclick:stopPropagation>
-                                <Icon Name="IconName.Edit" />
+                                <Icon Name="Blazorise.IconName.Edit" />
                             </Button>
                         </Tooltip>
                         @if (MiddleCommandTemplate is not null)
@@ -96,7 +96,7 @@
                     <DeleteCommandTemplate>
                         <Tooltip Text="@PermissionService.CanWriteTooltip("Deletar")" Inline>
                             <Button Size="Size.Small" Clicked="@context.Clicked" Disabled="@(!PermissionService.CanWrite)" Padding="Blazorise.Padding.Is1" @onclick:stopPropagation>
-                                <Icon Name="IconName.Delete" />
+                                <Icon Name="Blazorise.IconName.Delete" />
                             </Button>
                         </Tooltip>
                         @if (EndCommandTemplate is not null)
@@ -108,7 +108,7 @@
                     <SaveCommandTemplate>
                         <Tooltip Text="@PermissionService.CanWriteTooltip("Salvar")" Inline>
                             <Button Size="Size.Small" Type="ButtonType.Submit" PreventDefaultOnSubmit Clicked="context.Clicked" Disabled="@(!PermissionService.CanWrite)" Padding="Blazorise.Padding.Is1" Margin="Margin.Is2.FromStart.Is1.FromTop" @onclick:stopPropagation>
-                                <Icon Name="IconName.Check" />
+                                <Icon Name="Blazorise.IconName.Check" />
                             </Button>
                         </Tooltip>
                     </SaveCommandTemplate>
@@ -116,7 +116,7 @@
                     <CancelCommandTemplate>
                         <Tooltip Text="Cancelar" Inline>
                             <Button Size="Size.Small" Clicked="@context.Clicked" Padding="Blazorise.Padding.Is1" Margin="Margin.Is1.FromTop" @onclick:stopPropagation>
-                                <Icon Name="IconName.TimesCircle" />
+                                <Icon Name="Blazorise.IconName.TimesCircle" />
                             </Button>
                         </Tooltip>
                     </CancelCommandTemplate>

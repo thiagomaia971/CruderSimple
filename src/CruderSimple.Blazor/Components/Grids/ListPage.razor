@@ -54,12 +54,12 @@
                                 } *@
                                 <Tooltip Text="@PermissionService.CanWriteTooltip("Novo")">
                                     <Button Type="ButtonType.Link" Clicked="@((_) => ToNew(_.CtrlKey))" Color="Color.Success" Width="Width.Is100" Size="Size.Small" Disabled="@(!PermissionService.CanWrite)">
-                                        <Icon Name="IconName.Add" />
+                                        <Icon Name="Blazorise.IconName.Add" />
                                     </Button>
                                 </Tooltip>
                                 <Tooltip Text="@PermissionService.CanWriteTooltip("Atualizar")">
                                     <Button Type="ButtonType.Link" Clicked="@((_) => DataGridRef.Reload())" Color="Color.Info" Width="Width.Is100" Size="Size.Small" Disabled="@(!PermissionService.CanWrite)">
-                                        <Icon Name="IconName.Sync" />
+                                        <Icon Name="Blazorise.IconName.Sync" />
                                     </Button>
                                 </Tooltip>
                                 @if (EndNewCommandTemplate is not null)
@@ -74,14 +74,14 @@
                             {
                                 <Tooltip Text="@PermissionService.CanWriteTooltip("Editar")" Inline>
                                     <Button Size="Size.Small" Clicked="@((_) => ToEdit(context.Item, _.CtrlKey))" Disabled="@(!PermissionService.CanWrite)" Padding="Blazorise.Padding.Is1" @onclick:stopPropagation>
-                                        <Icon Name="IconName.Edit" />
+                                        <Icon Name="Blazorise.IconName.Edit" />
                                     </Button>
                                 </Tooltip>
                             }else
                             {
                                 <Tooltip Text="@PermissionService.CanReadTooltip("Visualizar")" Inline>
                                     <Button Size="Size.Small" Clicked="@((_) => ToView(context.Item, _.CtrlKey))" Disabled="@(!PermissionService.CanRead)" Padding="Blazorise.Padding.Is1" @onclick:stopPropagation>
-                                        <Icon Name="IconName.Eye" />
+                                        <Icon Name="Blazorise.IconName.Eye" />
                                     </Button>
                                 </Tooltip>
                             }
@@ -90,7 +90,7 @@
                         <DeleteCommandTemplate>
                             <Tooltip Text="@PermissionService.CanWriteTooltip("Deletar")" Inline>
                                 <Button Size="Size.Small" Clicked="@context.Clicked" Disabled="@(!PermissionService.CanWrite)" Padding="Blazorise.Padding.Is1" @onclick:stopPropagation>
-                                    <Icon Name="IconName.Delete" />
+                                    <Icon Name="Blazorise.IconName.Delete" />
                                 </Button>
                             </Tooltip>
                         </DeleteCommandTemplate>

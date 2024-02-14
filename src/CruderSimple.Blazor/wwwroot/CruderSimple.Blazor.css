@@ -158,6 +158,27 @@ td:not(.text-left) {
 .card-body {
     padding: 9px !important;
 }
+
+.SfCruderGrid .e-rowcell:not(.SfCruderGrid-icon-flat) {
+    /*border-left: 1px solid #e0e0e0 !important;*/
+    border-right: 1px solid #e0e0e0 !important;
+    padding: 0px 10px;
+}
+
+.SfCruderGrid .SfCruderGrid-icon-flat {
+    padding: 5px !important;
+    margin: 0px !important;
+}
+
+.SfCruderGrid .SfCruderGrid-CommandHeader .e-tbar-btn-text {
+    color: rgba(0,0,0,.87) !important;
+    font-weight: 400 !important;
+}
+
+.e-toolbar .e-toolbar-item.e-overlay {
+    opacity: 1 !important;
+}
+
 /*
 .list-page-filter-menu .dropdown-menu {
     left: 0px !important;
