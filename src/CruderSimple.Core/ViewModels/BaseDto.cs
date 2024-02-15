@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace CruderSimple.Core.ViewModels;
 
-public class BaseDto : IComparable<BaseDto>
+public class BaseDto// : IComparable<BaseDto>
 {
     public string Id { get; set; } = Guid.NewGuid().ToString();
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
@@ -25,6 +25,6 @@ public class BaseDto : IComparable<BaseDto>
         UpdatedAt = updatedAt;
     }
 
-    public int CompareTo(BaseDto? other) 
-        => Id == other.Id ? 1 : 0;
+    //public int CompareTo(BaseDto? other) 
+    //    => Id == other.Id ? 1 : 0;
 }

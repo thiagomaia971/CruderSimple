@@ -5,6 +5,7 @@
 @using CruderSimple.Core.Entities
 @using CruderSimple.Core.ViewModels
 @using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.WebAssembly.Hosting
 @using Syncfusion.Blazor
 @using Syncfusion.Blazor.Data
 @using CruderSimple.Core.Extensions
@@ -14,122 +15,124 @@
 @typeparam TGridEntity where TGridEntity : IEntity
 @typeparam TGridDto where TGridDto : BaseDto
 
-<div class="SfCruderGrid">
-    <SfGrid @ref="Grid" 
-            TValue="TGridDto" 
-            DataSource=@AllData
-            ID="@($"SfCruderGrid{nameof(TGridEntity)}{nameof(TGridDto)}")"
-            Toolbar=@ToolbarItems
-            ContextMenuItems=@ContextMenuItems
-            AllowPaging
-            AllowSorting
-            AllowSelection
-            AllowFiltering
-            AllowReordering
-            AllowExcelExport
-            AllowPdfExport
-            AllowMultiSorting="false"
-            EnableHover
-            EnableStickyHeader
-            EnablePersistence
-            ShowColumnChooser
-            AllowResizing
-            RowRenderingMode="RowDirection.Horizontal"
-            Height="400"
-            RowHeight="38"
-            >
+<CascadingValue Value="this" IsFixed>
+    <div class="SfCruderGrid">
+        <SfGrid @ref="Grid" 
+                TValue="TGridDto" 
+                DataSource=@AllData
+                ID="@($"SfCruderGrid{nameof(TGridEntity)}{nameof(TGridDto)}")"
+                Toolbar=@ToolbarItems
+                ContextMenuItems=@ContextMenuItems
+                AllowPaging
+                AllowSorting
+                AllowSelection
+                AllowFiltering
+                AllowReordering
+                AllowExcelExport
+                AllowPdfExport
+                AllowMultiSorting="false"
+                EnableHover
+                EnableStickyHeader
+                EnablePersistence="@(!Environment.IsDevelopment())"
+                ShowColumnChooser
+                AllowResizing
+                RowRenderingMode="RowDirection.Horizontal"
+                Height="400"
+                RowHeight="38"
+                >
 
-    @*     <SfDataManager @ref="DataManagerRef"
-                       Adaptor=" Syncfusion.Blazor.Adaptors.UrlAdaptor"
-                       HttpClientInstance="@HttpClient"
-                       UpdateUrl="/update"
-                       InsertUrl="/insert"/> *@
-    @*     <SfDataManager @ref="DataManagerRef"
-                       Adaptor=" Syncfusion.Blazor.Adaptors.BlazorAdaptor"
-                       Data="@Data"
-                       Offline/> *@
+        @*     <SfDataManager @ref="DataManagerRef"
+                           Adaptor=" Syncfusion.Blazor.Adaptors.UrlAdaptor"
+                           HttpClientInstance="@HttpClient"
+                           UpdateUrl="/update"
+                           InsertUrl="/insert"/> *@
+        @*     <SfDataManager @ref="DataManagerRef"
+                           Adaptor=" Syncfusion.Blazor.Adaptors.BlazorAdaptor"
+                           Data="@Data"
+                           Offline/> *@
 
-        <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Menu" />
+            <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Menu" />
 
-        <GridPageSettings PageSize="10" />
+            <GridPageSettings PageSize="10" />
 
-        <GridEditSettings AllowEditing 
-                          AllowAdding 
-                          AllowDeleting 
-                          Mode="Syncfusion.Blazor.Grids.EditMode.Dialog" 
-                          Dialog="new DialogSettings{ 
-                            EnableResize = true, 
-                            AllowDragging = true, 
-                            AnimationDelay = 0,
-                            AnimationDuration = 300,
-                            AnimationEffect = Syncfusion.Blazor.Popups.DialogEffect.SlideTop, 
-                            CloseOnEscape = true, 
-                            ShowCloseIcon = true }" />
+            <GridEditSettings AllowEditing 
+                              AllowAdding 
+                              AllowDeleting 
+                              Mode="Syncfusion.Blazor.Grids.EditMode.Dialog" 
+                              Dialog="new DialogSettings{ 
+                                EnableResize = true, 
+                                AllowDragging = true, 
+                                AnimationDelay = 0,
+                                AnimationDuration = 300,
+                                AnimationEffect = Syncfusion.Blazor.Popups.DialogEffect.SlideTop, 
+                                CloseOnEscape = true, 
+                                ShowCloseIcon = true }" />
 
-        <GridEvents TValue="TGridDto" 
-                    OnToolbarClick="ToolbarClickHandler"
-                    RowCreated="RowCreated"
-                    RowUpdated="RowUpdated"
-                    RowDeleted="RowDeleted" />
-    @* 
-        <GridTemplates>
-            <ToolbarTemplate>
-                <Syncfusion.Blazor.Navigations.SfToolbar>
+            <GridEvents TValue="TGridDto" 
+                        OnToolbarClick="ToolbarClickHandler"
+                        RowCreated="RowCreated"
+                        RowUpdated="RowUpdated"
+                        RowDeleted="RowDeleted" />
+        @* 
+            <GridTemplates>
+                <ToolbarTemplate>
                     <Syncfusion.Blazor.Navigations.SfToolbar>
-                        <Syncfusion.Blazor.Navigations.ToolbarEvents Clicked="ToolbarClickHandler"></Syncfusion.Blazor.Navigations.ToolbarEvents>
-                        <Syncfusion.Blazor.Navigations.ToolbarItems>
-                            <Syncfusion.Blazor.Navigations.ToolbarItem Type="@ItemType.Button" PrefixIcon="e-chevron-up icon" Id="collapseall" Text="Collapse All"></Syncfusion.Blazor.Navigations.ToolbarItem>
-                            <Syncfusion.Blazor.Navigations.ToolbarItem Type="@ItemType.Button" PrefixIcon="e-chevron-down icon" Id="ExpandAll" Text="Expand All"></Syncfusion.Blazor.Navigations.ToolbarItem>
-                    </Syncfusion.Blazor.Navigations.ToolbarItems>
-                </Syncfusion.Blazor.Navigations.SfToolbar>
-                </Syncfusion.Blazor.Navigations.SfToolbar>
-            </ToolbarTemplate>
-        </GridTemplates>
-     *@
-        <GridColumns>
-    @*         <GridColumn 
-                        AllowFiltering="false" 
-                        AllowSorting="false" 
-                        AllowEditing="false" 
-                        Width="50px"
-                        MaxWidth="50px"
-                        Freeze="FreezeDirection.Left">
-                <HeaderTemplate>
-                    <Syncfusion.Blazor.Buttons.SfButton IconCss="">
-                    </Syncfusion.Blazor.Buttons.SfButton>
-                    <Button Type="ButtonType.Link" Color="Color.Success" Width="Width.Is100" Size="Size.Small" >
-                        <Icon Name="Blazorise.IconName.Add" />
-                    </Button>
-                </HeaderTemplate> 
-            </GridColumn>*@
-            <SfCruderGridColumn TGridEntity="TGridEntity"
-                                TGridDto="TGridDto"
-                                Field="Id"
-                                HeaderText="Id"
-                                Visible="false"
-                                Editable="false"
-                                Width="170"
-                                IsPrimaryKey>
-            </SfCruderGridColumn>
-            <GridColumn @ref="GridCommandColumnRef"
-                        HeaderText="" 
-                        Width="55" 
-                        HeaderTextAlign="TextAlign.Center" 
-                        TextAlign="TextAlign.Center" 
-                        CustomAttributes="@(new Dictionary<string, object>{ { "style", "padding: 0px" } })"
-                        Freeze="FreezeDirection.Left">
-                <GridCommandColumns>
-                    <GridCommandColumn Type="CommandButtonType.Edit" ButtonOption="@(new CommandButtonOptions() { IconCss = "e-icons e-edit", CssClass = "e-flat SfCruderGrid-icon-flat" })"></GridCommandColumn>
-                    <GridCommandColumn Type="CommandButtonType.Delete" ButtonOption="@(new CommandButtonOptions() { IconCss = "e-icons e-delete", CssClass = "e-flat SfCruderGrid-icon-flat" })"></GridCommandColumn>
-                    <GridCommandColumn Type="CommandButtonType.Save" ButtonOption="@(new CommandButtonOptions() { IconCss = "e-icons e-update", CssClass = "e-flat SfCruderGrid-icon-flat" })"></GridCommandColumn>
-                    <GridCommandColumn Type="CommandButtonType.Cancel" ButtonOption="@(new CommandButtonOptions() { IconCss = "e-icons e-cancel-icon", CssClass = "e-flat SfCruderGrid-icon-flat" })"></GridCommandColumn>
-                    @* <GridCommandColumn ButtonOption="@(new CommandButtonOptions() { Content = "Details", CssClass = "e-flat" })"></GridCommandColumn> *@
-                </GridCommandColumns>
-            </GridColumn>
-            @Columns
-        </GridColumns>
-    </SfGrid>
-</div>
+                        <Syncfusion.Blazor.Navigations.SfToolbar>
+                            <Syncfusion.Blazor.Navigations.ToolbarEvents Clicked="ToolbarClickHandler"></Syncfusion.Blazor.Navigations.ToolbarEvents>
+                            <Syncfusion.Blazor.Navigations.ToolbarItems>
+                                <Syncfusion.Blazor.Navigations.ToolbarItem Type="@ItemType.Button" PrefixIcon="e-chevron-up icon" Id="collapseall" Text="Collapse All"></Syncfusion.Blazor.Navigations.ToolbarItem>
+                                <Syncfusion.Blazor.Navigations.ToolbarItem Type="@ItemType.Button" PrefixIcon="e-chevron-down icon" Id="ExpandAll" Text="Expand All"></Syncfusion.Blazor.Navigations.ToolbarItem>
+                        </Syncfusion.Blazor.Navigations.ToolbarItems>
+                    </Syncfusion.Blazor.Navigations.SfToolbar>
+                    </Syncfusion.Blazor.Navigations.SfToolbar>
+                </ToolbarTemplate>
+            </GridTemplates>
+         *@
+            <GridColumns>
+        @*         <GridColumn 
+                            AllowFiltering="false" 
+                            AllowSorting="false" 
+                            AllowEditing="false" 
+                            Width="50px"
+                            MaxWidth="50px"
+                            Freeze="FreezeDirection.Left">
+                    <HeaderTemplate>
+                        <Syncfusion.Blazor.Buttons.SfButton IconCss="">
+                        </Syncfusion.Blazor.Buttons.SfButton>
+                        <Button Type="ButtonType.Link" Color="Color.Success" Width="Width.Is100" Size="Size.Small" >
+                            <Icon Name="Blazorise.IconName.Add" />
+                        </Button>
+                    </HeaderTemplate> 
+                </GridColumn>*@
+                <SfCruderGridColumn TGridEntity="TGridEntity"
+                                    TGridDto="TGridDto"
+                                    Field="Id"
+                                    HeaderText="Id"
+                                    Visible="false"
+                                    Editable="false"
+                                    Width="170"
+                                    IsPrimaryKey>
+                </SfCruderGridColumn>
+                <GridColumn @ref="GridCommandColumnRef"
+                            HeaderText="" 
+                            Width="55" 
+                            HeaderTextAlign="TextAlign.Center" 
+                            TextAlign="TextAlign.Center" 
+                            CustomAttributes="@(new Dictionary<string, object>{ { "style", "padding: 0px" } })"
+                            Freeze="FreezeDirection.Left">
+                    <GridCommandColumns>
+                        <GridCommandColumn Type="CommandButtonType.Edit" ButtonOption="@(new CommandButtonOptions() { IconCss = "e-icons e-edit", CssClass = "e-flat SfCruderGrid-icon-flat" })"></GridCommandColumn>
+                        <GridCommandColumn Type="CommandButtonType.Delete" ButtonOption="@(new CommandButtonOptions() { IconCss = "e-icons e-delete", CssClass = "e-flat SfCruderGrid-icon-flat" })"></GridCommandColumn>
+                        <GridCommandColumn Type="CommandButtonType.Save" ButtonOption="@(new CommandButtonOptions() { IconCss = "e-icons e-update", CssClass = "e-flat SfCruderGrid-icon-flat" })"></GridCommandColumn>
+                        <GridCommandColumn Type="CommandButtonType.Cancel" ButtonOption="@(new CommandButtonOptions() { IconCss = "e-icons e-cancel-icon", CssClass = "e-flat SfCruderGrid-icon-flat" })"></GridCommandColumn>
+                        @* <GridCommandColumn ButtonOption="@(new CommandButtonOptions() { Content = "Details", CssClass = "e-flat" })"></GridCommandColumn> *@
+                    </GridCommandColumns>
+                </GridColumn>
+                @Columns
+            </GridColumns>
+        </SfGrid>
+    </div>
+</CascadingValue>
 @code {
     #region Parameters
     /// <summary>
@@ -159,13 +162,14 @@
     #endregion
 
     #region Injects
-    [Inject] public ICrudService<TGridEntity, TGridDto> Service { get; set; }
+    [Inject] protected ICrudService<TGridEntity, TGridDto> Service { get; set; }
+    [Inject] protected IWebAssemblyHostEnvironment Environment { get; set; }
     // [Inject] public CruderLogger<SfCruderGrid<TGridEntity, TGridDto>> Logger { get; set; }
     // [Inject] public ICrudService<TGridEntity, TGridDto> CruderService { get; set; }
     #endregion
 
     #region Properties
-    protected SfGrid<TGridDto> Grid { get; set; }
+    public SfGrid<TGridDto> Grid { get; private set; }
     protected GridColumn GridCommandColumnRef { get; set; }
     // protected SfDataManager DataManagerRef { get; set; }
     // protected HttpClient HttpClient { get; set; }
@@ -213,22 +217,31 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        try
         {
-            if (Grid != null)
+            if (firstRender)
             {
-                var columns = await Grid.GetColumnsAsync();
-                var select = GetQuerySelect(columns);
-                Result = await Service.GetAll(new Core.EndpointQueries.GetAllEndpointQuery(select));
-                AllData.AddRange(Result.Result);
-                Console.WriteLine(AllData.Count());
+                if (Grid != null)
+                {
+                    var columns = await Grid.GetColumnsAsync();
+                    var select = GetQuerySelect(columns);
+                    Result = await Service.GetAll(new Core.EndpointQueries.GetAllEndpointQuery(select));
+                    AllData.AddRange(Result.Result);
+                    Console.WriteLine(AllData.Count());
 
-                GridCommandColumnRef.HeaderTemplate = Header(null);
-                await Grid.Refresh();
-                // Data.AddRange(Result.Result.ToList());
+                    GridCommandColumnRef.HeaderTemplate = Header(null);
+                    await Grid.Refresh();
+                    // Data.AddRange(Result.Result.ToList());
+                }
             }
+            await base.OnAfterRenderAsync(firstRender);
         }
-        await base.OnAfterRenderAsync(firstRender);
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+            Console.WriteLine(e.StackTrace);
+            throw;
+        }
     }
 
     public async Task ToolbarClickHandler(Syncfusion.Blazor.Navigations.ClickEventArgs args)

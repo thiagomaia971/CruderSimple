@@ -13,18 +13,20 @@ using System.Dynamic;
 
 namespace CruderSimple.Blazor.Adaptors
 {
-    public record CruderGridApatorParameters<TItem, TDto>(
+    public record CruderGridApatorParameters<TItem, TDto, TGrid>(
         DataManager DataManager,
         ICrudService<TItem, TDto> CrudService,
-        SfGrid<TDto> Grid,
+        SfGrid<TGrid> Grid,
         string FilterBy)
             where TItem : IEntity
-            where TDto : BaseDto;
+            where TDto : BaseDto
+            where TGrid : BaseDto;
 
-    public class CruderGridAdaptor<TItem, TDto>(CruderGridApatorParameters<TItem, TDto> parameters)
+    public class CruderGridAdaptor<TItem, TDto, TGrid>(CruderGridApatorParameters<TItem, TDto, TGrid> parameters)
         : UrlAdaptor(parameters.DataManager)
             where TItem : IEntity
             where TDto : BaseDto
+            where TGrid : BaseDto
     {
         private DataManagerRequest Queries { get; set; }
 
@@ -59,21 +61,27 @@ namespace CruderSimple.Blazor.Adaptors
                 throw;
             }
         }
+        public override async Task<object> ProcessResponse<T>(object data, DataManagerRequest queries)
+        {
+            var r = base.ProcessResponse<T>(data, queries);
+            //await parameters.Grid.Refresh();
+            return r;
+        }
 
         private async Task<GetAllEndpointQuery> CreateQuery()
         {
-            var columns = await parameters.Grid.GetColumnsAsync();
+            var columns = parameters.Grid == null ? null : await parameters.Grid.GetColumnsAsync();
             var select = GetQuerySelect(columns);
             var filter = GetQueryFilter(parameters.FilterBy);
-            var sort = GetQuerySort(columns);
+            var sort = columns == null ? string.Empty : GetQuerySort(columns);
 
-            var take = Queries.Take == 0 ? 10 : Queries.Take;
+            var take = Queries.Take;
             return new GetAllEndpointQuery(
                 select,
                 filter,
                 sort,
                 take,
-                (Queries.Skip / take) + 1);
+                take == 0 ? 0 : (Queries.Skip / take) + 1);
         }
 
         private string CreateUrlEndpoint(GetAllEndpointQuery query)
@@ -103,6 +111,9 @@ namespace CruderSimple.Blazor.Adaptors
 
         protected virtual string GetQuerySelect(List<GridColumn> columns)
         {
+            //if (columns == null)
+                return "*";
+
             var select = string.Join(",", columns
                 .Where(x => !string.IsNullOrEmpty(x.Field))
                 .Select(x =>
@@ -120,15 +131,21 @@ namespace CruderSimple.Blazor.Adaptors
 
         protected virtual string GetQueryFilter(string filterBy)
         {
-            var filters = new List<string> { filterBy };
+            var filters = new List<string>();
+            if (!string.IsNullOrEmpty(filterBy))
+                filters.Add(filterBy);
 
             foreach (var where in Queries?.Where ?? new List<WhereFilter>())
             {
+                var innerFilter = new List<string>();
+                
                 foreach (var predicate in where?.predicates ?? new List<WhereFilter>())
                 {
                     var filter = $"{predicate.Field} {predicate.Operator.ToOperation()} {predicate.value}";
-                    filters.Add(filter);
+                    innerFilter.Add(filter);
                 }
+
+                filters.Add(string.Join($" {where.Condition.ToUpper()} ", innerFilter));
             }
             return string.Join(",", filters);
         }
