@@ -17,7 +17,6 @@
                    TextAlign="@TextAlign"
                    ForeignKeyField="Id"
                    ForeignKeyValue="Description"
-                   ForeignDataSource="@SelectData"
                    CustomAttributes="@CustomAttributes"
                    ShowInColumnChooser
                    ClipMode="ClipMode.EllipsisWithTooltip"
@@ -28,10 +27,10 @@
                    AllowSorting="@Sortable"
                    IsPrimaryKey="@IsPrimaryKey">
 
-    @* <SfDataManager @ref="DataManagerRef"
-    Adaptor=" Syncfusion.Blazor.Adaptors.UrlAdaptor"
-    HttpClientInstance="@HttpClient">
-    </SfDataManager> *@
+    <SfDataManager
+        Adaptor=" Syncfusion.Blazor.Adaptors.CustomAdaptor"
+        AdaptorInstance="typeof(AutoselectAdaptor<TSelectEntity, TSelectDto>)">
+    </SfDataManager>
 
     @*     <Template>
     @if (Content == null)
@@ -78,11 +77,9 @@
     protected GridColumn GridColumnRef { get; set; }
     protected GridForeignColumn<TSelectDto> GridForeignColumnRef { get; set; }
     protected Dictionary<string, object> CustomAttributes { get; set; } = new Dictionary<string, object>();
-    protected IEnumerable<TSelectDto> SelectData { get; set; } = new List<TSelectDto>();
-    // protected SfDataManager DataManagerRef { get; set; }
-    // protected HttpClient HttpClient { get; set; }
-
-    // public RenderFragment<object> Template =
+    // protected IEnumerable<TSelectDto> SelectData { get; set; } = new List<TSelectDto>();
+    protected SfDataManager DataManagerRef { get; set; }
+    protected HttpClient HttpClient { get; set; }
 
     #endregion
 
@@ -111,13 +108,23 @@
 
     protected override async Task OnInitializedAsync()
     {
-        // HttpClient = await Service.CreateHttpClient();
+        HttpClient = await Service.CreateHttpClient();
+        // GridForeignColumnRef.DataManager = new DataManager
+        // {
+        //     Adaptor = Adaptors.UrlAdaptor,
+        //             HttpClientInstance = HttpClient,
+        // };
         // DataManagerRef.DataAdaptor = new CruderGridAdaptor<TSelectEntity, TSelectDto, TGridDto>(
-        //     new CruderGridApatorParameters<TSelectEntity, TSelectDto, TGridDto>(DataManagerRef, Service, CruderGrid.Grid, null));
+        //             new CruderGridApatorParameters<TSelectEntity, TSelectDto, TGridDto>(
+        //             HttpClient,
+        //             DataManagerRef,
+        //                 Service,
+        //                 CruderGrid.Grid,
+        //                 null));
 
 
-        SelectData = (await Service.GetAll(new Core.EndpointQueries.GetAllEndpointQuery("*"))).Result;
-        await CruderGrid.Grid.Refresh();
+        // SelectData = (await Service.GetAll(new Core.EndpointQueries.GetAllEndpointQuery("*"))).Result;
+        // await CruderGrid.Grid.Refresh();
         await base.OnInitializedAsync();
     }
 
@@ -128,16 +135,17 @@
             GridForeignColumnRef.Template = (builder) =>
             {
                 var row = (TGridDto)builder;
-                var cell = SelectData.FirstOrDefault(x => x.Id == row.GetValueByPropertyName<string>(Field));
+                return @<span>test</span>;
+                // var cell = SelectData.FirstOrDefault(x => x.Id == row.GetValueByPropertyName<string>(Field));
                 
-                if (Content == null)
-                {
-                    return @<span>@(cell)</span>;
-                }
-                else
-                {
-                    return @<span>@(Content(cell))</span>;
-                }
+                // if (Content == null)
+                // {
+                //     return @<span>@(cell)</span>;
+                // }
+                // else
+                // {
+                //     return @<span>@(Content(cell))</span>;
+                // }
             };
         }
         return base.OnAfterRenderAsync(firstRender);

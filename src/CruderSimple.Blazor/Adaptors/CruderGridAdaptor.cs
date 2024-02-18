@@ -14,6 +14,7 @@ using System.Dynamic;
 namespace CruderSimple.Blazor.Adaptors
 {
     public record CruderGridApatorParameters<TItem, TDto, TGrid>(
+        HttpClient HttpClient,
         DataManager DataManager,
         ICrudService<TItem, TDto> CrudService,
         SfGrid<TGrid> Grid,
@@ -22,8 +23,108 @@ namespace CruderSimple.Blazor.Adaptors
             where TDto : BaseDto
             where TGrid : BaseDto;
 
+    public class AutoselectAdaptor<TEntity, TDto>(ICrudService<TEntity, TDto> CruderService) : IAdaptor
+        where TEntity : IEntity
+        where TDto : BaseDto
+    {
+        public void AddParams(RequestOptions options, DataManagerRequest queries)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object BatchUpdate(DataManager dataManager, object changed, object added, object deleted, Utils e, string keyField, int? dropIndex, Query query = null, object original = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object BatchUpdate(DataManager dataManager, List<IDynamicMetaObjectProvider> changed, List<IDynamicMetaObjectProvider> added, List<IDynamicMetaObjectProvider> deleted, Utils e, string keyField, int? dropIndex, Query query = null, object original = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void BeforeSend(HttpRequestMessage request)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Type GetModelType()
+        {
+            throw new NotImplementedException();
+        }
+
+        public string GetName()
+        {
+            throw new NotImplementedException();
+        }
+
+        public object Insert(DataManager dataManager, object data, string tableName = null, Query query = null, int position = 0)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object Insert(DataManager dataManager, IDynamicMetaObjectProvider data, string tableName = null, Query query = null, int position = 0)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool IsRemote()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<object> PerformDataOperation<T>(object queries)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<object> ProcessBatchResponse<T>(object data, DataManagerRequest queries)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<object> ProcessCrudResponse<T>(object data, DataManagerRequest queries)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object ProcessQuery(DataManagerRequest queries)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<object> ProcessResponse<T>(object data, DataManagerRequest queries)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object Remove(DataManager dataManager, string keyField, object value, string tableName = null, Query query = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetModelType(Type type)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void SetRunSyncOnce(bool runSync)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object Update(DataManager dataManager, string keyField, object data, string tableName = null, Query query = null, object original = null, IDictionary<string, object> updateProperties = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public object Update(DataManager dataManager, string keyField, IDynamicMetaObjectProvider data, string tableName = null, Query query = null, object original = null)
+        {
+            throw new NotImplementedException();
+        }
+    }
+
     public class CruderGridAdaptor<TItem, TDto, TGrid>(CruderGridApatorParameters<TItem, TDto, TGrid> parameters)
-        : UrlAdaptor(parameters.DataManager)
+        : AdaptorBase(parameters.DataManager)
             where TItem : IEntity
             where TDto : BaseDto
             where TGrid : BaseDto
@@ -51,7 +152,7 @@ namespace CruderSimple.Blazor.Adaptors
                 var query = await CreateQuery();
                 var url = CreateUrlEndpoint(query);
 
-                var result = await parameters.DataManager.HttpClientInstance.GetAsync(url.ToString());
+                var result = await parameters.HttpClient.GetAsync(url.ToString());
                 return result;
             }
             catch (Exception e)

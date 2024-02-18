@@ -16,6 +16,7 @@ using Microsoft.Extensions.Configuration;
 using Syncfusion.Licensing;
 using Syncfusion.Blazor.Popups;
 using Syncfusion.Blazor;
+using CruderSimple.Blazor.Adaptors;
 
 namespace CruderSimple.Blazor.Extensions;
 
@@ -53,6 +54,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<DebounceService>();
         services.AddSingleton<BrowserService>();
         services.AddScoped(typeof(ICruderLogger<>), typeof(CruderLogger<>));
+        services.AddScoped(typeof(AutoselectAdaptor<,>));
         //var pageParameter = new PageParameter();
         //services.AddSingleton(pageParameter);
         services.AddCruderServices();
