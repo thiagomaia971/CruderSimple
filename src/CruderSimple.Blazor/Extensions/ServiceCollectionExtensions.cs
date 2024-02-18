@@ -54,7 +54,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<DebounceService>();
         services.AddSingleton<BrowserService>();
         services.AddScoped(typeof(ICruderLogger<>), typeof(CruderLogger<>));
-        services.AddScoped(typeof(AutoselectAdaptor<,>));
         //var pageParameter = new PageParameter();
         //services.AddSingleton(pageParameter);
         services.AddCruderServices();

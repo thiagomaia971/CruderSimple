@@ -1,0 +1,158 @@
+﻿@using System.Text
+@using Syncfusion.Blazor.Data
+@using CruderSimple.Blazor.Interfaces.Services
+@using CruderSimple.Core.EndpointQueries
+
+@typeparam TGridEntity where TGridEntity : IEntity
+@typeparam TGridDto where TGridDto : BaseDto
+
+@inherits DataAdaptor<ICrudService<TGridEntity, TGridDto>>
+
+<CascadingValue Value="@this">
+    @ChildContent
+</CascadingValue>
+
+@code {
+    [Parameter]
+    [JsonIgnore]
+    public RenderFragment ChildContent { get; set; }
+
+    /// <summary>
+    /// Query to retrive data to back-end
+    /// </summary>
+    [Parameter] public string FilterBy { get; set; }
+
+    [CascadingParameter] 
+    public SfGrid<TGridDto> Grid { get; set; }
+
+
+    public override async Task<object> ReadAsync(DataManagerRequest dataManagerRequest, string additionalParam = null)
+    {
+        try
+        {
+            //Console.WriteLine(Queries.ToJson());
+            var query = await CreateQuery(dataManagerRequest);
+            var url = CreateUrlEndpoint(query);
+
+            var result = await Service.GetAll(query);
+            return dataManagerRequest.RequiresCounts ? 
+                new DataResult { Result = result.Result, Count = result.Count }:
+                result.Result;
+            // return new DataResult { Result = result.Result, Count = result.Count };
+            // var result = await (await Service.CreateHttpClient()).GetAsync(url.ToString());
+            // return result;
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+            Console.WriteLine(e.StackTrace);
+            throw;
+        }   
+    }
+    
+
+        private async Task<GetAllEndpointQuery> CreateQuery(DataManagerRequest dataManagerRequest)
+        {
+            Console.WriteLine(dataManagerRequest.ToJson());
+            Console.WriteLine(Grid != null);
+            var columns = Grid == null ? null : await Grid.GetColumnsAsync();
+            var select = GetQuerySelect(columns);
+            var filter = GetQueryFilter(FilterBy, dataManagerRequest.Where);
+            var sort = columns == null ? string.Empty : GetQuerySort(columns, dataManagerRequest.Sorted);
+
+            return new GetAllEndpointQuery(
+                select,
+                filter,
+                sort,
+                dataManagerRequest.Take,
+                dataManagerRequest.Take == 0 ? 0 : (dataManagerRequest.Skip / dataManagerRequest.Take) + 1);
+        }
+
+        private string CreateUrlEndpoint(GetAllEndpointQuery query)
+        {
+            var _url = new StringBuilder($"v1/{typeof(TGridEntity).Name}");
+
+            var queryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
+            if (!string.IsNullOrEmpty(query.select))
+                queryString.Add("select", query.select);
+            if (query.page != 0)
+                queryString.Add("page", query.page.ToString());
+            if (query.size != 0)
+                queryString.Add("size", query.size.ToString());
+            if (query.skip != 0)
+                queryString.Add("skip", query.skip.ToString());
+            if (!string.IsNullOrEmpty(query.filter))
+                queryString.Add("filter", query.filter);
+            if (!string.IsNullOrEmpty(query.orderBy))
+                queryString.Add("orderBy", query.orderBy);
+
+            if (queryString.Count > 0)
+                _url.Append($"?{queryString.ToString()}");
+
+            return _url.ToString();
+        }
+
+
+        protected virtual string GetQuerySelect(List<GridColumn> columns)
+        {
+            //if (columns == null)
+                return "*";
+
+            var select = string.Join(",", columns
+                .Where(x => !string.IsNullOrEmpty(x.Field))
+                .Select(x =>
+                {
+                    var selectBy = x.CustomAttributes?.ContainsKey(nameof(SfCruderGridColumn<TGridEntity, TGridDto>.SelectBy)) ?? false ?
+                        x.CustomAttributes[nameof(SfCruderGridColumn<TGridEntity, TGridDto>.SelectBy)] :
+                        x.Field;
+                    return selectBy;
+                })
+                .Distinct()
+                .ToList());
+
+            return select;
+        }
+
+        protected virtual string GetQueryFilter(
+            string filterBy,
+            List<WhereFilter> wheres)
+        {
+            var filters = new List<string>();
+            if (!string.IsNullOrEmpty(filterBy))
+                filters.Add(filterBy);
+
+            foreach (var where in wheres ?? new List<WhereFilter>())
+            {
+                var innerFilter = new List<string>();
+                
+                foreach (var predicate in where?.predicates ?? new List<WhereFilter>())
+                {
+                    var filter = $"{predicate.Field} {predicate.Operator.ToOperation()} {predicate.value}";
+                    innerFilter.Add(filter);
+                }
+                Console.WriteLine(where.ToJson());
+                if (where.Condition == null)
+                    filters.Add(string.Join(",", innerFilter));
+                else
+                    filters.Add(string.Join($" {where.Condition.ToUpper()} ", innerFilter));
+            }
+            return string.Join(",", filters);
+        }
+
+
+        protected virtual string GetQuerySort(List<GridColumn> columns, List<Sort> sorteds)
+        {
+            var sorters = new List<string>();
+            foreach (var sorted in sorteds ?? new List<Sort>())
+            {
+                var column = columns.FirstOrDefault(x => x.Field == sorted.Name);
+                var sortBy = column.CustomAttributes?.ContainsKey(nameof(SfCruderGridColumn<TGridEntity, TGridDto>.SortBy)) ?? false ?
+                    column.CustomAttributes[nameof(SfCruderGridColumn<TGridEntity, TGridDto>.SortBy)] :
+                    sorted.Name;
+                var sort = $"{sortBy} {sorted.Direction.ToSortDirection()}";
+                sorters.Add(sort);
+            }
+            return string.Join(",", sorters);
+        }
+
+}

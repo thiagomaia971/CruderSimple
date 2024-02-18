@@ -27,9 +27,11 @@
                    AllowSorting="@Sortable"
                    IsPrimaryKey="@IsPrimaryKey">
 
-    <SfDataManager
-        Adaptor=" Syncfusion.Blazor.Adaptors.CustomAdaptor"
-        AdaptorInstance="typeof(AutoselectAdaptor<TSelectEntity, TSelectDto>)">
+    <SfDataManager 
+        Adaptor="Syncfusion.Blazor.Adaptors.CustomAdaptor">
+        <CruderGridAdaptor TGridEntity="TSelectEntity" TGridDto="TSelectDto">
+
+        </CruderGridAdaptor>
     </SfDataManager>
 
     @*     <Template>
@@ -108,13 +110,13 @@
 
     protected override async Task OnInitializedAsync()
     {
-        HttpClient = await Service.CreateHttpClient();
+        // HttpClient = await Service.CreateHttpClient();
         // GridForeignColumnRef.DataManager = new DataManager
         // {
         //     Adaptor = Adaptors.UrlAdaptor,
         //             HttpClientInstance = HttpClient,
         // };
-        // DataManagerRef.DataAdaptor = new CruderGridAdaptor<TSelectEntity, TSelectDto, TGridDto>(
+        // DataManagerRef.DataAdaptor = new _CruderGridAdaptor<TSelectEntity, TSelectDto, TGridDto>(
         //             new CruderGridApatorParameters<TSelectEntity, TSelectDto, TGridDto>(
         //             HttpClient,
         //             DataManagerRef,
@@ -134,18 +136,16 @@
         {
             GridForeignColumnRef.Template = (builder) =>
             {
-                var row = (TGridDto)builder;
-                return @<span>test</span>;
-                // var cell = SelectData.FirstOrDefault(x => x.Id == row.GetValueByPropertyName<string>(Field));
+                var cell = SelectData.FirstOrDefault(x => x.Id == row.GetValueByPropertyName<string>(Field));
                 
-                // if (Content == null)
-                // {
-                //     return @<span>@(cell)</span>;
-                // }
-                // else
-                // {
-                //     return @<span>@(Content(cell))</span>;
-                // }
+                if (Content == null)
+                {
+                    return @<span>@(cell)</span>;
+                }
+                else
+                {
+                    return @<span>@(Content(cell))</span>;
+                }
             };
         }
         return base.OnAfterRenderAsync(firstRender);
