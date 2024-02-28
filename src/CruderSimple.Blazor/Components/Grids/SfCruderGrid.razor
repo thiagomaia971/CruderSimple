@@ -22,7 +22,6 @@
                 ID="@($"SfCruderGrid{nameof(TGridEntity)}{nameof(TGridDto)}")"
                 Toolbar=@ToolbarItems
                 ContextMenuItems=@ContextMenuItems
-                DataSource="@AllData"
                 AllowPaging
                 AllowSorting
                 AllowSelection
@@ -230,7 +229,7 @@
                     // var select = GetQuerySelect(columns);
                     // Result = await Service.GetAll(new Core.EndpointQueries.GetAllEndpointQuery(select));
                     // AllData.AddRange(Result.Result);
-                    Console.WriteLine(AllData.Count());
+                    // Console.WriteLine(AllData.Count());
 
                     GridCommandColumnRef.HeaderTemplate = Header(null);
                     //await Grid.Refresh();

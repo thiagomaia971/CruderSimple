@@ -27,7 +27,7 @@
                    AllowSorting="@Sortable"
                    IsPrimaryKey="@IsPrimaryKey">
 
-    <SfDataManager 
+    <SfDataManager @ref="DataManagerRef"
         Adaptor="Syncfusion.Blazor.Adaptors.CustomAdaptor">
         <CruderGridAdaptor TGridEntity="TSelectEntity" TGridDto="TSelectDto">
 
@@ -89,8 +89,6 @@
     {
         try
         {
-
-            Console.WriteLine(parameters.ToJson());
             if (parameters.TryGetValue<string>(nameof(SelectBy), out var selectBy) && !CustomAttributes.ContainsKey(nameof(SelectBy)))
                 CustomAttributes.Add(nameof(SelectBy), selectBy);
             if (parameters.TryGetValue<string>(nameof(SortBy), out var sortBy) && !CustomAttributes.ContainsKey(nameof(SortBy)))
@@ -132,22 +130,25 @@
 
     protected override Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
-        {
-            GridForeignColumnRef.Template = (builder) =>
-            {
-                var cell = SelectData.FirstOrDefault(x => x.Id == row.GetValueByPropertyName<string>(Field));
+        // if (firstRender)
+        // {
+        //     GridForeignColumnRef.Template = (builder) =>
+        //     {
+        //         var row = (TGridDto)builder;
+        //         Console.WriteLine(DataManagerRef.Data);
+        //         var list = (IEnumerable<TSelectDto>)DataManagerRef.Data;
+        //         var cell = list.FirstOrDefault(x => x.Id == row.GetValueByPropertyName<string>(Field));
                 
-                if (Content == null)
-                {
-                    return @<span>@(cell)</span>;
-                }
-                else
-                {
-                    return @<span>@(Content(cell))</span>;
-                }
-            };
-        }
+        //         if (Content == null)
+        //         {
+        //             return @<span>@(cell)</span>;
+        //         }
+        //         else
+        //         {
+        //             return @<span>@(Content(cell))</span>;
+        //         }
+        //     };
+        // }
         return base.OnAfterRenderAsync(firstRender);
     }
 }
