@@ -2,10 +2,10 @@
 
 namespace CruderSimple.Core.Entities;
 
-public class Pagination<T> : Result<IEnumerable<T>>
+public class Pagination<T> : ResultViewModel<IEnumerable<T>>
 {
     public int Page { get; set; }
-    public int Size { get; set; }
+    public int Count { get; set; }
     public string ResultType { get; set; }
     public string Next { get; set; }
 
@@ -15,8 +15,8 @@ public class Pagination<T> : Result<IEnumerable<T>>
         {
             Success = true,
             Page = page,
-            Size = size,
-            Data = data
+            Count = size,
+            Result = data
         };
     }
 
@@ -30,10 +30,10 @@ public class Pagination<T> : Result<IEnumerable<T>>
     }
 }
 
-public class Pagination : Result
+public class Pagination : ResultViewModel
 {
     public int Page { get; set; }
-    public int Size { get; set; }
+    public int Count { get; set; }
     public string ResultType { get; set; }
     public string Next { get; set; }
 
@@ -44,8 +44,8 @@ public class Pagination : Result
             Success = true,
             HttpStatusCode = 200,
             Page = page,
-            Size = size,
-            Data = data
+            Count = size,
+            Result = data
         };
     }
 

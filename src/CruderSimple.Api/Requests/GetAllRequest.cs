@@ -12,13 +12,13 @@ public static class GetAllRequest
 {
     public class Handler<TQuery, TEntity, TDto, TRepository>
         (TRepository repository)
-        : HttpHandlerBase<TQuery, TEntity, Result>, IRequestHandler<TQuery, Result> 
+        : HttpHandlerBase<TQuery, TEntity, ResultViewModel>, IRequestHandler<TQuery, ResultViewModel> 
         where TQuery : GetAllEndpointQuery
         where TEntity : IEntity
         where TDto : BaseDto 
-        where TRepository : Core.Interfaces.IRepositoryBase<TEntity>
+        where TRepository : Core.Interfaces.IRepository<TEntity>
     {
-        public override async Task<Result> Handle(TQuery request, CancellationToken cancellationToken)
+        public override async Task<ResultViewModel> Handle(TQuery request, CancellationToken cancellationToken)
         {
             try
             {
@@ -26,8 +26,8 @@ public static class GetAllRequest
 
                 return Pagination.CreateSuccess(
                     page: request.page, // TODO
-                    size: queryAsync.Size,
-                    data: queryAsync.Data.ToOutput<TEntity, TDto>());
+                    size: queryAsync.Count,
+                    data: queryAsync.Result.ToOutput<TEntity, TDto>());
             }
             catch (Exception exception)
             {

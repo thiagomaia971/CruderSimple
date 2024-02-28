@@ -37,19 +37,20 @@
     [Inject]
     public BrowserService BrowserService { get; set; }
 
-    public WindowDimension Dimension { get; set; }
+    public WindowDimension Dimension { get; set; } = new WindowDimension(0, 0);
 
     public string CardStyle { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
         Dimension = await BrowserService.Current();
-        CardStyle = $"min-height: {Dimension.Height}px";
+        CardStyle = $"min-height: {Dimension.Heigth}px";
 
         BrowserService.Resize += (object sender, WindowDimension dimension) =>
         {
-            Dimension = dimension;
-            CardStyle = $"min-height: {Dimension.Height}px";
+            Dimension.Width = dimension.Width;
+            Dimension.Heigth = dimension.Heigth;
+            CardStyle = $"min-height: {Dimension.Heigth}px";
             StateHasChanged();
         };
     }

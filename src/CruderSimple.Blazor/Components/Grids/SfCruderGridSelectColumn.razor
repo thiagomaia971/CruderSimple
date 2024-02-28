@@ -1,0 +1,154 @@
+﻿@using CruderSimple.Blazor.Adaptors
+@using CruderSimple.Blazor.Interfaces.Services
+@using CruderSimple.Core.Entities
+@using CruderSimple.Core.ViewModels
+@using Syncfusion.Blazor.Data
+
+@typeparam TGridEntity where TGridEntity : IEntity
+@typeparam TGridDto where TGridDto : BaseDto
+@typeparam TSelectEntity where TSelectEntity : IEntity
+@typeparam TSelectDto where TSelectDto : BaseDto
+
+<GridForeignColumn @ref="GridForeignColumnRef"
+                   TValue="TSelectDto"
+                   Field="@Field"
+                   HeaderText="@HeaderText"
+                   HeaderTextAlign="@HeaderTextAlign"
+                   TextAlign="@TextAlign"
+                   ForeignKeyField="Id"
+                   ForeignKeyValue="Description"
+                   CustomAttributes="@CustomAttributes"
+                   ShowInColumnChooser
+                   ClipMode="ClipMode.EllipsisWithTooltip"
+                   Width="@Width"
+                   AutoFit="@AutoFit"
+                   Visible="@Visible"
+                   AllowEditing="@Editable"
+                   AllowSorting="@Sortable"
+                   IsPrimaryKey="@IsPrimaryKey">
+
+    <SfDataManager @ref="DataManagerRef"
+        Adaptor="Syncfusion.Blazor.Adaptors.CustomAdaptor">
+        <CruderGridAdaptor TGridEntity="TSelectEntity" TGridDto="TSelectDto">
+
+        </CruderGridAdaptor>
+    </SfDataManager>
+
+    @*     <Template>
+    @if (Content == null)
+    {
+    @(((TGridDto)context).GetValueByPropertyName(Field))
+    }
+    else
+    {
+    @(Content((TGridDto)context))
+    }
+    </Template> *@
+</GridForeignColumn>
+
+@code {
+    #region Parameters
+
+    [Parameter, EditorRequired] public string Field { get; set; }
+    [Parameter, EditorRequired] public string HeaderText { get; set; }
+    [Parameter] public Func<TSelectDto, object> Content { get; set; }
+    [Parameter] public string SelectBy { get; set; }
+    [Parameter] public string SortBy { get; set; }
+    [Parameter] public string FilterBy { get; set; }
+
+    [Parameter] public bool IsPrimaryKey { get; set; } = false;
+    [Parameter] public bool Visible { get; set; } = true;
+    [Parameter] public bool Editable { get; set; } = true;
+    [Parameter] public bool Sortable { get; set; } = true;
+    [Parameter] public TextAlign HeaderTextAlign { get; set; }
+    [Parameter] public TextAlign TextAlign { get; set; }
+    [Parameter] public string Width { get; set; }
+    [Parameter] public bool AutoFit { get; set; }
+
+    #endregion
+
+    #region Injects
+
+    [Inject] public ICrudService<TSelectEntity, TSelectDto> Service { get; set; }
+    [CascadingParameter] public SfCruderGrid<TGridEntity, TGridDto> CruderGrid { get; set; }
+
+    #endregion
+
+    #region Properties
+
+    protected GridColumn GridColumnRef { get; set; }
+    protected GridForeignColumn<TSelectDto> GridForeignColumnRef { get; set; }
+    protected Dictionary<string, object> CustomAttributes { get; set; } = new Dictionary<string, object>();
+    // protected IEnumerable<TSelectDto> SelectData { get; set; } = new List<TSelectDto>();
+    protected SfDataManager DataManagerRef { get; set; }
+    protected HttpClient HttpClient { get; set; }
+
+    #endregion
+
+    public override async Task SetParametersAsync(ParameterView parameters)
+    {
+        try
+        {
+            if (parameters.TryGetValue<string>(nameof(SelectBy), out var selectBy) && !CustomAttributes.ContainsKey(nameof(SelectBy)))
+                CustomAttributes.Add(nameof(SelectBy), selectBy);
+            if (parameters.TryGetValue<string>(nameof(SortBy), out var sortBy) && !CustomAttributes.ContainsKey(nameof(SortBy)))
+                CustomAttributes.Add(nameof(SortBy), sortBy);
+            if (parameters.TryGetValue<string>(nameof(FilterBy), out var filterBy) && !CustomAttributes.ContainsKey(nameof(FilterBy)))
+                CustomAttributes.Add(nameof(FilterBy), filterBy);
+            await base.SetParametersAsync(parameters);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(parameters.ToJson());
+            Console.WriteLine(e.Message);
+            Console.WriteLine(e.StackTrace);
+            throw;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // HttpClient = await Service.CreateHttpClient();
+        // GridForeignColumnRef.DataManager = new DataManager
+        // {
+        //     Adaptor = Adaptors.UrlAdaptor,
+        //             HttpClientInstance = HttpClient,
+        // };
+        // DataManagerRef.DataAdaptor = new _CruderGridAdaptor<TSelectEntity, TSelectDto, TGridDto>(
+        //             new CruderGridApatorParameters<TSelectEntity, TSelectDto, TGridDto>(
+        //             HttpClient,
+        //             DataManagerRef,
+        //                 Service,
+        //                 CruderGrid.Grid,
+        //                 null));
+
+
+        // SelectData = (await Service.GetAll(new Core.EndpointQueries.GetAllEndpointQuery("*"))).Result;
+        // await CruderGrid.Grid.Refresh();
+        await base.OnInitializedAsync();
+    }
+
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        // if (firstRender)
+        // {
+        //     GridForeignColumnRef.Template = (builder) =>
+        //     {
+        //         var row = (TGridDto)builder;
+        //         Console.WriteLine(DataManagerRef.Data);
+        //         var list = (IEnumerable<TSelectDto>)DataManagerRef.Data;
+        //         var cell = list.FirstOrDefault(x => x.Id == row.GetValueByPropertyName<string>(Field));
+                
+        //         if (Content == null)
+        //         {
+        //             return @<span>@(cell)</span>;
+        //         }
+        //         else
+        //         {
+        //             return @<span>@(Content(cell))</span>;
+        //         }
+        //     };
+        // }
+        return base.OnAfterRenderAsync(firstRender);
+    }
+}

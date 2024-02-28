@@ -17,13 +17,13 @@ public static class CreateRequest
     
     public class Handler<TQuery, TEntity, TDto, TRepository>
         (TRepository repository)
-        : HttpHandlerBase<TQuery, TEntity, Result>, IRequestHandler<TQuery, Result> 
+        : HttpHandlerBase<TQuery, TEntity, ResultViewModel>, IRequestHandler<TQuery, ResultViewModel> 
         where TQuery : Query<TDto>
         where TEntity : IEntity
         where TDto : BaseDto 
-        where TRepository : IRepositoryBase<TEntity>
+        where TRepository : IRepository<TEntity>
     {
-        public override async Task<Result> Handle(TQuery request, CancellationToken cancellationToken)
+        public override async Task<ResultViewModel> Handle(TQuery request, CancellationToken cancellationToken)
         {
             try
             {
@@ -33,18 +33,18 @@ public static class CreateRequest
                     var entityExist = await repository.FindBy("PrimaryKey", entity.GetPrimaryKey());
             
                     if (entityExist is not null)
-                        return Result.CreateSuccess(entityExist.ToOutput<TDto>(), 201);
+                        return ResultViewModel.CreateSuccess(entityExist.ToOutput<TDto>(), 201);
                 }
 
                 await repository.Add(entity)
                     .Save();
 
                 var findById = await repository.FindById(entity.Id);
-                return Result.CreateSuccess(findById.ToOutput<TDto>());
+                return ResultViewModel.CreateSuccess(findById.ToOutput<TDto>());
             }
             catch (Exception exception)
             {
-                return Result.CreateError(exception.StackTrace, 500, exception.Message);
+                return ResultViewModel.CreateError(exception.StackTrace, 500, exception.Message);
             }
         }
     }

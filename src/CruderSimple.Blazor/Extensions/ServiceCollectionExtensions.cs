@@ -11,12 +11,18 @@ using CruderSimple.Core.Services;
 using CruderSimple.Core.Extensions;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.Extensions.Configuration;
+using Syncfusion.Licensing;
+using Syncfusion.Blazor.Popups;
+using Syncfusion.Blazor;
+using CruderSimple.Blazor.Adaptors;
 
 namespace CruderSimple.Blazor.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddCruderSimpleBlazor<TAuthorizeApi>(this IServiceCollection services)
+    public static IServiceCollection AddCruderSimpleBlazor<TAuthorizeApi>(this IServiceCollection services, IConfiguration configuration)
         where TAuthorizeApi : IAuthorizeApi
     {
         services.AddBlazoredLocalStorage();
@@ -29,6 +35,14 @@ public static class ServiceCollectionExtensions
             .AddFontAwesomeIcons()
             .AddLoadingIndicator();
 
+        var syncfusionToken = configuration["SYNCFUSION_TOKEN"];
+        SyncfusionLicenseProvider.RegisterLicense(syncfusionToken);
+        services.AddScoped<SfDialogService>();
+        services.AddSyncfusionBlazor((config) =>
+        {
+
+        });
+
         services.AddScoped<IdentityAuthenticationStateProvider>();
         services.AddScoped<IIdentityAuthenticationStateProvider, IdentityAuthenticationStateProvider>();
         services.AddScoped<AuthenticationStateProvider>(s => s.GetRequiredService<IdentityAuthenticationStateProvider>());
@@ -39,12 +53,19 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<PageHistoryState>();
         services.AddScoped<DebounceService>();
         services.AddSingleton<BrowserService>();
+        services.AddScoped(typeof(ICruderLogger<>), typeof(CruderLogger<>));
         //var pageParameter = new PageParameter();
         //services.AddSingleton(pageParameter);
         services.AddCruderServices();
         services.AddPermissionsAuthorization();
+        services.AddCors();
 
         return services;
+    }
+
+    public static WebAssemblyHost UseCruderSimpleBlazor(this WebAssemblyHost app)
+    {
+        return app;
     }
 
     private static IServiceCollection AddCruderServices(this IServiceCollection services) 
@@ -79,5 +100,29 @@ public static class ServiceCollectionExtensions
 
         var implementation = types.FirstOrDefault(x => @interface.IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
         services.AddTransient(@interface, implementation);
+    }
+
+    private static IServiceCollection AddCors(this IServiceCollection services)
+    {
+        services.AddCors(options =>
+        {
+            options.AddDefaultPolicy(
+                              policy =>
+                              {
+                                  policy
+                                      .AllowAnyOrigin()
+                                      .AllowAnyHeader()
+                                      .AllowAnyMethod();
+                              });
+            options.AddPolicy(name: "AllCors",
+                              policy =>
+                              {
+                                  policy
+                                      .AllowAnyOrigin()
+                                      .AllowAnyHeader()
+                                      .AllowAnyMethod();
+                              });
+        });
+        return services;
     }
 }

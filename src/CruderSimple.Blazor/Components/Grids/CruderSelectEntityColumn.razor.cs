@@ -10,13 +10,16 @@ namespace CruderSimple.Blazor.Components.Grids;
 
 [CascadingTypeParameter(nameof(TColumnEntity))]
 [CascadingTypeParameter(nameof(TColumnDto))]
+[CascadingTypeParameter(nameof(TSelectEntity))]
 [CascadingTypeParameter(nameof(TSelectEntityDto))]
-public partial class CruderSelectEntityColumn<TColumnEntity, TColumnDto, TSelectEntityDto> 
+public partial class CruderSelectEntityColumn<TColumnEntity, TColumnDto, TSelectEntity, TSelectEntityDto> 
     : CruderColumnBase<TColumnEntity, TColumnDto>
     where TColumnEntity : IEntity
     where TColumnDto : BaseDto
+    where TSelectEntity : IEntity
     where TSelectEntityDto : BaseDto
 {
+    public string _Id { get; set; } = Guid.NewGuid().ToString();
     /// <summary>
     /// Property used to search on Grid component inside of Filter
     /// </summary>
@@ -38,84 +41,115 @@ public partial class CruderSelectEntityColumn<TColumnEntity, TColumnDto, TSelect
     public TColumnDto CurrentSelect { get; set; }
 
     public Dictionary<string, object> Attributes { get; set; } = new Dictionary<string, object>();
-    public RenderFragment SelectComponent { get; set; }
+    public Dictionary<string, RenderFragment> SelectComponents { get; set; } = new Dictionary<string, RenderFragment>();
     private bool Loaded { get; set; }
 
     protected override Task OnInitializedAsync()
     {
-        Attributes.Add("Service", CrudService);
-        Attributes.Add("SearchKey", SelectSearchKey);
-        Attributes.Add("Field", GridSearchKey);
+        Logger.Watch("OnInitialized", () =>
+        {
+            Attributes.Add("Service", CrudService);
+            Attributes.Add("SearchKey", SelectSearchKey);
+            Attributes.Add("Field", GridSearchKey);
+        });
         return base.OnInitializedAsync();
     }
 
     protected override void OnAfterRender(bool firstRender)
     {
-        if (DataGridSelectColumn != null && GridSort != null)
-            DataGridSelectColumn.SortField = GridSort;
+        Logger.Watch("OnAfterRender", () =>
+        {
+            if (DataGridSelectColumn != null && GridSort != null)
+                DataGridSelectColumn.SortField = GridSort;
 
-        if (DataGridSelectColumn != null && DataGridSelectColumn.ParentDataGrid != null)
-            Events = (CruderGridEvents<TColumnDto>)DataGridSelectColumn.ParentDataGrid.Attributes["Events"];
+            if (DataGridSelectColumn != null && DataGridSelectColumn.ParentDataGrid != null)
+                Events = (CruderGridEvents<TColumnDto>)DataGridSelectColumn.ParentDataGrid.Attributes["Events"];
 
-        //if (SelectComponent == null && AlwaysEditable)
-        //{
-        //    SelectComponent = CreateSelectComponent();
-        //    StateHasChanged();
-        //}
-        if (!Loaded && DataGrid != null)
-            OnDataGridLoaded();
+            //if (SelectComponent == null && AlwaysEditable)
+            //{
+            //    SelectComponent = CreateSelectComponent();
+            //    StateHasChanged();
+            //}
+            if (!Loaded && DataGrid != null)
+                OnDataGridLoaded();
+        });
         base.OnAfterRender(firstRender);
     }
 
     protected void OnDataGridLoaded()
     {
-        Loaded = true;
-        Events.OnEditMode += () =>
+        Logger.Watch("OnDataGridLoaded", () =>
         {
-            SelectComponent = CreateSelectComponent(DataGrid.ReadCellEditValue(ColumnField));
-            StateHasChanged();
-        };
+            Loaded = true;
+            Events.OnEditMode += () =>
+            {
+                //Logger.Watch("OnEditMode", () =>
+                //{
+                //    InvokeAsync(async () =>
+                //    {
+                //        CreateSelectComponent(DataGrid.ReadCellEditValue(ColumnField), null);
+                //        //StateHasChanged();
+                //    });
+                //});
+            };
+        });
     }
 
-    private RenderFragment CreateSelectComponent(object value, TColumnDto item = null)
-    {
-        if (DataGridSelectColumn is null)
-            return null;
+    //private RenderFragment CreateSelectComponent(object value, TColumnDto item = null, bool force = false)
+    //{
+    //    var _entity = value as TSelectEntityDto;
+    //    if (force && SelectComponents.ContainsKey(_entity.GetKey))
+    //        SelectComponents.Remove(_entity.GetKey);
+    //    if (SelectComponents.ContainsKey(_entity.GetKey))
+    //        return SelectComponents[_entity.GetKey];
 
-        if (item == null)
-            item = default(TColumnDto);
+    //    return Logger.Watch($"CreateSelectComponent - {_Id} ", () =>
+    //    {
+    //        if (DataGridSelectColumn is null)
+    //            return null;
 
-        var service = DataGridSelectColumn.Attributes["Service"];
-        if (service is null)
-        {
-            Console.WriteLine("Service is null");
-            return null;
-        }
+    //        if (item == null)
+    //            item = default(TColumnDto);
 
-        var entity = service.GetType().GenericTypeArguments[0];
-        var entityDto = service.GetType().GenericTypeArguments[1];
+    //        var service = DataGridSelectColumn.Attributes["Service"];
+    //        if (service is null)
+    //        {
+    //            Console.WriteLine("Service is null");
+    //            return null;
+    //        }
+    //        var entity = service.GetType().GenericTypeArguments[0];
+    //        var entityDto = service.GetType().GenericTypeArguments[1];
 
-        var render = EntityAutocompleteUtils.CreateComponent(
-            entity,
-            entityDto,
-            value,
-            async ((string Key, object Value) value) => await SelectChanged(value/*, cellEdit*/),
-            false,
-            DataGridSelectColumn.Attributes,
-            DisabledEditable(item));
-        StateHasChanged();
-        return render;
-    }
+    //        var render = EntityAutocompleteUtils.CreateComponent(
+    //            entity,
+    //            entityDto,
+    //            value,
+    //            async ((string Key, object Value) value) => await SelectChanged(value/*, cellEdit*/),
+    //            false,
+    //            DataGridSelectColumn.Attributes,
+    //            DisabledEditable(item));
+
+    //        SelectComponents.Add(_entity.GetKey, render);
+    //        //StateHasChanged();
+    //        return render;
+    //    });
+    //}
 
     public async Task SelectChanged((string Key, object Value) value/*, CellEditContext<TColumnDto> cellEdit*/)
     {
-        OldValue = CurrentSelect.Adapt<TColumnDto>();
-        CurrentSelect.SetValueByPropertyName(value.Value, ColumnField);
-        NewValue = CurrentSelect;
+        Logger.Watch($"SelectChanged - {_Id}", () =>
+        {
+            InvokeAsync(async () =>
+            {
+                OldValue = CurrentSelect.Adapt<TColumnDto>();
+                CurrentSelect.SetValueByPropertyName(value.Value, ColumnField);
+                NewValue = CurrentSelect;
 
-        DataGrid.UpdateCellEditValue(ColumnField, value.Value);
-        await OnBlur();
-        SelectComponent = CreateSelectComponent(DataGrid.ReadCellEditValue(ColumnField));
+                DataGrid.UpdateCellEditValue(ColumnField, value.Value);
+                await OnBlur();
+                //CreateSelectComponent(DataGrid.ReadCellEditValue(ColumnField), null, true);
+            });
+        });
     }
 
     protected string GetGridName(TColumnDto item)

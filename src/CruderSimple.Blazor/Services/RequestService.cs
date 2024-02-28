@@ -16,14 +16,14 @@ namespace CruderSimple.Blazor.Services
         : IRequestService
     {
         private string _name;
-        public HttpClient HttpClient { get; set; }
+        public HttpClient HttpClient { get; private set; }
 
         public void HttpClientName(string name)
         {
             _name = name;
         }
 
-        public async Task<Result<TDto>> Create<TEntity, TDto>(TDto entity, string url = "")
+        public async Task<ResultViewModel<TDto>> Create<TEntity, TDto>(TDto entity, string url = "")
             where TEntity : IEntity
             where TDto : BaseDto
         {
@@ -31,11 +31,11 @@ namespace CruderSimple.Blazor.Services
             {
                 await CreateHttpClient();
                 var result = await HttpClient.PostAsJsonAsync($"v1/{typeof(TEntity).Name}/{url}", entity);
-                return await result.Content.ReadFromJsonAsync<Result<TDto>>();
+                return await result.Content.ReadFromJsonAsync<ResultViewModel<TDto>>();
             });
         }
 
-        public async Task<Result<TDto>> Delete<TEntity, TDto>(string id, string url = "")
+        public async Task<ResultViewModel<TDto>> Delete<TEntity, TDto>(string id, string url = "")
             where TEntity : IEntity
             where TDto : BaseDto
         {
@@ -43,7 +43,7 @@ namespace CruderSimple.Blazor.Services
             {
                 await CreateHttpClient();
                 var result = await HttpClient.DeleteAsync($"v1/{typeof(TEntity).Name}/{id}/{url}");
-                return await result.Content.ReadFromJsonAsync<Result<TDto>>();
+                return await result.Content.ReadFromJsonAsync<ResultViewModel<TDto>>();
             });
         }
 
@@ -78,7 +78,7 @@ namespace CruderSimple.Blazor.Services
             });
         }
 
-        public async Task<Result<TDto>> GetById<TEntity, TDto>(string id, string url = "", string select = "*")
+        public async Task<ResultViewModel<TDto>> GetById<TEntity, TDto>(string id, string url = "", string select = "*")
             where TEntity : IEntity
             where TDto : BaseDto
         {
@@ -94,11 +94,11 @@ namespace CruderSimple.Blazor.Services
                     _url.Append($"?{queryString}");
                 }
                 var result = await HttpClient.GetAsync(_url.ToString());
-                return await result.Content.ReadFromJsonAsync<Result<TDto>>();
+                return await result.Content.ReadFromJsonAsync<ResultViewModel<TDto>>();
             });
         }
 
-        public async Task<Result<TDto>> Update<TEntity, TDto>(string id, TDto entity, string url = "")
+        public async Task<ResultViewModel<TDto>> Update<TEntity, TDto>(string id, TDto entity, string url = "")
             where TEntity : IEntity
             where TDto : BaseDto
         {
@@ -106,7 +106,7 @@ namespace CruderSimple.Blazor.Services
             {
                 await CreateHttpClient();
                 var result = await HttpClient.PutAsJsonAsync($"v1/{typeof(TEntity).Name}/{id}/{url}", entity);
-                return await result.Content.ReadFromJsonAsync<Result<TDto>>();
+                return await result.Content.ReadFromJsonAsync<ResultViewModel<TDto>>();
             });
         }
 
@@ -130,16 +130,16 @@ namespace CruderSimple.Blazor.Services
             return result;
         }
 
-        private async Task<Result<TDto>> HandleRequest<TDto>(Func<Task<Result<TDto>>> action) where TDto : BaseDto
+        private async Task<ResultViewModel<TDto>> HandleRequest<TDto>(Func<Task<ResultViewModel<TDto>>> action) where TDto : BaseDto
         {
-            Result<TDto> result = null;
+            ResultViewModel<TDto> result = null;
             try
             {
                 result = await action();
             }
             catch (Exception e)
             {
-                result = Result<TDto>.CreateError(e.StackTrace, e.Message);
+                result = ResultViewModel<TDto>.CreateError(e.StackTrace, e.Message);
             }
             finally
             {
@@ -149,17 +149,18 @@ namespace CruderSimple.Blazor.Services
             return result;
         }
 
-        private async Task CreateHttpClient()
+        public async Task<HttpClient> CreateHttpClient()
         {
             if (HttpClient is null)
             {
                 var state = await identityAuthenticationStateProvider.GetAuthenticationStateAsync();
                 var loginResult = await identityAuthenticationStateProvider.GetUserInfo();
-                HttpClient = httpClientFactory.CreateHttpClient(_name, loginResult.Token);
+                HttpClient = httpClientFactory.CreateHttpClient(_name, loginResult?.Token);
 
                 foreach (var claim in state.User.Claims)
                     HttpClient.DefaultRequestHeaders.Add(claim.Type.Split("/").LastOrDefault(), claim.Value);
             }
+            return HttpClient;
         }
     }
 }

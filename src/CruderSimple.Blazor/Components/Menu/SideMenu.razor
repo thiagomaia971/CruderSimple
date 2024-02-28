@@ -35,7 +35,7 @@
                     <BarItem>
                         <BarDropdown Visible="@(BarRef.Visible && item.Routes.Any(x => CurrentRoute.Contains(x.Url)))">
                             <BarDropdownToggle >
-                                <BarIcon IconName="@Enum.Parse(typeof(IconName), item.Icon, true)" IconSize="IconSize.Small" Margin="Margin.Is1.FromEnd" />
+                                <BarIcon IconName="@Enum.Parse(typeof(Blazorise.IconName), item.Icon, true)" IconSize="Blazorise.IconSize.Small" Margin="Margin.Is1.FromEnd" />
                                 @item.Name
                             </BarDropdownToggle>
                             <BarDropdownMenu>
@@ -57,17 +57,17 @@
             <BarItem>
                 <BarDropdown>
                     <BarDropdownToggle >
-                        <BarIcon IconName="IconName.User" IconSize="IconSize.Small" Margin="Margin.Is1.FromEnd" />
+                        <BarIcon IconName="Blazorise.IconName.User" IconSize="Blazorise.IconSize.Small" Margin="Margin.Is1.FromEnd" />
                         @UserName
                     </BarDropdownToggle>
                     <BarDropdownMenu>
                         <BarDropdownItem>
-                            <Icon Name="IconName.Wrench" />
+                            <Icon Name="Blazorise.IconName.Wrench" />
                             User Settings
                         </BarDropdownItem>
                         <BarDropdownItem>
                             <div @onclick="@LogoutClick">
-                                <Icon Name="IconName.Lock" TextColor="TextColor.Danger" />
+                                <Icon Name="Blazorise.IconName.Lock" TextColor="TextColor.Danger" />
                                 Logout
                             </div>
                         </BarDropdownItem>

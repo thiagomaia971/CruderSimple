@@ -1,0 +1,260 @@
+﻿@using CruderSimple.Blazor.Sf.Interfaces.Services
+@using CruderSimple.Blazor.Sf.Services
+@using CruderSimple.Core.EndpointQueries
+@using CruderSimple.Core.Entities
+@using CruderSimple.Core.ViewModels
+@using Microsoft.AspNetCore.Components.Forms
+@using Syncfusion.Blazor
+@using Syncfusion.Blazor.Data
+@using CruderSimple.Core.Extensions
+@using System.Text
+
+@typeparam TGridEntity where TGridEntity : IEntity
+@typeparam TGridDto where TGridDto : BaseDto
+
+<SfGrid @ref="Grid" TValue="TGridDto" 
+        DataSource="@Data"
+        AllowPaging="true"
+        AllowSorting="true"
+        AllowSelection="true"
+        AllowFiltering="true"
+        Height="315">
+    <SfDataManager @ref="DataManagerRef"
+                   Adaptor=" Syncfusion.Blazor.Adaptors.UrlAdaptor"
+                   HttpClientInstance="@HttpClient"/>
+    <GridFilterSettings Type="Syncfusion.Blazor.Grids.FilterType.Excel" />
+    <GridPageSettings PageSize="5" />
+    <GridColumns>
+        <GridColumn Field="Id"
+                    HeaderText="Id"
+                    IsPrimaryKey
+                    AllowFiltering="true"
+                    Width="120"
+                    HeaderTextAlign="TextAlign.Left"
+                    TextAlign="TextAlign.Left"
+                    FilterSettings="@(new FilterSettings{ Operator = Operator.Contains })">
+            @* <Template>
+            @(((CovenantPriceTableDto)context).Id)
+            </Template> *@
+        </GridColumn>
+        @Columns
+    </GridColumns>
+</SfGrid>
+
+@code {
+    #region Parameters
+    [Parameter] public RenderFragment Columns { get; set; }
+
+    /// <summary>
+    /// Data modified will reflected in this property
+    /// </summary>
+    [Parameter] public List<TGridDto> Data { get; set; } = new List<TGridDto>();
+
+    /// <summary>
+    /// two-way-data-bind of Data
+    /// </summary>
+    [Parameter] public EventCallback<List<TGridDto>> DataChanged { get; set; }
+    #endregion
+
+    #region Injects
+    [Inject] public ICrudService<TGridEntity, TGridDto> Service { get; set; }
+    // [Inject] public CruderLogger<SfCruderGrid<TGridEntity, TGridDto>> Logger { get; set; }
+    // [Inject] public ICrudService<TGridEntity, TGridDto> CruderService { get; set; }
+    #endregion
+
+    #region Properties
+    public SfGrid<TGridDto> Grid { get; set; }
+    public SfDataManager DataManagerRef { get; set; }
+    public HttpClient HttpClient { get; set; }
+    #endregion
+
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Grid.FilterSettings = new GridFilterSettings
+            //     {
+            //         Type = Syncfusion.Blazor.Grids.FilterType.Menu
+            //     };
+            // Grid.PageSettings = new GridPageSettings
+            //     {
+            //         PageSize = 5
+            //     };
+            DataManagerRef.DataAdaptor = new CruderGridAdaptor<TGridEntity, TGridDto>(DataManagerRef, Service, Grid);
+
+            Data.ForEach(x => Grid.AddRecordAsync(x));
+        }
+        return base.OnAfterRenderAsync(firstRender);
+    }
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        HttpClient = await Service.CreateHttpClient();
+        await base.OnInitializedAsync();
+    }
+
+    public override Task SetParametersAsync(ParameterView parameters)
+    {
+        // if (parameters.TryGetValue<List<TGridDto>>(nameof(Data), out var data))
+        //     data.ForEach(x => Grid.AddRecordAsync(x));
+        return base.SetParametersAsync(parameters);
+    }
+
+
+
+    public class CruderGridAdaptor<TItem, TDto>(DataManager dm, ICrudService<TItem, TDto> crudService, SfGrid<TDto> Grid) : UrlAdaptor(dm)
+    where TItem : IEntity
+        where TDto : BaseDto
+    {
+        [Inject] public ICruderLogger<CruderGridAdaptor<TItem, TDto>> Logger { get; set; }
+        private DataManagerRequest Queries { get; set; }
+
+
+        public override object ProcessQuery(DataManagerRequest queries)
+        {
+            Queries = queries;
+            return new RequestOptions
+            {
+                Url = base.DataManager.Url,
+                RequestMethod = HttpMethod.Get,
+                BaseUrl = base.DataManager.BaseUri,
+                Data = queries
+            };
+        }
+
+
+        public override async Task<object> PerformDataOperation<T>(object queries)
+        {
+            var columns = await Grid.GetColumnsAsync();
+            var select = GetQuerySelect(columns);
+            // var filter = GetQueryFilter(columns);
+
+            var query = new GetAllEndpointQuery(
+                select, 
+                null, 
+                null, 
+                Queries.Take, 
+                (Queries.Skip / Queries.Take)+1);
+
+            var _url = new StringBuilder($"v1/{typeof(TItem).Name}");
+
+            var queryString = System.Web.HttpUtility.ParseQueryString(string.Empty);
+            if (!string.IsNullOrEmpty(query.select))
+                queryString.Add("select", query.select);
+            if (query.page != 0)
+                queryString.Add("page", query.page.ToString());
+            if (query.size != 0)
+                queryString.Add("size", query.size.ToString());
+            if (query.skip != 0)
+                queryString.Add("skip", query.skip.ToString());
+            if (!string.IsNullOrEmpty(query.filter))
+                queryString.Add("filter", query.filter);
+            if (!string.IsNullOrEmpty(query.orderBy))
+                queryString.Add("orderBy", query.orderBy);
+
+            if (queryString.Count > 0)
+                _url.Append($"?{queryString.ToString()}");
+
+            var result = await dm.HttpClientInstance.GetAsync(_url.ToString());
+            return result;
+            // return await crudService.GetAll(Query);
+            // return base.PerformDataOperation<T>(queries);
+        }
+
+
+        protected virtual string GetQuerySelect(List<GridColumn> dataGridFields)
+        {
+            // if (string.IsNullOrEmpty(CustomSelect))
+            //     return "*";
+
+            var select = string.Join(",", dataGridFields
+                .Where(x => !string.IsNullOrEmpty(x.Field))
+                .Select(x =>
+                {
+                    // if (typeof(TDto).IsPropertyEnumerableType(x.Field))
+                    //     return $"{x.Field}.Id";
+                    return x.Field;
+                }));
+
+            // if (!string.IsNullOrEmpty(CustomSelect))
+            //     select += $",{CustomSelect}";
+
+            return select;
+        }
+
+        // protected virtual string GetQueryFilter(List<GridColumn> dataGridFields, List<string> filters = null)
+        // {
+        //     if (filters is null)
+        //         filters = new List<string>();
+
+        //     foreach (var columnInfo in dataGridFields.Where(x =>
+        //                 x.FilterSettings. != null &&
+        //                 !string.IsNullOrEmpty(x.Field)))
+        //     {
+        //         var filter = (ListPageFilter)columnInfo.SearchValue;
+        //         if (string.IsNullOrEmpty(filter.SearchValue))
+        //             continue;
+        //         var searchValues = filter.SearchValue.Split("_");
+
+        //         switch (columnInfo.ColumnType)
+        //         {
+        //             case DataGridColumnType.Text:
+        //             case DataGridColumnType.Numeric:
+        //             case DataGridColumnType.Check:
+        //                 filters.Add($"{columnInfo.Field} {filter.FilterMethod} {searchValues[0]}");
+        //                 break;
+        //             case DataGridColumnType.Date:
+        //                 if (!string.IsNullOrEmpty(searchValues[0]))
+        //                     filters.Add($"{columnInfo.Field} {Op.GreaterThanOrEqual} {searchValues[0]}");
+        //                 if (!string.IsNullOrEmpty(searchValues[1]))
+        //                     filters.Add($"{columnInfo.Field} {Op.LessThanOrEqual} {searchValues[1]}");
+        //                 break;
+        //             case DataGridColumnType.MultiSelect:
+        //             case DataGridColumnType.Select:
+        //                 // TODO: implementar AnyContains e MultiSelect
+        //                 // Field is a IEntity or Enumerable<IEntity>
+
+        //                 var selectColumn = (DataGridSelectColumn<TDto>)DataGridRef.GetColumns().FirstOrDefault(x => x.Field == columnInfo.Field);
+        //                 var itemType = selectColumn.GetType().GenericTypeArguments[0];
+        //                 var property = itemType.GetProperty(selectColumn.Field);
+        //                 var field = (string)selectColumn.Attributes["Field"];
+
+        //                 if (property.PropertyType.IsEnumerableType(out _))
+        //                 {
+        //                     if (field != null)
+        //                         filters.Add($"{field} {Op.AnyEquals} {searchValues[0]}");
+        //                     else
+        //                         filters.Add($"{columnInfo.Field}.Id {Op.AnyEquals} {searchValues[0]}");
+        //                 }
+        //                 else
+        //                 {
+        //                     if (field != null)
+        //                         filters.Add($"{field} {Op.Equals} {searchValues[0]}");
+        //                     else
+        //                         filters.Add($"{selectColumn.Field}.Id {Op.Equals} {searchValues[0]}");
+        //                 }
+        //                 break;
+        //             case DataGridColumnType.Command:
+        //                 break;
+        //         }
+        //     }
+        //     return string.Join(",", filters);
+        // }
+
+        // public override async Task<object> ProcessResponse<T>(object data, DataManagerRequest queries)
+        // {
+        //     Console.WriteLine("Retorno: " + data.ToJson());
+
+        //     // var x = (Pagination<TDto>)data;
+        //     // var re = base.ProcessResponse<T>((object)new
+        //     // {
+        //     //     result = x.Data,
+        //     //     count = x.Size
+        //     // }, queries);
+        //     // Console.WriteLine("Retorno: " + re.ToJson());
+        //     return data;
+        // }
+    }
+
+}

@@ -17,13 +17,8 @@ public partial class GridEditLocal<TGridEntity, TGridDto> : CruderGridBase<TGrid
     where TGridEntity : IEntity
     where TGridDto : BaseDto
 {
-    public override IList<TGridDto> AllData 
-        => SearchedData
-            .DistinctBy(x => x.Id)
-            .ToList();
-
-    [Parameter] public IEnumerable<TGridDto> Data { get; set; } = Enumerable.Empty<TGridDto>();
-    [Parameter] public EventCallback<IEnumerable<TGridDto>> DataChanged { get; set; }
+    [Parameter] public IList<TGridDto> Data { get; set; } = new List<TGridDto>();
+    [Parameter] public EventCallback<IList<TGridDto>> DataChanged { get; set; }
 
     /// <summary>
     /// Filter API by Key
@@ -65,20 +60,6 @@ public partial class GridEditLocal<TGridEntity, TGridDto> : CruderGridBase<TGrid
 
     public Dictionary<string, (TGridDto OldItem, TGridDto NewItem)> BackupModified { get; set;} = new Dictionary<string, (TGridDto, TGridDto)>();
     public Dictionary<string, (TGridDto OldItem, TGridDto NewItem)> BackupDeleted { get; set; } = new Dictionary<string, (TGridDto, TGridDto)>();
-
-    protected override Task OnInitializedAsync()
-    {
-        CruderGridEvents.OnColumnValueChanged += async (oldItem, newItem) =>
-        {
-            await UpdateData(oldItem, newItem);
-        };
-        CruderGridEvents.OnColumnSelected += async (item) =>
-        {
-            await OpenEditMode(item);
-        };
-
-        return base.OnInitializedAsync();
-    }
 
 
     protected override async Task OnParametersSetAsync()

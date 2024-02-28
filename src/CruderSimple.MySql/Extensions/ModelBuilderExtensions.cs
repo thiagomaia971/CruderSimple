@@ -1,12 +1,8 @@
-﻿using System.Collections;
-using System.Data.Entity;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using System.Reflection;
 using CruderSimple.Core.Entities;
-using CruderSimple.MySql.Attributes;
-using CruderSimple.MySql.Entities;
+using CruderSimple.Core.Attributes;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Internal;
 using DbContext = Microsoft.EntityFrameworkCore.DbContext;
 using EntityState = Microsoft.EntityFrameworkCore.EntityState;
 

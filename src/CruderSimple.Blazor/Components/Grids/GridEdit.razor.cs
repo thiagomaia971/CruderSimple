@@ -139,7 +139,7 @@ public partial class GridEdit<TEntity, TDto> : CruderGridBase<TEntity, TDto>
             Errors = null;
             try
             {
-                Result<TDto> result = null;
+                ResultViewModel<TDto> result = null;
                 if (DefaultNewInstance is not null)
                     DefaultNewInstance(CurrentSelected);
                 if (IsNewModal)

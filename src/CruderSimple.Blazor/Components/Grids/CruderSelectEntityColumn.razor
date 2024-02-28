@@ -1,8 +1,11 @@
 ﻿@typeparam TColumnEntity
 @typeparam TColumnDto
+@typeparam TSelectEntity
 @typeparam TSelectEntityDto
 @inherits CruderColumnBase<TColumnEntity, TColumnDto>
+@using CruderSimple.Core.ViewModels
 
+@_Id
 <DataGridSelectColumn @ref="DataGridSelectColumn" 
                       TItem="TColumnDto"
                       Field="@ColumnField"
@@ -13,7 +16,7 @@
                       Attributes="@Attributes"
                       ValueField="(x) => ((TColumnDto)x).GetKey"
                       TextField="(x) => ((TColumnDto)x).GetValue"
-                      SortField="Procedure.Code"
+                      SortField="@GridSort"
                       HeaderCellStyle="line-height: 38px"
                       HeaderTextAlignment="TextAlignment.Start"
                       VerticalAlignment="VerticalAlignment.Middle"
@@ -24,7 +27,13 @@
         <Div @onclick="@((_) => OnClick(context))">
             @if (AlwaysEditable && PermissionService.CanWrite)
             {
-                @(SelectComponent = CreateSelectComponent(context.GetValueByPropertyName(ColumnField)))
+                <EntityAutocomplete TEntity="TSelectEntity"
+                                    TEntityResult="TSelectEntityDto"
+                                    SearchKey="@SelectSearchKey"
+                                    SelectedValue="@((TSelectEntityDto) context.GetValueByPropertyName(ColumnField))"
+                                    SelectedObjectValueChanged="SelectChanged"
+                                    Required="false" />
+                @* @(CreateSelectComponent(context.GetValueByPropertyName(ColumnField))) *@
             }
             else
             {
@@ -40,9 +49,6 @@
         </Div>
     </DisplayTemplate>
     <EditTemplate>
-        @if (SelectComponent is not null)
-        {
-            @SelectComponent
-        }
+        @* @(CreateSelectComponent(context.CellValue)) *@
     </EditTemplate>
 </DataGridSelectColumn>

@@ -1,7 +1,6 @@
 ﻿using CruderSimple.Core.Entities;
 using CruderSimple.Core.Extensions;
 using CruderSimple.Core.Interfaces;
-using CruderSimple.MySql.Interfaces;
 using CruderSimple.MySql.Repositories;
 using Mapster;
 using MediatR;
@@ -29,7 +28,7 @@ public static class Configuration
         services
             .AddMediatR(typeof(Configuration))
             // .AddDynamodbMapper(configuration, environment)
-            .AddRepositories<IEntity>(typeof(IRepositoryBase<>), typeof(Repository<>))
+            .AddRepositories<IEntity>(typeof(IRepository<>), typeof(Repository<>))
             .AddRepositories<IEntity>(typeof(IRepository<>), typeof(Repository<>))
             .AddRepositories<TMultiTenant>(multiTenantRepositoryInterface, multiTenantRepositoryImplementation)
             .AddScoped<MultiTenantScoped>(_ => new MultiTenantScoped(typeof(TMultiTenant)));

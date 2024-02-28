@@ -1,0 +1,507 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\Workstation\\CruderSimple\\src\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{8DA06330-A1ED-4886-B1AC-CC7DC13F2AF2}|CruderSimple.Blazor.Example.Sf\\CruderSimple.Blazor.Example.Sf.csproj|d:\\workstation\\crudersimple\\src\\crudersimple.blazor.example.sf\\wwwroot\\index.html||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{8DA06330-A1ED-4886-B1AC-CC7DC13F2AF2}|CruderSimple.Blazor.Example.Sf\\CruderSimple.Blazor.Example.Sf.csproj|solutionrelative:crudersimple.blazor.example.sf\\wwwroot\\index.html||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{75908EC5-8A79-47B7-B88F-4DBF4D86CA81}|CruderSimple.Blazor\\CruderSimple.Blazor.csproj|d:\\workstation\\crudersimple\\src\\crudersimple.blazor\\services\\cruderlogger.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{75908EC5-8A79-47B7-B88F-4DBF4D86CA81}|CruderSimple.Blazor\\CruderSimple.Blazor.csproj|solutionrelative:crudersimple.blazor\\services\\cruderlogger.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F4222512-0D06-4CAA-871D-76E10507B399}|CruderSimple.Blazor.Sf\\CruderSimple.Blazor.Sf.csproj|d:\\workstation\\crudersimple\\src\\crudersimple.blazor.sf\\services\\cruderlogger.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F4222512-0D06-4CAA-871D-76E10507B399}|CruderSimple.Blazor.Sf\\CruderSimple.Blazor.Sf.csproj|solutionrelative:crudersimple.blazor.sf\\services\\cruderlogger.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F4222512-0D06-4CAA-871D-76E10507B399}|CruderSimple.Blazor.Sf\\CruderSimple.Blazor.Sf.csproj|d:\\workstation\\crudersimple\\src\\crudersimple.blazor.sf\\extensions\\servicecollectionextensions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F4222512-0D06-4CAA-871D-76E10507B399}|CruderSimple.Blazor.Sf\\CruderSimple.Blazor.Sf.csproj|solutionrelative:crudersimple.blazor.sf\\extensions\\servicecollectionextensions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8DA06330-A1ED-4886-B1AC-CC7DC13F2AF2}|CruderSimple.Blazor.Example.Sf\\CruderSimple.Blazor.Example.Sf.csproj|d:\\workstation\\crudersimple\\src\\crudersimple.blazor.example.sf\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8DA06330-A1ED-4886-B1AC-CC7DC13F2AF2}|CruderSimple.Blazor.Example.Sf\\CruderSimple.Blazor.Example.Sf.csproj|solutionrelative:crudersimple.blazor.example.sf\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8D896232-729C-43AF-B20C-F770C8446675}|CruderSimple.Core\\CruderSimple.Core.csproj|d:\\workstation\\crudersimple\\src\\crudersimple.core\\entities\\entity.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8D896232-729C-43AF-B20C-F770C8446675}|CruderSimple.Core\\CruderSimple.Core.csproj|solutionrelative:crudersimple.core\\entities\\entity.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8D896232-729C-43AF-B20C-F770C8446675}|CruderSimple.Core\\CruderSimple.Core.csproj|d:\\workstation\\crudersimple\\src\\crudersimple.core\\interfaces\\irepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8D896232-729C-43AF-B20C-F770C8446675}|CruderSimple.Core\\CruderSimple.Core.csproj|solutionrelative:crudersimple.core\\interfaces\\irepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F4222512-0D06-4CAA-871D-76E10507B399}|CruderSimple.Blazor.Sf\\CruderSimple.Blazor.Sf.csproj|d:\\workstation\\crudersimple\\src\\crudersimple.blazor.sf\\components\\sfcrudergrid.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{F4222512-0D06-4CAA-871D-76E10507B399}|CruderSimple.Blazor.Sf\\CruderSimple.Blazor.Sf.csproj|solutionrelative:crudersimple.blazor.sf\\components\\sfcrudergrid.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{75908EC5-8A79-47B7-B88F-4DBF4D86CA81}|CruderSimple.Blazor\\CruderSimple.Blazor.csproj|d:\\workstation\\crudersimple\\src\\crudersimple.blazor\\extensions\\servicecollectionextensions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{75908EC5-8A79-47B7-B88F-4DBF4D86CA81}|CruderSimple.Blazor\\CruderSimple.Blazor.csproj|solutionrelative:crudersimple.blazor\\extensions\\servicecollectionextensions.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{75908EC5-8A79-47B7-B88F-4DBF4D86CA81}|CruderSimple.Blazor\\CruderSimple.Blazor.csproj|d:\\workstation\\crudersimple\\src\\crudersimple.blazor\\crudersimple.blazor.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{75908EC5-8A79-47B7-B88F-4DBF4D86CA81}|CruderSimple.Blazor\\CruderSimple.Blazor.csproj|solutionrelative:crudersimple.blazor\\crudersimple.blazor.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F4222512-0D06-4CAA-871D-76E10507B399}|CruderSimple.Blazor.Sf\\CruderSimple.Blazor.Sf.csproj|d:\\workstation\\crudersimple\\src\\crudersimple.blazor.sf\\crudersimple.blazor.sf.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{F4222512-0D06-4CAA-871D-76E10507B399}|CruderSimple.Blazor.Sf\\CruderSimple.Blazor.Sf.csproj|solutionrelative:crudersimple.blazor.sf\\crudersimple.blazor.sf.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Workstation\\odonto-management\\src\\OdontoManagement.Web\\Program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Workstation\\odonto-management\\src\\OdontoManagement.Domain\\Models\\Identity\\CompanyEntity.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Workstation\\odonto-management\\src\\OdontoManagement.Domain\\Models\\CovenantPriceTableVersion.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Workstation\\odonto-management\\src\\OdontoManagement.Domain\\Models\\Identity\\Permission.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Workstation\\odonto-management\\src\\OdontoManagement.Domain\\Models\\Clinic.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Workstation\\odonto-management\\src\\OdontoManagement.Domain\\Models\\Identity\\Route.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Workstation\\odonto-management\\src\\OdontoManagement.Domain\\Models\\Identity\\UserRole.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|D:\\Workstation\\odonto-management\\src\\OdontoManagement.Domain\\Models\\Identity\\User.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8DA06330-A1ED-4886-B1AC-CC7DC13F2AF2}|CruderSimple.Blazor.Example.Sf\\CruderSimple.Blazor.Example.Sf.csproj|d:\\workstation\\crudersimple\\src\\crudersimple.blazor.example.sf\\pages\\home.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{8DA06330-A1ED-4886-B1AC-CC7DC13F2AF2}|CruderSimple.Blazor.Example.Sf\\CruderSimple.Blazor.Example.Sf.csproj|solutionrelative:crudersimple.blazor.example.sf\\pages\\home.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8D896232-729C-43AF-B20C-F770C8446675}|CruderSimple.Core\\CruderSimple.Core.csproj|d:\\workstation\\crudersimple\\src\\crudersimple.core\\crudersimple.core.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{8D896232-729C-43AF-B20C-F770C8446675}|CruderSimple.Core\\CruderSimple.Core.csproj|solutionrelative:crudersimple.core\\crudersimple.core.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8DA06330-A1ED-4886-B1AC-CC7DC13F2AF2}|CruderSimple.Blazor.Example.Sf\\CruderSimple.Blazor.Example.Sf.csproj|d:\\workstation\\crudersimple\\src\\crudersimple.blazor.example.sf\\crudersimple.blazor.example.sf.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
+      "RelativeMoniker": "D:0:0:{8DA06330-A1ED-4886-B1AC-CC7DC13F2AF2}|CruderSimple.Blazor.Example.Sf\\CruderSimple.Blazor.Example.Sf.csproj|solutionrelative:crudersimple.blazor.example.sf\\crudersimple.blazor.example.sf.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8DA06330-A1ED-4886-B1AC-CC7DC13F2AF2}|CruderSimple.Blazor.Example.Sf\\CruderSimple.Blazor.Example.Sf.csproj|d:\\workstation\\crudersimple\\src\\crudersimple.blazor.example.sf\\_imports.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{8DA06330-A1ED-4886-B1AC-CC7DC13F2AF2}|CruderSimple.Blazor.Example.Sf\\CruderSimple.Blazor.Example.Sf.csproj|solutionrelative:crudersimple.blazor.example.sf\\_imports.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8DA06330-A1ED-4886-B1AC-CC7DC13F2AF2}|CruderSimple.Blazor.Example.Sf\\CruderSimple.Blazor.Example.Sf.csproj|d:\\workstation\\crudersimple\\src\\crudersimple.blazor.example.sf\\wwwroot\\css\\app.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}",
+      "RelativeMoniker": "D:0:0:{8DA06330-A1ED-4886-B1AC-CC7DC13F2AF2}|CruderSimple.Blazor.Example.Sf\\CruderSimple.Blazor.Example.Sf.csproj|solutionrelative:crudersimple.blazor.example.sf\\wwwroot\\css\\app.css||{A5401142-F49D-43DB-90B1-F57BA349E55C}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8DA06330-A1ED-4886-B1AC-CC7DC13F2AF2}|CruderSimple.Blazor.Example.Sf\\CruderSimple.Blazor.Example.Sf.csproj|d:\\workstation\\crudersimple\\src\\crudersimple.blazor.example.sf\\app.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{8DA06330-A1ED-4886-B1AC-CC7DC13F2AF2}|CruderSimple.Blazor.Example.Sf\\CruderSimple.Blazor.Example.Sf.csproj|solutionrelative:crudersimple.blazor.example.sf\\app.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8DA06330-A1ED-4886-B1AC-CC7DC13F2AF2}|CruderSimple.Blazor.Example.Sf\\CruderSimple.Blazor.Example.Sf.csproj|d:\\workstation\\crudersimple\\src\\crudersimple.blazor.example.sf\\layout\\mainlayout.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{8DA06330-A1ED-4886-B1AC-CC7DC13F2AF2}|CruderSimple.Blazor.Example.Sf\\CruderSimple.Blazor.Example.Sf.csproj|solutionrelative:crudersimple.blazor.example.sf\\layout\\mainlayout.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F4222512-0D06-4CAA-871D-76E10507B399}|CruderSimple.Blazor.Sf\\CruderSimple.Blazor.Sf.csproj|d:\\workstation\\crudersimple\\src\\crudersimple.blazor.sf\\interfaces\\services\\icruderlogger.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F4222512-0D06-4CAA-871D-76E10507B399}|CruderSimple.Blazor.Sf\\CruderSimple.Blazor.Sf.csproj|solutionrelative:crudersimple.blazor.sf\\interfaces\\services\\icruderlogger.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F4222512-0D06-4CAA-871D-76E10507B399}|CruderSimple.Blazor.Sf\\CruderSimple.Blazor.Sf.csproj|d:\\workstation\\crudersimple\\src\\crudersimple.blazor.sf\\services\\crudservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F4222512-0D06-4CAA-871D-76E10507B399}|CruderSimple.Blazor.Sf\\CruderSimple.Blazor.Sf.csproj|solutionrelative:crudersimple.blazor.sf\\services\\crudservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F4222512-0D06-4CAA-871D-76E10507B399}|CruderSimple.Blazor.Sf\\CruderSimple.Blazor.Sf.csproj|d:\\workstation\\crudersimple\\src\\crudersimple.blazor.sf\\interfaces\\services\\icrudservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F4222512-0D06-4CAA-871D-76E10507B399}|CruderSimple.Blazor.Sf\\CruderSimple.Blazor.Sf.csproj|solutionrelative:crudersimple.blazor.sf\\interfaces\\services\\icrudservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{8DA06330-A1ED-4886-B1AC-CC7DC13F2AF2}|CruderSimple.Blazor.Example.Sf\\CruderSimple.Blazor.Example.Sf.csproj|d:\\workstation\\crudersimple\\src\\crudersimple.blazor.example.sf\\pages\\counter.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{8DA06330-A1ED-4886-B1AC-CC7DC13F2AF2}|CruderSimple.Blazor.Example.Sf\\CruderSimple.Blazor.Example.Sf.csproj|solutionrelative:crudersimple.blazor.example.sf\\pages\\counter.razor||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 11,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\Workstation\\CruderSimple\\src\\CruderSimple.Blazor.Example.Sf\\Program.cs",
+              "RelativeDocumentMoniker": "CruderSimple.Blazor.Example.Sf\\Program.cs",
+              "ToolTip": "D:\\Workstation\\CruderSimple\\src\\CruderSimple.Blazor.Example.Sf\\Program.cs",
+              "RelativeToolTip": "CruderSimple.Blazor.Example.Sf\\Program.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABAAAAAYAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-02-09T00:14:42.216Z",
+              "IsPinned": true,
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "Home.razor",
+              "DocumentMoniker": "D:\\Workstation\\CruderSimple\\src\\CruderSimple.Blazor.Example.Sf\\Pages\\Home.razor",
+              "RelativeDocumentMoniker": "CruderSimple.Blazor.Example.Sf\\Pages\\Home.razor",
+              "ToolTip": "D:\\Workstation\\CruderSimple\\src\\CruderSimple.Blazor.Example.Sf\\Pages\\Home.razor",
+              "RelativeToolTip": "CruderSimple.Blazor.Example.Sf\\Pages\\Home.razor",
+              "ViewState": "AQIAAAMAAAAAAAAAAAAAAB0AAAAJAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2024-02-09T00:31:47.425Z",
+              "IsPinned": true
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "SfCruderGrid.razor",
+              "DocumentMoniker": "D:\\Workstation\\CruderSimple\\src\\CruderSimple.Blazor.Sf\\Components\\SfCruderGrid.razor",
+              "RelativeDocumentMoniker": "CruderSimple.Blazor.Sf\\Components\\SfCruderGrid.razor",
+              "ToolTip": "D:\\Workstation\\CruderSimple\\src\\CruderSimple.Blazor.Sf\\Components\\SfCruderGrid.razor",
+              "RelativeToolTip": "CruderSimple.Blazor.Sf\\Components\\SfCruderGrid.razor",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAHkAAAAeAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2024-02-09T00:19:38.284Z",
+              "IsPinned": true,
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "CruderLogger.cs",
+              "DocumentMoniker": "D:\\Workstation\\CruderSimple\\src\\CruderSimple.Blazor\\Services\\CruderLogger.cs",
+              "RelativeDocumentMoniker": "CruderSimple.Blazor\\Services\\CruderLogger.cs",
+              "ToolTip": "D:\\Workstation\\CruderSimple\\src\\CruderSimple.Blazor\\Services\\CruderLogger.cs",
+              "RelativeToolTip": "CruderSimple.Blazor\\Services\\CruderLogger.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAwAAAA1AAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-02-09T12:06:23.311Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "IRepository.cs",
+              "DocumentMoniker": "D:\\Workstation\\CruderSimple\\src\\CruderSimple.Core\\Interfaces\\IRepository.cs",
+              "RelativeDocumentMoniker": "CruderSimple.Core\\Interfaces\\IRepository.cs",
+              "ToolTip": "D:\\Workstation\\CruderSimple\\src\\CruderSimple.Core\\Interfaces\\IRepository.cs",
+              "RelativeToolTip": "CruderSimple.Core\\Interfaces\\IRepository.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA8AAAABAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-02-09T11:41:33.262Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "CruderSimple.Blazor",
+              "DocumentMoniker": "D:\\Workstation\\CruderSimple\\src\\CruderSimple.Blazor\\CruderSimple.Blazor.csproj",
+              "RelativeDocumentMoniker": "CruderSimple.Blazor\\CruderSimple.Blazor.csproj",
+              "ToolTip": "D:\\Workstation\\CruderSimple\\src\\CruderSimple.Blazor\\CruderSimple.Blazor.csproj",
+              "RelativeToolTip": "CruderSimple.Blazor\\CruderSimple.Blazor.csproj",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAACIAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2024-02-09T11:35:49.56Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\Workstation\\odonto-management\\src\\OdontoManagement.Web\\Program.cs",
+              "RelativeDocumentMoniker": "..\\..\\odonto-management\\src\\OdontoManagement.Web\\Program.cs",
+              "ToolTip": "D:\\Workstation\\odonto-management\\src\\OdontoManagement.Web\\Program.cs",
+              "RelativeToolTip": "..\\..\\odonto-management\\src\\OdontoManagement.Web\\Program.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA0AAAAwAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-02-09T11:31:53.866Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 25,
+              "Title": "MainLayout.razor",
+              "DocumentMoniker": "D:\\Workstation\\CruderSimple\\src\\CruderSimple.Blazor.Example.Sf\\Layout\\MainLayout.razor",
+              "RelativeDocumentMoniker": "CruderSimple.Blazor.Example.Sf\\Layout\\MainLayout.razor",
+              "ToolTip": "D:\\Workstation\\CruderSimple\\src\\CruderSimple.Blazor.Example.Sf\\Layout\\MainLayout.razor",
+              "RelativeToolTip": "CruderSimple.Blazor.Example.Sf\\Layout\\MainLayout.razor",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA0AAAAvAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2024-02-09T00:55:59.146Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "ServiceCollectionExtensions.cs",
+              "DocumentMoniker": "D:\\Workstation\\CruderSimple\\src\\CruderSimple.Blazor.Sf\\Extensions\\ServiceCollectionExtensions.cs",
+              "RelativeDocumentMoniker": "CruderSimple.Blazor.Sf\\Extensions\\ServiceCollectionExtensions.cs",
+              "ToolTip": "D:\\Workstation\\CruderSimple\\src\\CruderSimple.Blazor.Sf\\Extensions\\ServiceCollectionExtensions.cs",
+              "RelativeToolTip": "CruderSimple.Blazor.Sf\\Extensions\\ServiceCollectionExtensions.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAqwBkAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-02-09T00:16:22.755Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "ServiceCollectionExtensions.cs",
+              "DocumentMoniker": "D:\\Workstation\\CruderSimple\\src\\CruderSimple.Blazor\\Extensions\\ServiceCollectionExtensions.cs",
+              "RelativeDocumentMoniker": "CruderSimple.Blazor\\Extensions\\ServiceCollectionExtensions.cs",
+              "ToolTip": "D:\\Workstation\\CruderSimple\\src\\CruderSimple.Blazor\\Extensions\\ServiceCollectionExtensions.cs",
+              "RelativeToolTip": "CruderSimple.Blazor\\Extensions\\ServiceCollectionExtensions.cs",
+              "ViewState": "AQIAAA0AAAAAAAAAAAAcwCcAAAAkAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-02-09T00:16:58.25Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "CruderLogger.cs",
+              "DocumentMoniker": "D:\\Workstation\\CruderSimple\\src\\CruderSimple.Blazor.Sf\\Services\\CruderLogger.cs",
+              "RelativeDocumentMoniker": "CruderSimple.Blazor.Sf\\Services\\CruderLogger.cs",
+              "ToolTip": "D:\\Workstation\\CruderSimple\\src\\CruderSimple.Blazor.Sf\\Services\\CruderLogger.cs",
+              "RelativeToolTip": "CruderSimple.Blazor.Sf\\Services\\CruderLogger.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAUAAAAdAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-02-09T00:26:57.057Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "index.html",
+              "DocumentMoniker": "D:\\Workstation\\CruderSimple\\src\\CruderSimple.Blazor.Example.Sf\\wwwroot\\index.html",
+              "RelativeDocumentMoniker": "CruderSimple.Blazor.Example.Sf\\wwwroot\\index.html",
+              "ToolTip": "D:\\Workstation\\CruderSimple\\src\\CruderSimple.Blazor.Example.Sf\\wwwroot\\index.html",
+              "RelativeToolTip": "CruderSimple.Blazor.Example.Sf\\wwwroot\\index.html",
+              "ViewState": "AQIAAAwAAAAAAAAAAAAAACEAAAA7AAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001512|",
+              "WhenOpened": "2024-02-09T00:46:57.499Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 21,
+              "Title": "CruderSimple.Blazor.Example.Sf.csproj",
+              "DocumentMoniker": "D:\\Workstation\\CruderSimple\\src\\CruderSimple.Blazor.Example.Sf\\CruderSimple.Blazor.Example.Sf.csproj",
+              "RelativeDocumentMoniker": "CruderSimple.Blazor.Example.Sf\\CruderSimple.Blazor.Example.Sf.csproj",
+              "ToolTip": "D:\\Workstation\\CruderSimple\\src\\CruderSimple.Blazor.Example.Sf\\CruderSimple.Blazor.Example.Sf.csproj",
+              "RelativeToolTip": "CruderSimple.Blazor.Example.Sf\\CruderSimple.Blazor.Example.Sf.csproj",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2024-02-09T01:01:43.349Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 23,
+              "Title": "app.css",
+              "DocumentMoniker": "D:\\Workstation\\CruderSimple\\src\\CruderSimple.Blazor.Example.Sf\\wwwroot\\css\\app.css",
+              "RelativeDocumentMoniker": "CruderSimple.Blazor.Example.Sf\\wwwroot\\css\\app.css",
+              "ToolTip": "D:\\Workstation\\CruderSimple\\src\\CruderSimple.Blazor.Example.Sf\\wwwroot\\css\\app.css",
+              "RelativeToolTip": "CruderSimple.Blazor.Example.Sf\\wwwroot\\css\\app.css",
+              "ViewState": "AQIAABIAAAAAAAAAAAAAAAkAAAATAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003000|",
+              "WhenOpened": "2024-02-09T01:26:03.661Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 20,
+              "Title": "CruderSimple.Core.csproj",
+              "DocumentMoniker": "D:\\Workstation\\CruderSimple\\src\\CruderSimple.Core\\CruderSimple.Core.csproj",
+              "RelativeDocumentMoniker": "CruderSimple.Core\\CruderSimple.Core.csproj",
+              "ToolTip": "D:\\Workstation\\CruderSimple\\src\\CruderSimple.Core\\CruderSimple.Core.csproj",
+              "RelativeToolTip": "CruderSimple.Core\\CruderSimple.Core.csproj",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA4AAABVAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2024-02-09T01:59:52.178Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "User.cs",
+              "DocumentMoniker": "D:\\Workstation\\odonto-management\\src\\OdontoManagement.Domain\\Models\\Identity\\User.cs",
+              "RelativeDocumentMoniker": "..\\..\\odonto-management\\src\\OdontoManagement.Domain\\Models\\Identity\\User.cs",
+              "ToolTip": "D:\\Workstation\\odonto-management\\src\\OdontoManagement.Domain\\Models\\Identity\\User.cs",
+              "RelativeToolTip": "..\\..\\odonto-management\\src\\OdontoManagement.Domain\\Models\\Identity\\User.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-02-09T11:31:52.432Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "Entity.cs",
+              "DocumentMoniker": "D:\\Workstation\\CruderSimple\\src\\CruderSimple.Core\\Entities\\Entity.cs",
+              "RelativeDocumentMoniker": "CruderSimple.Core\\Entities\\Entity.cs",
+              "ToolTip": "D:\\Workstation\\CruderSimple\\src\\CruderSimple.Core\\Entities\\Entity.cs",
+              "RelativeToolTip": "CruderSimple.Core\\Entities\\Entity.cs",
+              "ViewState": "AQIAABIAAAAAAAAAAAAowCcAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-02-09T00:33:49.331Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "UserRole.cs",
+              "DocumentMoniker": "D:\\Workstation\\odonto-management\\src\\OdontoManagement.Domain\\Models\\Identity\\UserRole.cs",
+              "RelativeDocumentMoniker": "..\\..\\odonto-management\\src\\OdontoManagement.Domain\\Models\\Identity\\UserRole.cs",
+              "ToolTip": "D:\\Workstation\\odonto-management\\src\\OdontoManagement.Domain\\Models\\Identity\\UserRole.cs",
+              "RelativeToolTip": "..\\..\\odonto-management\\src\\OdontoManagement.Domain\\Models\\Identity\\UserRole.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-02-09T11:31:53.535Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "Route.cs",
+              "DocumentMoniker": "D:\\Workstation\\odonto-management\\src\\OdontoManagement.Domain\\Models\\Identity\\Route.cs",
+              "RelativeDocumentMoniker": "..\\..\\odonto-management\\src\\OdontoManagement.Domain\\Models\\Identity\\Route.cs",
+              "ToolTip": "D:\\Workstation\\odonto-management\\src\\OdontoManagement.Domain\\Models\\Identity\\Route.cs",
+              "RelativeToolTip": "..\\..\\odonto-management\\src\\OdontoManagement.Domain\\Models\\Identity\\Route.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-02-09T11:31:53.561Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "Clinic.cs",
+              "DocumentMoniker": "D:\\Workstation\\odonto-management\\src\\OdontoManagement.Domain\\Models\\Clinic.cs",
+              "RelativeDocumentMoniker": "..\\..\\odonto-management\\src\\OdontoManagement.Domain\\Models\\Clinic.cs",
+              "ToolTip": "D:\\Workstation\\odonto-management\\src\\OdontoManagement.Domain\\Models\\Clinic.cs",
+              "RelativeToolTip": "..\\..\\odonto-management\\src\\OdontoManagement.Domain\\Models\\Clinic.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-02-09T11:31:53.584Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "Permission.cs",
+              "DocumentMoniker": "D:\\Workstation\\odonto-management\\src\\OdontoManagement.Domain\\Models\\Identity\\Permission.cs",
+              "RelativeDocumentMoniker": "..\\..\\odonto-management\\src\\OdontoManagement.Domain\\Models\\Identity\\Permission.cs",
+              "ToolTip": "D:\\Workstation\\odonto-management\\src\\OdontoManagement.Domain\\Models\\Identity\\Permission.cs",
+              "RelativeToolTip": "..\\..\\odonto-management\\src\\OdontoManagement.Domain\\Models\\Identity\\Permission.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-02-09T11:31:53.607Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "CovenantPriceTableVersion.cs",
+              "DocumentMoniker": "D:\\Workstation\\odonto-management\\src\\OdontoManagement.Domain\\Models\\CovenantPriceTableVersion.cs",
+              "RelativeDocumentMoniker": "..\\..\\odonto-management\\src\\OdontoManagement.Domain\\Models\\CovenantPriceTableVersion.cs",
+              "ToolTip": "D:\\Workstation\\odonto-management\\src\\OdontoManagement.Domain\\Models\\CovenantPriceTableVersion.cs",
+              "RelativeToolTip": "..\\..\\odonto-management\\src\\OdontoManagement.Domain\\Models\\CovenantPriceTableVersion.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAxwAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-02-09T11:31:53.632Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "CruderSimple.Blazor.Sf.csproj",
+              "DocumentMoniker": "D:\\Workstation\\CruderSimple\\src\\CruderSimple.Blazor.Sf\\CruderSimple.Blazor.Sf.csproj",
+              "RelativeDocumentMoniker": "CruderSimple.Blazor.Sf\\CruderSimple.Blazor.Sf.csproj",
+              "ToolTip": "D:\\Workstation\\CruderSimple\\src\\CruderSimple.Blazor.Sf\\CruderSimple.Blazor.Sf.csproj",
+              "RelativeToolTip": "CruderSimple.Blazor.Sf\\CruderSimple.Blazor.Sf.csproj",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA8AAABWAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
+              "WhenOpened": "2024-02-09T00:27:29.69Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "CompanyEntity.cs",
+              "DocumentMoniker": "D:\\Workstation\\odonto-management\\src\\OdontoManagement.Domain\\Models\\Identity\\CompanyEntity.cs",
+              "RelativeDocumentMoniker": "..\\..\\odonto-management\\src\\OdontoManagement.Domain\\Models\\Identity\\CompanyEntity.cs",
+              "ToolTip": "D:\\Workstation\\odonto-management\\src\\OdontoManagement.Domain\\Models\\Identity\\CompanyEntity.cs",
+              "RelativeToolTip": "..\\..\\odonto-management\\src\\OdontoManagement.Domain\\Models\\Identity\\CompanyEntity.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-02-09T11:31:53.841Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 24,
+              "Title": "App.razor",
+              "DocumentMoniker": "D:\\Workstation\\CruderSimple\\src\\CruderSimple.Blazor.Example.Sf\\App.razor",
+              "RelativeDocumentMoniker": "CruderSimple.Blazor.Example.Sf\\App.razor",
+              "ToolTip": "D:\\Workstation\\CruderSimple\\src\\CruderSimple.Blazor.Example.Sf\\App.razor",
+              "RelativeToolTip": "CruderSimple.Blazor.Example.Sf\\App.razor",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAwAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2024-02-09T00:55:50.92Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 26,
+              "Title": "ICruderLogger.cs",
+              "DocumentMoniker": "D:\\Workstation\\CruderSimple\\src\\CruderSimple.Blazor.Sf\\Interfaces\\Services\\ICruderLogger.cs",
+              "RelativeDocumentMoniker": "CruderSimple.Blazor.Sf\\Interfaces\\Services\\ICruderLogger.cs",
+              "ToolTip": "D:\\Workstation\\CruderSimple\\src\\CruderSimple.Blazor.Sf\\Interfaces\\Services\\ICruderLogger.cs",
+              "RelativeToolTip": "CruderSimple.Blazor.Sf\\Interfaces\\Services\\ICruderLogger.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAIAAAAkAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-02-09T00:30:15.536Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 22,
+              "Title": "_Imports.razor",
+              "DocumentMoniker": "D:\\Workstation\\CruderSimple\\src\\CruderSimple.Blazor.Example.Sf\\_Imports.razor",
+              "RelativeDocumentMoniker": "CruderSimple.Blazor.Example.Sf\\_Imports.razor",
+              "ToolTip": "D:\\Workstation\\CruderSimple\\src\\CruderSimple.Blazor.Example.Sf\\_Imports.razor",
+              "RelativeToolTip": "CruderSimple.Blazor.Example.Sf\\_Imports.razor",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA0AAAAeAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2024-02-09T01:29:04.735Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 27,
+              "Title": "CrudService.cs",
+              "DocumentMoniker": "D:\\Workstation\\CruderSimple\\src\\CruderSimple.Blazor.Sf\\Services\\CrudService.cs",
+              "RelativeDocumentMoniker": "CruderSimple.Blazor.Sf\\Services\\CrudService.cs",
+              "ToolTip": "D:\\Workstation\\CruderSimple\\src\\CruderSimple.Blazor.Sf\\Services\\CrudService.cs",
+              "RelativeToolTip": "CruderSimple.Blazor.Sf\\Services\\CrudService.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAUAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-02-09T00:22:23.472Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 28,
+              "Title": "ICrudService.cs",
+              "DocumentMoniker": "D:\\Workstation\\CruderSimple\\src\\CruderSimple.Blazor.Sf\\Interfaces\\Services\\ICrudService.cs",
+              "RelativeDocumentMoniker": "CruderSimple.Blazor.Sf\\Interfaces\\Services\\ICrudService.cs",
+              "ToolTip": "D:\\Workstation\\CruderSimple\\src\\CruderSimple.Blazor.Sf\\Interfaces\\Services\\ICrudService.cs",
+              "RelativeToolTip": "CruderSimple.Blazor.Sf\\Interfaces\\Services\\ICrudService.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAgAAAAcAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-02-09T00:21:56.163Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 29,
+              "Title": "Counter.razor",
+              "DocumentMoniker": "D:\\Workstation\\CruderSimple\\src\\CruderSimple.Blazor.Example.Sf\\Pages\\Counter.razor",
+              "RelativeDocumentMoniker": "CruderSimple.Blazor.Example.Sf\\Pages\\Counter.razor",
+              "ToolTip": "D:\\Workstation\\CruderSimple\\src\\CruderSimple.Blazor.Example.Sf\\Pages\\Counter.razor",
+              "RelativeToolTip": "CruderSimple.Blazor.Example.Sf\\Pages\\Counter.razor",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA0AAAAhAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2024-02-09T00:13:51.966Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

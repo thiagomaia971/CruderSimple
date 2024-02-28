@@ -10,6 +10,7 @@ using CruderSimple.Core.Extensions;
 using CruderSimple.Core.Services;
 using CruderSimple.Core.ViewModels;
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Logging;
 using System.Security.Claims;
 
 namespace CruderSimple.Blazor.Components.Grids
@@ -21,12 +22,23 @@ namespace CruderSimple.Blazor.Components.Grids
         [Parameter] public RenderFragment Columns { get; set; }
         [Parameter] public RenderFragment<TDto> DetailRowTemplate { get; set; }
         [Parameter] public string CustomSelect { get; set; }
-        [Parameter] public IFluentSizing Height { get; set; }
+        [Parameter] public IFluentSizing Height { get; set; } = Blazorise.Height.Px(430);
         [Parameter] public IFluentSpacing Padding { get; set; }
+
+        /// <summary>
+        /// Start new command template
+        /// </summary>
+        [Parameter] public RenderFragment StartNewCommandTemplate { get; set; }
+
+        /// <summary>
+        /// End new command template
+        /// </summary>
+        [Parameter] public RenderFragment EndNewCommandTemplate { get; set; }
 
         [CascadingParameter] public LoadingIndicator Loading { get; set; }
         [CascadingParameter] public WindowDimension Dimension { get; set; }
 
+        [Inject] public ICruderLogger<CruderGridBase<TEntity, TDto>> Logger { get; set; }
         [Inject] public PermissionService PermissionService { get; set; }
         [Inject] public ICrudService<TEntity, TDto> Service { get; set; }
         [Inject] public PageHistoryState PageHistorysState { get; set; }
@@ -39,7 +51,6 @@ namespace CruderSimple.Blazor.Components.Grids
         protected bool IsLoading { get; set; }
 
         protected Claim TenantClaim { get; set; }
-        public virtual IList<TDto> AllData => SearchedData?.ToList();
         public List<TDto> SearchedData { get; set; } = new List<TDto>();
         public int TotalData { get; set; }
         private DataGrid<TDto> _dataGridRef { get; set; }
@@ -64,6 +75,7 @@ namespace CruderSimple.Blazor.Components.Grids
 
         protected override async Task OnInitializedAsync()
         {
+            Logger.LogDebug("Cruder Grid Base OnInitializedAsync");
             var state = await State.GetAuthenticationStateAsync();
             TenantClaim = state.User.Claims.FirstOrDefault(x => x.Type == "TenantId");
         }
@@ -89,7 +101,6 @@ namespace CruderSimple.Blazor.Components.Grids
                 await Search(e);
 
                 await Loading.Hide();
-                StateHasChanged();
             }
         }
 
@@ -98,10 +109,11 @@ namespace CruderSimple.Blazor.Components.Grids
             var query = CreateQuery(e.Columns);
             var data = await Service.GetAll(query);
 
-            TotalData = data.Size;
-            SearchedData = await FilterData(data.Data.ToList(), query);
+            TotalData = data.Count;
+            SearchedData = await FilterData(data.Result.ToList(), query);
             //await DataGridRef.Refresh();
             await SaveColumns();
+            StateHasChanged();
         }
 
         protected GetAllEndpointQuery CreateQuery(IEnumerable<DataGridColumnInfo> e)
@@ -283,6 +295,21 @@ namespace CruderSimple.Blazor.Components.Grids
             else
                 context.Cancel = true;
         }
+
+
+        protected virtual int CalculateWidthCommandColumn()
+        {
+            var widthBaseSimple = 32;
+
+            var widthFinal = widthBaseSimple;
+            if (StartNewCommandTemplate != null)
+                widthFinal += widthBaseSimple;
+            if (EndNewCommandTemplate != null)
+                widthFinal += widthBaseSimple;
+
+            widthFinal += widthBaseSimple;
+            return widthFinal;
+        }
     }
 
     public record ListPageLocalStorage<TDto>(
@@ -310,15 +337,12 @@ namespace CruderSimple.Blazor.Components.Grids
 
     public delegate void ColumnsLoaded();
     public delegate void EditMode();
-    public delegate void ColumnValueChanged<TItem>(TItem oldItem, TItem newItem) where TItem : BaseDto;
     public delegate void ColumnSelected<TItem>(TItem item) where TItem : BaseDto;
     public class CruderGridEvents<TItem>
          where TItem : BaseDto
     {
         public event ColumnsLoaded OnColumnsLoaded;
         public event EditMode OnEditMode;
-        public event ColumnValueChanged<TItem> OnColumnValueChanged;
-        public event ColumnSelected<TItem> OnColumnSelected;
 
         public void RaiseOnColumnsLoaded()
         {
@@ -330,18 +354,6 @@ namespace CruderSimple.Blazor.Components.Grids
         {
             if (OnEditMode != null)
                 OnEditMode();
-        }
-
-        public void RaiseOnColumnValueChanged(TItem oldItem, TItem newItem)
-        {
-            if (OnColumnValueChanged != null)
-                OnColumnValueChanged(oldItem, newItem);
-        }
-
-        public void RaiseColumnSelected(TItem item) 
-        {
-            if (OnColumnSelected != null)
-                OnColumnSelected(item);
         }
     }
 }

@@ -1,11 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
-using CruderSimple.Core.Entities;
 using CruderSimple.Core.ViewModels;
 using Mapster;
 using Newtonsoft.Json;
 
-namespace CruderSimple.MySql.Entities;
+namespace CruderSimple.Core.Entities;
 
 [ExcludeFromCodeCoverage]
 public abstract class Entity : IEntity
@@ -37,13 +36,14 @@ public abstract class Entity : IEntity
 
     public abstract IEntity FromInput(BaseDto input);
     public abstract BaseDto ConvertToOutput();
-    
-    
+
+
     public virtual void DeleteMethod(int modifiedBy)
     {
         DeletedAt = DateTime.UtcNow;
         // ModifiedMethod(modifiedBy);
     }
+
 
     public virtual string GetPrimaryKey() 
         => Id;

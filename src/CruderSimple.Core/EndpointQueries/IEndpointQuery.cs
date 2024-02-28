@@ -2,5 +2,5 @@
 using MediatR;
 namespace CruderSimple.Core.EndpointQueries
 {
-    public interface IEndpointQuery : IRequest<Result>;
+    public interface IEndpointQuery : IRequest<ResultViewModel>;
 }

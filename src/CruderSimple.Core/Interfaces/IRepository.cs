@@ -3,12 +3,12 @@ using CruderSimple.Core.Entities;
 
 namespace CruderSimple.Core.Interfaces;
 
-public interface IRepositoryBase<T>
+public interface IRepository<T>
     where T : IEntity
 {
-    IRepositoryBase<T> Add(T entity, AutoDetachOptions autoDetach = AutoDetachOptions.BEFORE);
-    IRepositoryBase<T> Update(T entity, AutoDetachOptions autoDetach = AutoDetachOptions.BEFORE);
-    IRepositoryBase<T> Remove(T entity);
+    IRepository<T> Add(T entity, AutoDetachOptions autoDetach = AutoDetachOptions.BEFORE);
+    IRepository<T> Update(T entity, AutoDetachOptions autoDetach = AutoDetachOptions.BEFORE);
+    IRepository<T> Remove(T entity);
     Task Save(bool withoutTracking = true);
     Task<T> FindById(string id, string select = "*", bool asNoTracking = false);
     Task<T> FindBy(string propertyName, string value);

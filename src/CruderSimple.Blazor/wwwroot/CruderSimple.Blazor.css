@@ -93,63 +93,60 @@ td:not(.text-left) {
     height: 31px;
     /*line-height: 31px;*/
 }
-
-.datagrid-listpage {
+/*
+.cruder-grid-base {
     border-top: 2px solid #dee2e6 !important;
     margin-bottom: 0px;
 }
 
-.datagrid-listpage input{
+.cruder-grid-base input{
     height: 32px;
 }
 
-.datagrid-listpage thead tr {
+.cruder-grid-base thead tr {
     height: 45px;
 }
 
-.datagrid-listpage tbody td {
+.cruder-grid-base tbody td {
     padding-top: 2px;
     padding-bottom: 2px;
 }
 
-.datagrid-listpage th {
-    /*vertical-align: middle !important;*/
+.cruder-grid-base th {
     padding-top: 2px;
     padding-bottom: 2px;
-    /*position: relative !important;*/
 }
 
 .row .justify-content-between {
     height: 37px;
 }
 
-.col-auto .d-flex .flex-row-reverse {
-    /*height: 40px !important;*/
-}
-
 .table-responsive {
     border: 1px solid #dee2e6;
 }
 
-.datagrid-listpage th .d-inline-flex {
-    /*position: absolute;*/
-    /*top: 25%*/
+.list-page {
+    table-layout: fixed;
 }
 
-.datagrid-listpage thead tr:nth-of-type(2) {
+.cruder-grid-base thead tr:nth-of-type(2) {
     display: none;
 }
 
-.datagrid-listpage th {
+.cruder-grid-base th {
     line-height: 38px;
 }
 
-.datagrid-listpage .dropdown-toggle {
+.cruder-grid-base .dropdown-toggle {
     padding-right: 0px;
     padding-top: 7px;
     padding-left: 5px;
 }
 
+.cruder-grid-modal .modal-dialog {
+    margin-left: initial;
+}
+*/
 .navbar {
     padding: 0px !important;
 }
@@ -162,6 +159,27 @@ td:not(.text-left) {
     padding: 9px !important;
 }
 
+.SfCruderGrid .e-rowcell:not(.SfCruderGrid-icon-flat) {
+    /*border-left: 1px solid #e0e0e0 !important;*/
+    border-right: 1px solid #e0e0e0 !important;
+    padding: 0px 10px;
+}
+
+.SfCruderGrid .SfCruderGrid-icon-flat {
+    padding: 5px !important;
+    margin: 0px !important;
+}
+
+.SfCruderGrid .SfCruderGrid-CommandHeader .e-tbar-btn-text {
+    color: rgba(0,0,0,.87) !important;
+    font-weight: 400 !important;
+}
+
+.e-toolbar .e-toolbar-item.e-overlay {
+    opacity: 1 !important;
+}
+
+/*
 .list-page-filter-menu .dropdown-menu {
     left: 0px !important;
     top: 38px !important;
@@ -169,4 +187,4 @@ td:not(.text-left) {
 
 .list-page-filter-menu .dropdown-menu a {
     padding: 10px;
-}
+}*/
