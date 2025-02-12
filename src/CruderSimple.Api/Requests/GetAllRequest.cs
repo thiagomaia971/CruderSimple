@@ -22,7 +22,7 @@ public static class GetAllRequest
         {
             try
             {
-                var queryAsync = await repository.GetAll(request, true);
+                var queryAsync = await GetAll(request, true);
 
                 return Pagination.CreateSuccess(
                     page: request.page, // TODO
@@ -34,5 +34,8 @@ public static class GetAllRequest
                 return Pagination.CreateError(exception.StackTrace, exception.Message);
             }
         }
+
+        public virtual Task<Pagination<TEntity>> GetAll(GetAllEndpointQuery query = null, bool asNoTracking = false) 
+            => repository.GetAll(query, asNoTracking);
     }
 }

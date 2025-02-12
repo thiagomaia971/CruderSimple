@@ -2,6 +2,7 @@
 using CruderSimple.Api.Requests.Base;
 using CruderSimple.Core.EndpointQueries;
 using CruderSimple.Core.Entities;
+using CruderSimple.Core.Exceptions;
 using CruderSimple.Core.Extensions;
 using CruderSimple.Core.ViewModels;
 using MediatR;
@@ -27,21 +28,36 @@ public static class UpdateRequest
         {
             try
             {
-                var entity = await repository.FindById(request.id);
-
-                if (entity is null)
-                    return Result.CreateError("Recurso não encontrado", 404, "Recurso não encontrado");
-
-                var entityToSave = (TEntity) entity.FromInput(request.payload);
-                await repository.Update(entityToSave)
+                
+                var (oldEntity,newEntity) = await GetEntities(request.id, request.payload);
+                await repository.Update(newEntity)
                     .Save();
 
                 return Result.CreateSuccess((await repository.FindById(request.id)).ToOutput<TDto>());
+            }
+            catch (ResultException resultException)
+            {
+                return resultException.Result;
             }
             catch (Exception exception)
             {
                 return Result.CreateError(exception.StackTrace, 400, exception.Message);
             }
+        }
+
+        public async Task<(TEntity oldEntity, TEntity newEntity)> GetEntities(string id, TDto payload)
+        {
+            var entity = await GetById(id);
+            return (entity, entity == null ? default(TEntity) : (TEntity)entity.FromInput(payload));
+        }
+
+        public async Task<TEntity> GetById(string id)
+        {
+            var entity = await repository.FindById(id);
+
+            if (entity is null)
+                throw new ResultException(Result.CreateError("Recurso não encontrado", 404, "Recurso não encontrado"));
+            return entity;
         }
     }
 }

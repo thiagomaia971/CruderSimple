@@ -23,8 +23,7 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
 
     public virtual IRepositoryBase<TEntity> Add(TEntity entity, AutoDetachOptions autoDetach = AutoDetachOptions.BEFORE)
     {
-        entity.CreatedAt = DateTime.UtcNow;
-        entity.UpdatedAt = DateTime.UtcNow;
+        entity.CreateMethod(0);
         Saved = entity;
         if (autoDetach == AutoDetachOptions.AFTER)
             DbContext.AutoDetach(Saved);
@@ -36,7 +35,7 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
 
     public virtual IRepositoryBase<TEntity> Update(TEntity entity, AutoDetachOptions autoDetach = AutoDetachOptions.BEFORE)
     {
-        entity.UpdatedAt = DateTime.UtcNow;
+        entity.UpdateMethod(0);
         Saved = entity;
         if (autoDetach == AutoDetachOptions.AFTER)
             DbContext.AutoDetach(Saved);

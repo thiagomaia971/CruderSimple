@@ -13,12 +13,13 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddRepositories<TEntity>(
         this IServiceCollection services,
+        string assemblyStartsWithName,
         Type repositoryInterfaceType,
         Type repositoryImplementationType)
     where TEntity : IEntity
     {
-        var types = GetTypes();
-        var entityTypes = GetByType<TEntity>();
+        var types = GetTypes(assemblyStartsWithName);
+        var entityTypes = GetByType<TEntity>(assemblyStartsWithName);
 
         foreach (var entityType in entityTypes)
         {
@@ -37,17 +38,28 @@ public static class ServiceCollectionExtensions
                 services.AddScoped(genericInterface, implementation);
             }
         }
+        
 
         return services;
     }
 
-    public static IEnumerable<Type> GetTypes()
+    public static IEnumerable<Type> GetTypes(string assemblyStartsWithName, bool fromApi = true)
     {
+        if (fromApi)
+        {
+            return AppDomain
+                .CurrentDomain
+                .GetAssemblies()
+                .Where(a => a.FullName.StartsWith(assemblyStartsWithName))
+                .SelectMany(a => a.GetTypes());
+        }
+        
         try
         {
             return Assembly
                     .GetEntryAssembly()
                     .GetReferencedAssemblies()
+                    .Where(x => x.FullName.StartsWith(assemblyStartsWithName))
                     .Select(Assembly.Load)
                     .SelectMany(x => x.DefinedTypes)
                     .Concat(AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.DefinedTypes))
@@ -56,15 +68,15 @@ public static class ServiceCollectionExtensions
         }
         catch (Exception e)
         {
-
+        
             throw;
         }
         return null;
     }
 
-    public static IEnumerable<Type> GetByType<T>()
+    public static IEnumerable<Type> GetByType<T>(string assemblyStartsWithName, bool fromApi = true)
     {
-        return GetTypes()
+        return GetTypes(assemblyStartsWithName, fromApi)
             .Where(x => typeof(T).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
     }
 }

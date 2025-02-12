@@ -16,7 +16,7 @@ namespace CruderSimple.Blazor.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddCruderSimpleBlazor<TAuthorizeApi>(this IServiceCollection services)
+    public static IServiceCollection AddCruderSimpleBlazor<TAuthorizeApi>(this IServiceCollection services, string assemblyStartsWithName)
         where TAuthorizeApi : IAuthorizeApi
     {
         services.AddBlazoredLocalStorage();
@@ -41,16 +41,16 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<BrowserService>();
         //var pageParameter = new PageParameter();
         //services.AddSingleton(pageParameter);
-        services.AddCruderServices();
+        services.AddCruderServices(assemblyStartsWithName);
         services.AddPermissionsAuthorization();
 
         return services;
     }
 
-    private static IServiceCollection AddCruderServices(this IServiceCollection services) 
+    private static IServiceCollection AddCruderServices(this IServiceCollection services, string assemblyStartsWithName) 
     {
-        var types = Core.Extensions.ServiceCollectionExtensions.GetTypes();
-        var entityTypes = Core.Extensions.ServiceCollectionExtensions.GetByType<IEntity>().ToList();
+        var types = Core.Extensions.ServiceCollectionExtensions.GetTypes(assemblyStartsWithName, false);
+        var entityTypes = Core.Extensions.ServiceCollectionExtensions.GetByType<IEntity>(assemblyStartsWithName, false).ToList();
 
         foreach (var entityType in entityTypes)
         {

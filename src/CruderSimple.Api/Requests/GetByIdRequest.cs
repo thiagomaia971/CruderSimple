@@ -26,7 +26,7 @@ public static class GetByIdRequest
         {
             try
             {
-                var single = await repository.FindById(request.id, request.select, true);
+                var single = await FindById(request.id, request.select, true);
                 if (single is null)
                     return Result.CreateError("Recurso não encontrado", 404, "Recurso não encontrado");
 
@@ -39,5 +39,8 @@ public static class GetByIdRequest
                 return Result.CreateError(exception.StackTrace, 500, exception.Message);
             }
         }
+
+        public virtual Task<TEntity> FindById(string id, string select = "*", bool asNoTracking = false) 
+            => repository.FindById(id, select, asNoTracking);
     }
 }

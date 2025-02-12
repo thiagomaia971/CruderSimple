@@ -2,10 +2,10 @@
 {
 
     public record GetAllEndpointQuery(
-        string select = null, 
-        string filter = null, 
-        string orderBy = null, 
-        int size = 0, 
-        int page = 0,
+        string select = "*", 
+        string filter = "", 
+        string orderBy = "", 
+        int size = 10, 
+        int page = 1,
         int skip = 0) : IEndpointQuery;
 }

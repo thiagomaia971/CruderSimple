@@ -38,6 +38,20 @@ public abstract class Entity : IEntity
     public abstract IEntity FromInput(BaseDto input);
     public abstract BaseDto ConvertToOutput();
     
+    public virtual void CreateMethod(int modifiedBy)
+    {
+        Id = Guid.NewGuid().ToString();
+        UpdatedAt = null;
+        DeletedAt = null;
+        CreatedAt = DateTime.UtcNow;
+        // ModifiedMethod(modifiedBy);
+    }
+    
+    public virtual void UpdateMethod(int modifiedBy)
+    {
+        UpdatedAt = DateTime.UtcNow;
+        // ModifiedMethod(modifiedBy);
+    }
     
     public virtual void DeleteMethod(int modifiedBy)
     {

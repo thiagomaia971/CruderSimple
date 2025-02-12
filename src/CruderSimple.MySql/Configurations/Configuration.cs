@@ -1,4 +1,5 @@
-﻿using CruderSimple.Core.Entities;
+﻿using System.Reflection;
+using CruderSimple.Core.Entities;
 using CruderSimple.Core.Extensions;
 using CruderSimple.Core.Interfaces;
 using CruderSimple.MySql.Interfaces;
@@ -17,6 +18,7 @@ public static class Configuration
         this IServiceCollection services,
         IConfiguration configuration,
         IHostEnvironment environment,
+        string assemblyStartsWithName,
         Type multiTenantRepositoryInterface,
         Type multiTenantRepositoryImplementation)
         where TMultiTenant : IEntity
@@ -26,14 +28,32 @@ public static class Configuration
             .PreserveReference(true)
             .AvoidInlineMapping(true)
             ;
+        LoadAssemblies();
         services
             .AddMediatR(typeof(Configuration))
             // .AddDynamodbMapper(configuration, environment)
-            .AddRepositories<IEntity>(typeof(IRepositoryBase<>), typeof(Repository<>))
-            .AddRepositories<IEntity>(typeof(IRepository<>), typeof(Repository<>))
-            .AddRepositories<TMultiTenant>(multiTenantRepositoryInterface, multiTenantRepositoryImplementation)
+            .AddRepositories<IEntity>(assemblyStartsWithName, typeof(IRepositoryBase<>), typeof(Repository<>))
+            .AddRepositories<IEntity>(assemblyStartsWithName, typeof(IRepository<>), typeof(Repository<>))
+            .AddRepositories<TMultiTenant>(assemblyStartsWithName, multiTenantRepositoryInterface, multiTenantRepositoryImplementation)
             .AddScoped<MultiTenantScoped>(_ => new MultiTenantScoped(typeof(TMultiTenant)));
         
         return services;
+    }
+
+    private static void LoadAssemblies()
+    {
+        string path = AppDomain.CurrentDomain.BaseDirectory;
+        
+        foreach (string dll in Directory.GetFiles(path, "*.dll"))
+        {
+            try
+            {
+                Assembly.LoadFrom(dll);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to load {dll}: {ex.Message}");
+            }
+        }
     }
 }
