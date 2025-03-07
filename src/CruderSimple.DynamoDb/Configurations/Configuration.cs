@@ -15,13 +15,14 @@ public static class Configuration
 {
     public static IServiceCollection AddCruderSimpleServices(
         this IServiceCollection services,
+        string assemblyStartsWithName,
         IConfiguration configuration,
         IHostEnvironment environment)
     {
         services
             .AddMediatR(typeof(Configuration))
             .AddDynamodbMapper(configuration, environment)
-            .AddRepositories<IEntity>(typeof(IRepository<>), typeof(Repository<>))
+            .AddRepositories<IEntity>(assemblyStartsWithName, typeof(IRepository<>), typeof(Repository<>))
             .AddScoped<MultiTenantScoped>();
         
         return services;
