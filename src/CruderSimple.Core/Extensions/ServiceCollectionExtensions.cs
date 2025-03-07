@@ -16,7 +16,7 @@ public static class ServiceCollectionExtensions
         string assemblyStartsWithName,
         Type repositoryInterfaceType,
         Type repositoryImplementationType)
-    where TEntity : IEntity
+        where TEntity : IEntity
     {
         var types = GetTypes(assemblyStartsWithName);
         var entityTypes = GetByType<TEntity>(assemblyStartsWithName);
@@ -33,12 +33,13 @@ public static class ServiceCollectionExtensions
             }
             else
             {
-                var implementation = types.FirstOrDefault(x => @interface.IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
+                var implementation =
+                    types.FirstOrDefault(x => @interface.IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract);
                 services.TryAddScoped(@interface, implementation);
                 services.AddScoped(genericInterface, implementation);
             }
         }
-        
+
 
         return services;
     }
@@ -50,27 +51,27 @@ public static class ServiceCollectionExtensions
             return AppDomain
                 .CurrentDomain
                 .GetAssemblies()
-                .Where(a => a.FullName.StartsWith(assemblyStartsWithName))
+                .Where(a => a.FullName.StartsWith("CruderSimple") || a.FullName.StartsWith(assemblyStartsWithName))
                 .SelectMany(a => a.GetTypes());
         }
-        
+
         try
         {
             return Assembly
-                    .GetEntryAssembly()
-                    .GetReferencedAssemblies()
-                    .Where(x => x.FullName.StartsWith(assemblyStartsWithName))
-                    .Select(Assembly.Load)
-                    .SelectMany(x => x.DefinedTypes)
-                    .Concat(AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.DefinedTypes))
-                    .Concat(AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.ExportedTypes))
-                    .Distinct();
+                .GetEntryAssembly()
+                .GetReferencedAssemblies()
+                .Where(x => x.FullName.StartsWith("CruderSimple") || x.FullName.StartsWith(assemblyStartsWithName))
+                .Select(Assembly.Load)
+                .SelectMany(x => x.DefinedTypes)
+                .Concat(AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.DefinedTypes))
+                .Concat(AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.ExportedTypes))
+                .Distinct();
         }
         catch (Exception e)
         {
-        
             throw;
         }
+
         return null;
     }
 
@@ -94,36 +95,27 @@ public class BootstrapInfo
     [JsonPropertyName("cacheBootResources")]
     public bool CacheBootResources { get; set; }
 
-    [JsonPropertyName("config")]
-    public List<string> Config { get; set; }
+    [JsonPropertyName("config")] public List<string> Config { get; set; }
 
-    [JsonPropertyName("debugBuild")]
-    public bool DebugBuild { get; set; }
+    [JsonPropertyName("debugBuild")] public bool DebugBuild { get; set; }
 
-    [JsonPropertyName("entryAssembly")]
-    public string EntryAssembly { get; set; }
+    [JsonPropertyName("entryAssembly")] public string EntryAssembly { get; set; }
 
-    [JsonPropertyName("icuDataMode")]
-    public long IcuDataMode { get; set; }
+    [JsonPropertyName("icuDataMode")] public long IcuDataMode { get; set; }
 
-    [JsonPropertyName("linkerEnabled")]
-    public bool LinkerEnabled { get; set; }
+    [JsonPropertyName("linkerEnabled")] public bool LinkerEnabled { get; set; }
 
-    [JsonPropertyName("resources")]
-    public BootstrapResourceInfo Resources { get; set; }
+    [JsonPropertyName("resources")] public BootstrapResourceInfo Resources { get; set; }
 
-    public static BootstrapInfo FromJson(string json) => JsonSerializer.Deserialize<BootstrapInfo>(json, SerializationOptions);
+    public static BootstrapInfo FromJson(string json) =>
+        JsonSerializer.Deserialize<BootstrapInfo>(json, SerializationOptions);
 
     public static string ToJson(BootstrapInfo bootstrap) => JsonSerializer.Serialize(bootstrap, SerializationOptions);
 }
 
 public class BootstrapResourceInfo
 {
-    [JsonPropertyName("hash")]
-    public string Hash { get; set; }
+    [JsonPropertyName("hash")] public string Hash { get; set; }
 
-    [JsonPropertyName("assembly")]
-    public IDictionary<string, string> Assembly { get; set; }
-
-
+    [JsonPropertyName("assembly")] public IDictionary<string, string> Assembly { get; set; }
 }

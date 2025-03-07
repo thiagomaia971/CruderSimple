@@ -1,10 +1,9 @@
-using Blazorise;
 using Blazorise.DataGrid;
 using CruderSimple.Core.Entities;
 using CruderSimple.Core.ViewModels;
 using Microsoft.AspNetCore.Components;
 
-namespace CruderSimple.Blazor.Components.Grids;
+namespace CruderSimple.Blazor.Components.Grids.Columns;
 
 [CascadingTypeParameter(nameof(TColumnEntity))]
 [CascadingTypeParameter(nameof(TColumnDto))]

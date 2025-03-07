@@ -54,13 +54,13 @@
                                 {
                                     @StartNewCommandTemplate
                                 }
-                                <Tooltip Text="@PermissionService.CanWriteTooltip(TooltipNew)">
-                                    <Button Type="ButtonType.Link" Clicked="@((_) => CreateItem())" Color="Color.Success" Width="Width.Is100" Size="Size.Small" Disabled="@(!PermissionService.CanWrite)">
+                                <Tooltip Text="@PermissionService.CanWriteTooltip(TooltipNew, IgnorePermission)">
+                                    <Button Type="ButtonType.Link" Clicked="@((_) => CreateItem())" Color="Color.Success" Width="Width.Is100" Size="Size.Small" Disabled="@(DisabledFromPermissionWrite)">
                                         <Icon Name="IconName.Add" />
                                     </Button>
                                 </Tooltip>
-                                <Tooltip Text="@PermissionService.CanWriteTooltip(TooltipRefresh)">
-                                    <Button Type="ButtonType.Link" Clicked="@((_) => DataGridRef.Reload())" Color="Color.Info" Width="Width.Is100" Size="Size.Small" Disabled="@(!PermissionService.CanWrite)">
+                                <Tooltip Text="@PermissionService.CanWriteTooltip(TooltipRefresh, IgnorePermission)">
+                                    <Button Type="ButtonType.Link" Clicked="@((_) => DataGridRef.Reload())" Color="Color.Info" Width="Width.Is100" Size="Size.Small" Disabled="@(DisabledFromPermissionWrite)">
                                         <Icon Name="IconName.Sync" />
                                     </Button>
                                 </Tooltip>
@@ -80,14 +80,14 @@
                             {
                                 @if (BackupModified.TryGetValue(context.Item.GetKey, out var modified) && modified.StyleGrid)
                                 {
-                                    <Tooltip Text="@PermissionService.CanWriteTooltip(TooltipUndo)" Inline>
-                                        <Button Size="Size.Small" Clicked="@((e) => UndoEdit(context))" Disabled="@(!PermissionService.CanWrite)" Padding="Blazorise.Padding.Is1" @onclick:stopPropagation>
+                                    <Tooltip Text="@PermissionService.CanWriteTooltip(TooltipUndo, IgnorePermission)" Inline>
+                                        <Button Size="Size.Small" Clicked="@((e) => UndoEdit(context))" Disabled="@(DisabledFromPermissionWrite)" Padding="Blazorise.Padding.Is1" @onclick:stopPropagation>
                                             <Icon Name="IconName.Undo" />
                                         </Button>
                                     </Tooltip>
                                 }
-                                <Tooltip Text="@PermissionService.CanWriteTooltip(ModalFormTemplate == null ? TooltipEdit : TooltipView)" Inline>
-                                    <Button Size="Size.Small" Clicked="@((_) => EditItem(context.Item))" Disabled="@(!PermissionService.CanWrite)" Padding="Blazorise.Padding.Is1" @onclick:stopPropagation>
+                                <Tooltip Text="@PermissionService.CanWriteTooltip(ModalFormTemplate == null ? TooltipEdit : TooltipView, IgnorePermission)" Inline>
+                                    <Button Size="Size.Small" Clicked="@((_) => EditItem(context.Item))" Disabled="@(DisabledFromPermissionWrite)" Padding="Blazorise.Padding.Is1" @onclick:stopPropagation>
                                         <Icon Name="@(ModalFormTemplate == null ? IconName.Edit : IconName.Eye)" />
                                     </Button>
                                 </Tooltip>
@@ -101,16 +101,16 @@
                         <DeleteCommandTemplate>
                             @if (BackupDeleted.TryGetValue(context.Item.GetKey, out var deleted) && deleted.StyleGrid)
                             {
-                                <Tooltip Text="@PermissionService.CanWriteTooltip(TooltipUndo)" Inline>
-                                    <Button Size="Size.Small" Clicked="@((e) => UndoDelete(context))" Disabled="@(!PermissionService.CanWrite)" Padding="Blazorise.Padding.Is1" @onclick:stopPropagation>
+                                <Tooltip Text="@PermissionService.CanWriteTooltip(TooltipUndo, IgnorePermission)" Inline>
+                                    <Button Size="Size.Small" Clicked="@((e) => UndoDelete(context))" Disabled="@(DisabledFromPermissionWrite)" Padding="Blazorise.Padding.Is1" @onclick:stopPropagation>
                                         <Icon Name="IconName.Undo" />
                                     </Button>
                                 </Tooltip>
                             }
                             else
                             {
-                                <Tooltip Text="@PermissionService.CanWriteTooltip(TooltipDelete)" Inline>
-                                    <Button Size="Size.Small" Clicked="@context.Clicked" Disabled="@(!PermissionService.CanWrite)" Padding="Blazorise.Padding.Is1" @onclick:stopPropagation>
+                                <Tooltip Text="@PermissionService.CanWriteTooltip(TooltipDelete, IgnorePermission)" Inline>
+                                    <Button Size="Size.Small" Clicked="@context.Clicked" Disabled="@(DisabledFromPermissionWrite)" Padding="Blazorise.Padding.Is1" @onclick:stopPropagation>
                                         <Icon Name="IconName.Delete" />
                                     </Button>
                                 </Tooltip>
@@ -122,8 +122,8 @@
                         </DeleteCommandTemplate>
 
                         <SaveCommandTemplate>
-                            <Tooltip Text="@PermissionService.CanWriteTooltip("Salvar")" Inline>
-                                <Button Size="Size.Small" Type="ButtonType.Submit" PreventDefaultOnSubmit Clicked="context.Clicked" Disabled="@(!PermissionService.CanWrite)" Padding="Blazorise.Padding.Is1" Margin="Margin.Is2.FromStart.Is1.FromTop" @onclick:stopPropagation>
+                            <Tooltip Text="@PermissionService.CanWriteTooltip("Salvar", IgnorePermission)" Inline>
+                                <Button Size="Size.Small" Type="ButtonType.Submit" PreventDefaultOnSubmit Clicked="context.Clicked" Disabled="@(DisabledFromPermissionWrite)" Padding="Blazorise.Padding.Is1" Margin="Margin.Is2.FromStart.Is1.FromTop" @onclick:stopPropagation>
                                     <Icon Name="IconName.Check" />
                                 </Button>
                             </Tooltip>

@@ -21,7 +21,7 @@ public static class WebApplicationExtensions
         this WebApplication app)
         where TUser : IUser
     {
-        var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.ExportedTypes);
+        var types = CruderSimple.Core.Extensions.ServiceCollectionExtensions.GetTypes("DofusManagement");;
         var requestHandlers = types.GetTypesWithHelpAttribute<EndpointRequest>();
 
         var instances = requestHandlers

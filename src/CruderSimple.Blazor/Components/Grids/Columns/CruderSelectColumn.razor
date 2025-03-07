@@ -1,0 +1,60 @@
+﻿@typeparam TColumnEntity
+@typeparam TColumnDto
+@typeparam TSelectEnum
+@inherits CruderColumnBase<TColumnEntity, TColumnDto>
+
+<DataGridSelectColumn @ref="DataGridSelectColumn"
+                      TItem="TColumnDto"
+                      Field="@ColumnField"
+                      Caption="@ColumnCaption"
+                      Editable="@Editable"
+                      Filterable="@Filterable"
+                      Sortable="@Sortable"
+                      Attributes="@Attributes"
+                      ValueField="(x) => ((TColumnDto)x).GetKey"
+                      TextField="(x) => ((TColumnDto)x).GetValue"
+                      SortField="Procedure.Code"
+                      HeaderCellStyle="line-height: 38px"
+                      HeaderTextAlignment="TextAlignment.Start"
+                      VerticalAlignment="VerticalAlignment.Middle"
+                      FilterTextAlignment="TextAlignment.Center"
+                      FilterVerticalAlignment="VerticalAlignment.Middle">
+    @* <DisplayTemplate> *@
+    @* *@
+    @*     <Div @onclick="@((_) => OnClick(context))"> *@
+    @*         @{ *@
+    @*             var Value = context.GetValueByPropertyName<TSelectEnum>(ColumnField); *@
+    @*         } *@
+    @*         @if (IgnorePermission || (AlwaysEditable && PermissionService.CanWrite)) *@
+    @*         { *@
+    @*             <Select *@
+    @*                 TValue="TSelectEnum" *@
+    @*                 @bind-SelectedValue="Value"> *@
+    @*                 @foreach (var item in Enum.GetValues(typeof(TSelectEnum)).Cast<TSelectEnum>()) *@
+    @*                 { *@
+    @*                     @($"Valor: {item.ToString()}") *@
+    @*                     <SelectItem TValue="TSelectEnum" Value="@item">@item.ToString()</SelectItem> *@
+    @*                 } *@
+    @*             </Select> *@
+    @*             $1$ @(SelectComponent = CreateSelectComponent(context.GetValueByPropertyName(ColumnField))) #1# *@
+    @*         } *@
+    @*         else *@
+    @*         { *@
+    @*             @if (DisplayTemplate != null) *@
+    @*             { *@
+    @*                 DisplayTemplate(context); *@
+    @*             } *@
+    @*             else *@
+    @*             { *@
+    @*                 <Span>@GetGridName(context)</Span> *@
+    @*             } *@
+    @*         } *@
+    @*     </Div> *@
+    @* </DisplayTemplate> *@
+    @* <EditTemplate> *@
+    @*     @if (SelectComponent is not null) *@
+    @*     { *@
+    @*         @SelectComponent *@
+    @*     } *@
+    @* </EditTemplate> *@
+</DataGridSelectColumn>

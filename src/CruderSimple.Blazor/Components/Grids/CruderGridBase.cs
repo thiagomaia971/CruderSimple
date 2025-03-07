@@ -24,6 +24,13 @@ namespace CruderSimple.Blazor.Components.Grids
         [Parameter] public IFluentSizing Height { get; set; }
         [Parameter] public IFluentSpacing Padding { get; set; }
 
+        /// <summary>
+        /// When you want to run this Column without Permissions management
+        /// </summary>
+        [Parameter] public bool IgnorePermission { get; set; }
+
+        public bool DisabledFromPermissionWrite => !IgnorePermission && !PermissionService.CanWrite;
+
         [CascadingParameter] public LoadingIndicator Loading { get; set; }
         [CascadingParameter] public WindowDimension Dimension { get; set; }
 
@@ -51,10 +58,14 @@ namespace CruderSimple.Blazor.Components.Grids
                     if (_dataGridRef.Attributes is null)
                         _dataGridRef.Attributes = new Dictionary<string, object>
                         {
-                            { "Events", CruderGridEvents }
+                            { "Events", CruderGridEvents },
+                            { "Service", Service }
                         };
                     else
+                    {
                         _dataGridRef.Attributes.Add("Events", CruderGridEvents);
+                        _dataGridRef.Attributes.Add("Service", Service);
+                    }
                 }
             } 
         }
@@ -72,7 +83,7 @@ namespace CruderSimple.Blazor.Components.Grids
         {
             if (!e.CancellationToken.IsCancellationRequested)
             {
-                await Loading.Show();
+                await Loading?.Show();
                 StateHasChanged();
 
                 if (IsFirstRender)
@@ -81,14 +92,14 @@ namespace CruderSimple.Blazor.Components.Grids
                     await DataGridRef.Refresh();
                     await LoadColumns(e);
 
-                    await Loading.Hide();
+                    await Loading?.Hide();
                     StateHasChanged();
                     return;
                 }
 
                 await Search(e);
 
-                await Loading.Hide();
+                await Loading?.Hide();
                 StateHasChanged();
             }
         }

@@ -155,9 +155,9 @@ namespace CruderSimple.Blazor.Services
             {
                 var state = await identityAuthenticationStateProvider.GetAuthenticationStateAsync();
                 var loginResult = await identityAuthenticationStateProvider.GetUserInfo();
-                HttpClient = httpClientFactory.CreateHttpClient(_name, loginResult.Token);
+                HttpClient = httpClientFactory.CreateHttpClient(_name, loginResult?.Token);
 
-                foreach (var claim in state.User.Claims)
+                foreach (var claim in state.User?.Claims ?? [])
                     HttpClient.DefaultRequestHeaders.Add(claim.Type.Split("/").LastOrDefault(), claim.Value);
             }
         }

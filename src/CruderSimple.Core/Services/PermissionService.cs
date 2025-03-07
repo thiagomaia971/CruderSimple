@@ -5,11 +5,11 @@
         public bool CanRead { get; set; } = false;
         public bool CanWrite { get; set; } = false;
 
-        public string CanReadTooltip(string text) 
-            => CanRead ? text : $"{text}: Sem permissão";
+        public string CanReadTooltip(string text, bool ignore) 
+            => ignore || CanRead ? text : $"{text}: Sem permissão";
 
-        public string CanWriteTooltip(string text) 
-            => CanWrite ? text : $"{text}: Sem permissão";
+        public string CanWriteTooltip(string text, bool ignore) 
+            => ignore || CanWrite ? text : $"{text}: Sem permissão";
 
     }
 }

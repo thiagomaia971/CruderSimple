@@ -1,4 +1,4 @@
-using Blazorise.DataGrid;
+﻿using Blazorise.DataGrid;
 using CruderSimple.Blazor.Interfaces.Services;
 using CruderSimple.Core.Entities;
 using CruderSimple.Core.Extensions;
@@ -6,16 +6,16 @@ using CruderSimple.Core.ViewModels;
 using Mapster;
 using Microsoft.AspNetCore.Components;
 
-namespace CruderSimple.Blazor.Components.Grids;
+namespace CruderSimple.Blazor.Components.Grids.Columns;
 
 [CascadingTypeParameter(nameof(TColumnEntity))]
 [CascadingTypeParameter(nameof(TColumnDto))]
-[CascadingTypeParameter(nameof(TSelectEntityDto))]
-public partial class CruderSelectEntityColumn<TColumnEntity, TColumnDto, TSelectEntityDto> 
+[CascadingTypeParameter(nameof(TSelectEnum))]
+public partial class CruderSelectColumn<TColumnEntity, TColumnDto, TSelectEnum> 
     : CruderColumnBase<TColumnEntity, TColumnDto>
     where TColumnEntity : IEntity
     where TColumnDto : BaseDto
-    where TSelectEntityDto : BaseDto
+    where TSelectEnum : Enum
 {
     /// <summary>
     /// Property used to search on Grid component inside of Filter
@@ -27,12 +27,6 @@ public partial class CruderSelectEntityColumn<TColumnEntity, TColumnDto, TSelect
     /// </summary>
     [Parameter] public string SelectSearchKey { get; set; }
 
-    /// <summary>
-    /// Custom select request params
-    /// </summary>
-
-    [Inject] public ICrudService<TColumnEntity, TSelectEntityDto> CrudService { get; set; }
-
     private DataGridSelectColumn<TColumnDto> DataGridSelectColumn { get; set; }
     private DataGrid<TColumnDto> DataGrid => DataGridSelectColumn?.ParentDataGrid;
     public TColumnDto CurrentSelect { get; set; }
@@ -43,7 +37,6 @@ public partial class CruderSelectEntityColumn<TColumnEntity, TColumnDto, TSelect
 
     protected override Task OnInitializedAsync()
     {
-        Attributes.Add("Service", CrudService);
         Attributes.Add("SearchKey", SelectSearchKey);
         Attributes.Add("Field", GridSearchKey);
         return base.OnInitializedAsync();
@@ -120,10 +113,7 @@ public partial class CruderSelectEntityColumn<TColumnEntity, TColumnDto, TSelect
 
     protected string GetGridName(TColumnDto item)
     { 
-        var itemProperties = item.GetType().GetProperty(ColumnField);
-        if (itemProperties is null)
-            return item.GetValue;
-        return (itemProperties.GetValue(item) as TSelectEntityDto)?.GetValue ?? string.Empty;
+        return item.GetType().GetProperty(ColumnField)?.GetValue(item)?.ToString() ?? string.Empty;
     }
 
     protected override async Task OnClick(TColumnDto item)

@@ -38,8 +38,8 @@
                     <DataGridCommandColumn TItem="TDto" PreventRowClick FixedPosition="TableColumnFixedPosition.Start" Field="Id" TextAlignment="TextAlignment.Start" Gap="Gap.Is0" Width="80px" SaveCommandAllowed="false">
                         <NewCommandTemplate>
                             <Div Gap="Gap.Is2" Display="Display.InlineFlex">
-                                <Tooltip Text="@PermissionService.CanWriteTooltip("Novo")">
-                                    <Button Type="ButtonType.Link" Clicked="@((_) => ToNew(_.CtrlKey))" Color="Color.Success" Block Width="Width.Is100" Size="Size.Small" Disabled="@(!PermissionService.CanWrite)">
+                                <Tooltip Text="@PermissionService.CanWriteTooltip("Novo", IgnorePermission)">
+                                    <Button Type="ButtonType.Link" Clicked="@((_) => ToNew(_.CtrlKey))" Color="Color.Success" Block Width="Width.Is100" Size="Size.Small" Disabled="@(DisabledFromPermissionWrite)">
                                         <Icon Name="IconName.Add" />
                                         Novo
                                     </Button>
@@ -50,14 +50,14 @@
                         <EditCommandTemplate>
                             @if (PermissionService.CanWrite)
                             {
-                                <Tooltip Text="@PermissionService.CanWriteTooltip("Editar")" Inline>
-                                    <Button Size="Size.Small" Clicked="@((_) => ToEdit(context.Item, _.CtrlKey))" Disabled="@(!PermissionService.CanWrite)" Padding="Blazorise.Padding.Is1" Margin="Margin.Is2.FromStart" @onclick:stopPropagation>
+                                <Tooltip Text="@PermissionService.CanWriteTooltip("Editar", IgnorePermission)" Inline>
+                                    <Button Size="Size.Small" Clicked="@((_) => ToEdit(context.Item, _.CtrlKey))" Disabled="@(DisabledFromPermissionWrite)" Padding="Blazorise.Padding.Is1" Margin="Margin.Is2.FromStart" @onclick:stopPropagation>
                                         <Icon Name="IconName.Edit" />
                                     </Button>
                                 </Tooltip>
                             }else
                             {
-                                <Tooltip Text="@PermissionService.CanReadTooltip("Visualizar")" Inline>
+                                <Tooltip Text="@PermissionService.CanReadTooltip("Visualizar", IgnorePermission)" Inline>
                                     <Button Size="Size.Small" Clicked="@((_) => ToView(context.Item, _.CtrlKey))" Disabled="@(!PermissionService.CanRead)" Padding="Blazorise.Padding.Is1" Margin="Margin.Is2.FromStart" @onclick:stopPropagation>
                                         <Icon Name="IconName.Eye" />
                                     </Button>
@@ -66,8 +66,8 @@
                         </EditCommandTemplate>
 
                         <DeleteCommandTemplate>
-                            <Tooltip Text="@PermissionService.CanWriteTooltip("Deletar")" Inline>
-                                <Button Size="Size.Small" Clicked="@context.Clicked" Disabled="@(!PermissionService.CanWrite)" Padding="Blazorise.Padding.Is1" @onclick:stopPropagation>
+                            <Tooltip Text="@PermissionService.CanWriteTooltip("Deletar", IgnorePermission)" Inline>
+                                <Button Size="Size.Small" Clicked="@context.Clicked" Disabled="@(DisabledFromPermissionWrite)" Padding="Blazorise.Padding.Is1" @onclick:stopPropagation>
                                     <Icon Name="IconName.Delete" />
                                 </Button>
                             </Tooltip>

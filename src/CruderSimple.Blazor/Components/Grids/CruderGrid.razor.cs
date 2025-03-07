@@ -127,7 +127,6 @@ public partial class CruderGrid<TGridEntity, TGridDto> : CruderGridBase<TGridEnt
     [Parameter] public EventCallback<TGridDto> ItemDeleted { get; set; }
 
 
-
     [Parameter] public bool IsDebug { get; set; } = false;
 
 
@@ -220,7 +219,6 @@ public partial class CruderGrid<TGridEntity, TGridDto> : CruderGridBase<TGridEnt
             await AddItem(CurrentSelected);
         else
             await CruderGridModal.OpenCreate(CurrentSelected);
-
     }
 
     public async Task EditItem(TGridDto item)

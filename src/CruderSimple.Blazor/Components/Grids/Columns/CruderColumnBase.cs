@@ -6,7 +6,7 @@ using CruderSimple.Core.ViewModels;
 using Mapster;
 using Microsoft.AspNetCore.Components;
 
-namespace CruderSimple.Blazor.Components.Grids
+namespace CruderSimple.Blazor.Components.Grids.Columns
 {
     [CascadingTypeParameter(nameof(TColumnEntity))]
     [CascadingTypeParameter(nameof(TColumnDto))]
@@ -68,6 +68,11 @@ namespace CruderSimple.Blazor.Components.Grids
         /// When Type doenst Match, put a tooltip info
         /// </summary>
         [Parameter] public string TooltipValueNull { get; set; }
+
+        /// <summary>
+        /// When you want to run this Column without Permissions management
+        /// </summary>
+        [Parameter] public bool IgnorePermission { get; set; }
 
         [Inject] protected PermissionService PermissionService { get; set; }
 

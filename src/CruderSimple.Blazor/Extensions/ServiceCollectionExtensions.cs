@@ -4,6 +4,7 @@ using Blazorise.Bootstrap;
 using Blazorise.Icons.FontAwesome;
 using Blazorise.LoadingIndicator;
 using CruderSimple.Blazor.Components;
+using CruderSimple.Blazor.DelegationHandlers;
 using CruderSimple.Blazor.Interfaces.Services;
 using CruderSimple.Blazor.Services;
 using CruderSimple.Core.Entities;
@@ -32,6 +33,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IdentityAuthenticationStateProvider>();
         services.AddScoped<IIdentityAuthenticationStateProvider, IdentityAuthenticationStateProvider>();
         services.AddScoped<AuthenticationStateProvider>(s => s.GetRequiredService<IdentityAuthenticationStateProvider>());
+        services.AddScoped<AuthHeaderHandler>();
         services.AddScoped(typeof(IAuthorizeApi), typeof(TAuthorizeApi));
         services.AddTransient<IRequestService, RequestService>();
         var permissionsService = new PermissionService();

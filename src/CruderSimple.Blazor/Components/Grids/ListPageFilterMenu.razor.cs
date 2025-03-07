@@ -143,27 +143,29 @@ public partial class ListPageFilterMenu<TGridEntity, TGridDto> : ComponentBase
 
     private RenderFragment GenerateSelectComponent(object selectItem)
     {
-        if (DataGridSelectColumn is null)
-            return null;
-
-        var service = DataGridSelectColumn.Attributes["Service"];
-        if (service is null)
-        {
-            Console.WriteLine("Service is null");
-            return null;
-        }
-
-        var entity = service.GetType().GenericTypeArguments[0];
-        var entityDto = service.GetType().GenericTypeArguments[1];
-
-        var render = EntityAutocompleteUtils.CreateComponent(
-            entity, 
-            entityDto,
-            selectItem, 
-            SelectChanged, 
-            false, 
-            DataGridSelectColumn.Attributes);
-        return render;
+        return null;
+        // if (DataGridSelectColumn is null)
+        //     return null;
+        //
+        //
+        // var service = DataGridSelectColumn.Attributes["Service"];
+        // if (service is null)
+        // {
+        //     Console.WriteLine("Service is null");
+        //     return null;
+        // }
+        //
+        // var entity = service.GetType().GenericTypeArguments[0];
+        // var entityDto = service.GetType().GenericTypeArguments[1];
+        //
+        // var render = EntityAutocompleteUtils.CreateComponent(
+        //     entity, 
+        //     entityDto,
+        //     selectItem, 
+        //     SelectChanged, 
+        //     false, 
+        //     DataGridSelectColumn.Attributes);
+        // return render;
     }
 
     public async Task SelectChanged((string Key, object Value) value)

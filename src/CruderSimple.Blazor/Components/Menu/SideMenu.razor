@@ -3,17 +3,18 @@
 @inject IConfiguration configuration
 @inherits CruderSimplePageBase
 
-<Bar @ref="BarRef" Breakpoint="Breakpoint.Desktop" NavigationBreakpoint="Breakpoint.Tablet" ThemeContrast="ThemeContrast.Dark"
+<Bar @ref="BarRef" Breakpoint="Breakpoint.Desktop" NavigationBreakpoint="Breakpoint.Tablet"
+     ThemeContrast="ThemeContrast.Dark"
      Mode="BarMode.VerticalInline" CollapseMode="BarCollapseMode.Small">
-    <BarToggler />
+    <BarToggler/>
 
     @if (BarRef.Visible)
     {
-         <BarBrand> 
-             <BarItem> 
-                 @TopBarStart 
-             </BarItem> 
-         </BarBrand>     
+        <BarBrand>
+            <BarItem>
+                @TopBarStart
+            </BarItem>
+        </BarBrand>
     }
     @* @if(customIcon != null) *@
     @* { *@
@@ -26,48 +27,66 @@
     @*         </BarItem> *@
     @*     </BarBrand> *@
     @* } *@
-    <BarMenu >
+    <BarMenu>
         <BarStart>
             @{
                 foreach (var item in Routes ?? new List<PageSide>())
                 {
                     // <BarLabel>@item.Name</BarLabel>
-                    <BarItem>
-                        <BarDropdown Visible="@(BarRef.Visible && item.Routes.Any(x => CurrentRoute.Contains(x.Url)))">
-                            <BarDropdownToggle >
-                                <BarIcon IconName="@Enum.Parse(typeof(IconName), item.Icon, true)" IconSize="IconSize.Small" Margin="Margin.Is1.FromEnd" />
-                                @item.Name
-                            </BarDropdownToggle>
-                            <BarDropdownMenu>
-                                @{
-                                    foreach (var route in item.Routes)
-                                    {
-                                        <BarDropdownItem To="@route.Url" Class="@(NavigationManager.Uri.Contains(route.Url) ? "active" : "")">
-                                            @route.Name
-                                        </BarDropdownItem>
+                    @if (string.IsNullOrEmpty(item.Name))
+                    {
+                        foreach (var route in item.Routes)
+                        {
+                            <BarItem>
+                                <BarLink To="@route.Url">
+                                    <BarIcon IconName="@route.Icon"/>
+                                    @route.Name
+                                </BarLink>
+                            </BarItem>
+                        }
+                    }
+                    else
+                    {
+                        <BarItem>
+                            <BarDropdown
+                                Visible="@(BarRef.Visible && item.Routes.Any(x => CurrentRoute.Contains(x.Url)))">
+                                <BarDropdownToggle>
+                                    <BarIcon IconName="@Enum.Parse(typeof(IconName), item.Icon, true)"
+                                             IconSize="IconSize.Small" Margin="Margin.Is1.FromEnd"/>
+                                    @item.Name
+                                </BarDropdownToggle>
+                                <BarDropdownMenu>
+                                    @{
+                                        foreach (var route in item.Routes)
+                                        {
+                                            <BarDropdownItem To="@route.Url"
+                                                             Class="@(NavigationManager.Uri.Contains(route.Url) ? "active" : "")">
+                                                @route.Name
+                                            </BarDropdownItem>
+                                        }
                                     }
-                                }
-                            </BarDropdownMenu>
-                        </BarDropdown>
-                    </BarItem>
+                                </BarDropdownMenu>
+                            </BarDropdown>
+                        </BarItem>
+                    }
                 }
             }
         </BarStart>
         <BarEnd Padding="Padding.Is0.OnY">
             <BarItem>
                 <BarDropdown>
-                    <BarDropdownToggle >
-                        <BarIcon IconName="IconName.User" IconSize="IconSize.Small" Margin="Margin.Is1.FromEnd" />
+                    <BarDropdownToggle>
+                        <BarIcon IconName="IconName.User" IconSize="IconSize.Small" Margin="Margin.Is1.FromEnd"/>
                         @UserName
                     </BarDropdownToggle>
                     <BarDropdownMenu>
                         <BarDropdownItem>
-                            <Icon Name="IconName.Wrench" />
+                            <Icon Name="IconName.Wrench"/>
                             User Settings
                         </BarDropdownItem>
                         <BarDropdownItem>
                             <div @onclick="@LogoutClick">
-                                <Icon Name="IconName.Lock" TextColor="TextColor.Danger" />
+                                <Icon Name="IconName.Lock" TextColor="TextColor.Danger"/>
                                 Logout
                             </div>
                         </BarDropdownItem>
@@ -77,28 +96,27 @@
         </BarEnd>
     </BarMenu>
 </Bar>
+
 @code{
-    [Parameter]
-    public RenderFragment TopBarStart { get; set; }
-    
-    [Inject]
-    public NavigationManager NavigationManager { get; set; }
-    
-    [Inject]
-    public IdentityAuthenticationStateProvider authentication { get; set; }
+    [Parameter] public RenderFragment TopBarStart { get; set; }
+
+    [Inject] public NavigationManager NavigationManager { get; set; }
+
+    [Inject] public IdentityAuthenticationStateProvider authentication { get; set; }
 
     RenderFragment customIcon;
 
     public Bar BarRef { get; set; }
-    
-    [Parameter]
-    public ICollection<PageSide>? Routes { get; set; } = new List<PageSide>();
+
+    [Parameter] public ICollection<PageSide>? Routes { get; set; } = new List<PageSide>();
     public string CurrentRoute => NavigationManager.Uri;
     public string UserName { get; set; }
+
     public bool ToggleItem(PageSide item)
     {
         return !BarRef.Visible && !IsMobile && item.Routes.Any(x => CurrentRoute.Contains(x.Url));
     }
+
     public string ToggleUrl(LoginRouteResult route)
     {
         return CurrentRoute.Contains(route.Url) ? "active" : "";
@@ -117,7 +135,6 @@
         if (user == null)
             return;
         UserName = user.UserName;
-
     }
 
     public class PageSide(string name, bool toggle, ICollection<LoginRouteResult> routes)
@@ -127,9 +144,11 @@
         public string Icon { get; set; } = routes.FirstOrDefault().Icon;
         public ICollection<LoginRouteResult> Routes { get; set; } = routes;
     }
+
     async Task LogoutClick()
     {
         await authentication.Logout();
         NavigationManager.NavigateTo("/login");
     }
+
 }

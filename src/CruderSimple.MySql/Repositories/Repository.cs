@@ -12,11 +12,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CruderSimple.MySql.Repositories;
 
-public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTenant) : IRepository<TEntity>
+public class Repository<TEntity>(DbContext managementDbContext, MultiTenantScoped multiTenant) : IRepository<TEntity>
     where TEntity : Entity
 {
-    protected readonly DbContext DbContext = dbContext;
-    protected readonly DbSet<TEntity> DbSet = dbContext.Set<TEntity>();
+    protected readonly DbContext ManagementDbContext = managementDbContext;
+    protected readonly DbSet<TEntity> DbSet = managementDbContext.Set<TEntity>();
 
     protected MultiTenantScoped MultiTenant { get; } = multiTenant;
     protected TEntity Saved { get; set; }
@@ -26,10 +26,10 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
         entity.CreateMethod(0);
         Saved = entity;
         if (autoDetach == AutoDetachOptions.AFTER)
-            DbContext.AutoDetach(Saved);
-        DbContext.Add(entity); 
+            ManagementDbContext.AutoDetach(Saved);
+        ManagementDbContext.Add(entity); 
         if (autoDetach == AutoDetachOptions.BEFORE)
-            DbContext.AutoDetach(Saved);
+            ManagementDbContext.AutoDetach(Saved);
         return this;
     }
 
@@ -38,10 +38,10 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
         entity.UpdateMethod(0);
         Saved = entity;
         if (autoDetach == AutoDetachOptions.AFTER)
-            DbContext.AutoDetach(Saved);
-        DbContext.Update(entity);
+            ManagementDbContext.AutoDetach(Saved);
+        ManagementDbContext.Update(entity);
         if (autoDetach == AutoDetachOptions.BEFORE)
-            DbContext.AutoDetach(Saved);
+            ManagementDbContext.AutoDetach(Saved);
         return this;
     }
 
@@ -49,7 +49,7 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
     {
         entity.DeleteMethod(0);
         Saved = entity;
-        DbContext.Update(entity);
+        ManagementDbContext.Update(entity);
         return this;
     }
 
@@ -60,8 +60,8 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
         if (withoutTracking)
         {
             var referencesId = Saved.GetReferences();
-            var entries = dbContext.ChangeTracker.Entries().ToList();
-            dbContext.ChangeTracker.Clear();
+            var entries = managementDbContext.ChangeTracker.Entries().ToList();
+            managementDbContext.ChangeTracker.Clear();
             var groupBy = entries
                 .Where(x => referencesId.ContainsKey(((IEntity)x.Entity).Id))
                 .GroupBy(x => ((IEntity)x.Entity).Id)
@@ -76,7 +76,7 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
                 {
                     if (entryEntity.DeletedAt.HasValue)
                         entryEntity.DeleteMethod(0);
-                    dbContext.Entry(entry.Entity).State = EntityState.Modified;
+                    managementDbContext.Entry(entry.Entity).State = EntityState.Modified;
                 }
                 else
                 {
@@ -84,9 +84,9 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
                         entryEntity.DeleteMethod(0);
                     
                     if (entry.State == EntityState.Deleted)
-                        dbContext.Entry(entry.Entity).State = EntityState.Modified;
+                        managementDbContext.Entry(entry.Entity).State = EntityState.Modified;
                     else
-                        dbContext.Entry(entry.Entity).State = entry.State;
+                        managementDbContext.Entry(entry.Entity).State = entry.State;
                 }
             }
             // var tracked = new List<string>();
@@ -119,7 +119,7 @@ public class Repository<TEntity>(DbContext dbContext, MultiTenantScoped multiTen
             //     }
             // }
         }
-        await DbContext.SaveChangesAsync();
+        await ManagementDbContext.SaveChangesAsync();
     }
 
     public virtual Task<TEntity> FindById(string id, string select = "*", bool asNoTracking = false) 

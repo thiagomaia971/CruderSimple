@@ -23,7 +23,7 @@
         @{
             if (IsView)
             {
-                <Tooltip Text="@PermissionService.CanWriteTooltip("Editar")" Inline Margin="Margin.Is1.OnX">
+                <Tooltip Text="@PermissionService.CanWriteTooltip("Editar", false)" Inline Margin="Margin.Is1.OnX">
                     <Button Color="Color.Primary" Clicked="@ToEdit" Loading="@IsLoading" Disabled="@(!PermissionService.CanWrite || IsLoading)">
                         Editar
                     </Button>

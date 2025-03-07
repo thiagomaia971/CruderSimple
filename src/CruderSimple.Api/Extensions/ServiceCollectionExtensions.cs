@@ -30,7 +30,7 @@ namespace CruderSimple.Api.Extensions
 
         private static void AddEndpoints(IServiceCollection services)
         {
-            var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.ExportedTypes);
+            var types = CruderSimple.Core.Extensions.ServiceCollectionExtensions.GetTypes("DofusManagement");
             var requestHandlers = types.GetTypesWithHelpAttribute<EndpointRequest>();
 
             foreach (var handler in requestHandlers)

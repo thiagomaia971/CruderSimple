@@ -57,13 +57,13 @@
                             {
                                 @StartNewCommandTemplate
                             }
-                            <Tooltip Text="@PermissionService.CanWriteTooltip(NewTooltip)">
-                                <Button Type="ButtonType.Link" Clicked="@((_) => OpenCreateMode(context))" Color="Color.Success" Width="Width.Is100" Size="Size.Small" Disabled="@(!PermissionService.CanWrite)">
+                            <Tooltip Text="@PermissionService.CanWriteTooltip(NewTooltip, IgnorePermission)">
+                                <Button Type="ButtonType.Link" Clicked="@((_) => OpenCreateMode(context))" Color="Color.Success" Width="Width.Is100" Size="Size.Small" Disabled="@(DisabledFromPermissionWrite)">
                                     <Icon Name="IconName.Add" />
                                 </Button>
                             </Tooltip>
-                            <Tooltip Text="@PermissionService.CanWriteTooltip(RefreshTooltip)">
-                                <Button Type="ButtonType.Link" Clicked="@((_) => DataGridRef.Reload())" Color="Color.Info" Width="Width.Is100" Size="Size.Small" Disabled="@(!PermissionService.CanWrite)">
+                            <Tooltip Text="@PermissionService.CanWriteTooltip(RefreshTooltip, IgnorePermission)">
+                                <Button Type="ButtonType.Link" Clicked="@((_) => DataGridRef.Reload())" Color="Color.Info" Width="Width.Is100" Size="Size.Small" Disabled="@(DisabledFromPermissionWrite)">
                                     <Icon Name="IconName.Sync" />
                                 </Button>
                             </Tooltip>
@@ -83,14 +83,14 @@
                         {
                             @if (BackupModified.ContainsKey(context.Item.GetKey))
                             {
-                                <Tooltip Text="@PermissionService.CanWriteTooltip(UndoTooltip)" Inline>
-                                    <Button Size="Size.Small" Clicked="@((e) => UndoEdit(context))" Disabled="@(!PermissionService.CanWrite)" Padding="Blazorise.Padding.Is1" @onclick:stopPropagation>
+                                <Tooltip Text="@PermissionService.CanWriteTooltip(UndoTooltip, IgnorePermission)" Inline>
+                                    <Button Size="Size.Small" Clicked="@((e) => UndoEdit(context))" Disabled="@(DisabledFromPermissionWrite)" Padding="Blazorise.Padding.Is1" @onclick:stopPropagation>
                                         <Icon Name="IconName.Undo" />
                                     </Button>
                                 </Tooltip>
                             }
-                            <Tooltip Text="@PermissionService.CanWriteTooltip(ModalForm == null ? EditTooltip : ViewTooltip)" Inline>
-                                <Button Size="Size.Small" Clicked="@((_) => OpenEditMode(SearchedData.FirstOrDefault(x => x.GetKey == context.Item.GetKey), context))" Disabled="@(!PermissionService.CanWrite)" Padding="Blazorise.Padding.Is1" @onclick:stopPropagation>
+                            <Tooltip Text="@PermissionService.CanWriteTooltip(ModalForm == null ? EditTooltip : ViewTooltip, IgnorePermission)" Inline>
+                                <Button Size="Size.Small" Clicked="@((_) => OpenEditMode(SearchedData.FirstOrDefault(x => x.GetKey == context.Item.GetKey), context))" Disabled="@(DisabledFromPermissionWrite)" Padding="Blazorise.Padding.Is1" @onclick:stopPropagation>
                                     <Icon Name="@(ModalForm == null ? IconName.Edit : IconName.Eye)" />
                                 </Button>
                             </Tooltip>
@@ -105,15 +105,15 @@
                         
                         @if (context.Item.DeletedAt.HasValue)
                         {
-                            <Tooltip Text="@PermissionService.CanWriteTooltip(UndoTooltip)" Inline>
-                                <Button Size="Size.Small" Clicked="@((e) => UndoDelete(context))" Disabled="@(!PermissionService.CanWrite)" Padding="Blazorise.Padding.Is1" @onclick:stopPropagation>
+                            <Tooltip Text="@PermissionService.CanWriteTooltip(UndoTooltip, IgnorePermission)" Inline>
+                                <Button Size="Size.Small" Clicked="@((e) => UndoDelete(context))" Disabled="@(DisabledFromPermissionWrite)" Padding="Blazorise.Padding.Is1" @onclick:stopPropagation>
                                     <Icon Name="IconName.Undo" />
                                 </Button>
                             </Tooltip>
                         }else
                         {
-                            <Tooltip Text="@PermissionService.CanWriteTooltip(DeleteTooltip)" Inline>
-                                <Button Size="Size.Small" Clicked="@context.Clicked" Disabled="@(!PermissionService.CanWrite)" Padding="Blazorise.Padding.Is1" @onclick:stopPropagation>
+                            <Tooltip Text="@PermissionService.CanWriteTooltip(DeleteTooltip, IgnorePermission)" Inline>
+                                <Button Size="Size.Small" Clicked="@context.Clicked" Disabled="@(DisabledFromPermissionWrite)" Padding="Blazorise.Padding.Is1" @onclick:stopPropagation>
                                     <Icon Name="IconName.Delete" />
                                 </Button>
                             </Tooltip>
@@ -125,8 +125,8 @@
                     </DeleteCommandTemplate>
 
                     <SaveCommandTemplate>
-                        <Tooltip Text="@PermissionService.CanWriteTooltip("Salvar")" Inline>
-                            <Button Size="Size.Small" Type="ButtonType.Submit" PreventDefaultOnSubmit Clicked="context.Clicked" Disabled="@(!PermissionService.CanWrite)" Padding="Blazorise.Padding.Is1" Margin="Margin.Is2.FromStart.Is1.FromTop" @onclick:stopPropagation>
+                        <Tooltip Text="@PermissionService.CanWriteTooltip("Salvar", IgnorePermission)" Inline>
+                            <Button Size="Size.Small" Type="ButtonType.Submit" PreventDefaultOnSubmit Clicked="context.Clicked" Disabled="@(DisabledFromPermissionWrite)" Padding="Blazorise.Padding.Is1" Margin="Margin.Is2.FromStart.Is1.FromTop" @onclick:stopPropagation>
                                 <Icon Name="IconName.Check" />
                             </Button>
                         </Tooltip>
@@ -154,7 +154,7 @@
                 </Row>
             </LoadingTemplate>
             <EmptyTemplate>
-                @if (!Loading.Visible)
+                @if (!Loading?.Visible ?? false)
                 {
                     <Row Flex="Flex.JustifyContent.Center" Width="Width.Is100" Height="@(Height == null ? Blazorise.Height.Px(150) : Height)" Style="position: relative;">
                         <Column ColumnSize="ColumnSize.Is4.OnWidescreen" Style="@(Height == null ? "margin: 0; position: absolute; top: 20%; -ms-transform: translateY(-20%); transoform: translateY(-20%);" : "margin: 0; position: absolute; top: 45%; -ms-transform: translateY(-45%); transoform: translateY(-45%);")">
@@ -170,9 +170,9 @@
                     </Row>
                 }
             </EmptyTemplate>
-            <FilterMenuTemplate>
-                <ListPageFilterMenu TGridEntity="TGridEntity" TGridDto="TGridDto" Column="context.Column" />
-            </FilterMenuTemplate>
+            @* <FilterMenuTemplate> *@
+            @*     <ListPageFilterMenu TGridEntity="TGridEntity" TGridDto="TGridDto" Column="context.Column" /> *@
+            @* </FilterMenuTemplate> *@
             <DetailRowTemplate>
                 @if (DetailRowTemplate != null)
                 {
@@ -216,7 +216,7 @@
                     <Button Color="Color.Warning" Clicked="@(() => ModalRef.Close(CloseReason.UserClosing))">
                         Cancelar
                     </Button>
-                    <Button Color="Color.Primary" Type="ButtonType.Submit" Loading="@IsLoading" Disabled="@(!PermissionService.CanWrite || IsLoading)" Margin="Margin.Is1.OnX">
+                    <Button Color="Color.Primary" Type="ButtonType.Submit" Loading="@IsLoading" Disabled="@(DisabledFromPermissionWrite || IsLoading)" Margin="Margin.Is1.OnX">
                         @if (IsNewModal)
                         {
                             @("Adicionar")

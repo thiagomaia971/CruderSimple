@@ -5,7 +5,7 @@ using CruderSimple.Core.ViewModels;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 
-namespace CruderSimple.Blazor.Components.Grids;
+namespace CruderSimple.Blazor.Components.Grids.Columns;
 
 [CascadingTypeParameter(nameof(TColumnEntity))]
 [CascadingTypeParameter(nameof(TColumnDto))]

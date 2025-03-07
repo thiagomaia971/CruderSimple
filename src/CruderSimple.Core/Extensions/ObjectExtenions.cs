@@ -31,7 +31,7 @@ namespace CruderSimple.Core.Extensions
             
             var currentValue = itemProperties.GetValue(value);
             if (splited.Length == 1)
-                return (T) currentValue;
+                return currentValue == null ? (T) default : (T) currentValue;
 
             return GetValueByPropertyName<T>(currentValue, string.Join(".", splited.Skip(1)));
         }

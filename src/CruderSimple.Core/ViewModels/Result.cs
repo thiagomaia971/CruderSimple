@@ -54,5 +54,16 @@
                 StackTrace = stackTrace
             };
         }
+
+        public static Result CreateError(string stackTrace, params string[] errors)
+        {
+            return new Result
+            {
+                Success = false,
+                HttpStatusCode = 400,
+                Errors = errors.ToList(),
+                StackTrace = stackTrace
+            };
+        }
     }
 }
