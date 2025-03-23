@@ -1,6 +1,7 @@
 ﻿using CruderSimple.Api.Requests.Base;
 using CruderSimple.Core.EndpointQueries;
 using CruderSimple.Core.Entities;
+using CruderSimple.Core.Exceptions;
 using CruderSimple.Core.Extensions;
 using CruderSimple.Core.ViewModels;
 using MediatR;
@@ -10,7 +11,7 @@ namespace CruderSimple.Api.Requests;
 
 public static class DeleteRequest 
 {
-    public record Query([FromRoute] string id) : IEndpointQuery;
+    public record Query(string? id) : IEndpointQuery;
 
     public class Handler<TQuery, TEntity, TDto, TRepository>
         (TRepository repository)
@@ -24,7 +25,7 @@ public static class DeleteRequest
         {
             try
             {
-                var entity = await repository.FindById(request.id);
+                var entity = await GetById(request.id);
             
                 if (entity is null)
                     return Result.CreateError("Recurso não encontrado", 404, "Recurso não encontrado");
@@ -38,6 +39,15 @@ public static class DeleteRequest
             {
                 return Result.CreateError(exception.StackTrace, 500, exception.Message);
             }
+        }
+
+        public async Task<TEntity> GetById(string id)
+        {
+            var entity = await repository.FindById(id);
+
+            if (entity is null)
+                throw new ResultException(Result.CreateError("Recurso não encontrado", 404, "Recurso não encontrado"));
+            return entity;
         }
     }
 }

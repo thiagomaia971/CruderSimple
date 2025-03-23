@@ -1,6 +1,7 @@
 ﻿using System.Security.Claims;
 using System.Text.Json;
 using CruderSimple.Core.Entities;
+using CruderSimple.Core.Extensions;
 using CruderSimple.Core.Interfaces;
 using CruderSimple.Core.ViewModels;
 using Microsoft.AspNetCore.Http;
@@ -66,6 +67,6 @@ public class PermissionAuthorizationActionFilter<TUser> : IEndpointFilter
             return await next(context);
 
         var result = Result.CreateError("Usuário não autorizado", 403, "Usuário não autorizado"); 
-        return Results.Json(result, JsonSerializerOptions.Default, null, 403);
+        return Results.Json(result, JsonSerializerOptions.Default.GetDefaultSerializerOptions(), null, 403);
     }
 }

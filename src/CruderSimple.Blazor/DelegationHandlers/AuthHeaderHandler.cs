@@ -23,7 +23,10 @@ public class AuthHeaderHandler : DelegatingHandler
                 string headerName = claim.Type.Split("/").LastOrDefault(); // Pegando a última parte do Type como Header
                 if (!string.IsNullOrEmpty(headerName))
                 {
-                    request.Headers.TryAddWithoutValidation(headerName, claim.Value);
+                    if (headerName == "Token")
+                        request.Headers.TryAddWithoutValidation("Authorization", $"Bearer {claim.Value}");
+                    else
+                        request.Headers.TryAddWithoutValidation(headerName, claim.Value);
                 }
             }
         }

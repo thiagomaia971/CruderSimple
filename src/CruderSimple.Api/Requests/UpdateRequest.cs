@@ -13,7 +13,7 @@ namespace CruderSimple.Api.Requests;
 
 public static class UpdateRequest
 {
-    public record Query<TDto>([FromRoute] string id, [FromBody] TDto payload) : IEndpointQuery
+    public record Query<TDto>([FromRoute] string? id, [FromBody] TDto? payload) : IEndpointQuery
         where TDto : BaseDto;
 
     public class Handler<TQuery, TEntity, TDto, TRepository>

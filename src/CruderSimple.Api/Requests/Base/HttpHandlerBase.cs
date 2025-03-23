@@ -1,6 +1,8 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using CruderSimple.Api.Filters;
 using CruderSimple.Core.Entities;
+using CruderSimple.Core.Extensions;
 using CruderSimple.Core.Interfaces;
 using CruderSimple.Core.ViewModels;
 using MediatR;
@@ -63,7 +65,7 @@ public abstract class HttpHandlerBase<TQuery, TEntity, TResult> : IHttpRequestHa
                 return Results.NotFound(result);
             case 500:
             default:
-                return Results.Json(result, JsonSerializerOptions.Default, null, 500);
+                return Results.Json(result, JsonSerializerOptions.Default.GetDefaultSerializerOptions(), null, 500);
         }
     }
 

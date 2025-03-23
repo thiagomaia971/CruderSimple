@@ -41,7 +41,7 @@ public static class EntityExtensions
         
         var entityToSave = input.Adapt<TEntity>(typeConfig);
         return entityToSave.BuildAdapter(TypeAdapterConfig<TEntity, TEntity>.NewConfig()
-                .ShallowCopyForSameType(false)
+                // .ShallowCopyForSameType(false)
                 // .PreserveReference(false)
                 .Config)
             .AdaptTo(entityBase);

@@ -64,6 +64,7 @@ public class IdentityAuthenticationStateProvider : AuthenticationStateProvider, 
             
             if (!claims.Any(x => x.Key == ClaimTypes.Name))
                 claimsIdentity.Add(new Claim(ClaimTypes.Name, login.UserName));
+            claimsIdentity.Add(new Claim("Token", login.Token));
             
             claimsIdentity.AddRange(claims.Select(c => new Claim(c.Key, c.Value)));
             identity = new ClaimsIdentity(claimsIdentity, "Server authentication");

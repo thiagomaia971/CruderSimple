@@ -84,7 +84,6 @@ public static class ServiceCollectionExtensions
 
 public class BootstrapInfo
 {
-    private static JsonSerializerOptions SerializationOptions => new() { PropertyNameCaseInsensitive = true };
 
     [JsonConstructor]
     public BootstrapInfo()
@@ -108,9 +107,9 @@ public class BootstrapInfo
     [JsonPropertyName("resources")] public BootstrapResourceInfo Resources { get; set; }
 
     public static BootstrapInfo FromJson(string json) =>
-        JsonSerializer.Deserialize<BootstrapInfo>(json, SerializationOptions);
+        JsonSerializer.Deserialize<BootstrapInfo>(json, JsonSerializerOptions.Default.GetDefaultSerializerOptions());
 
-    public static string ToJson(BootstrapInfo bootstrap) => JsonSerializer.Serialize(bootstrap, SerializationOptions);
+    public static string ToJson(BootstrapInfo bootstrap) => JsonSerializer.Serialize(bootstrap, JsonSerializerOptions.Default.GetDefaultSerializerOptions());
 }
 
 public class BootstrapResourceInfo

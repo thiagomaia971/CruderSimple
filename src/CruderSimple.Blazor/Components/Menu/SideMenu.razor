@@ -32,16 +32,17 @@
             @{
                 foreach (var item in Routes ?? new List<PageSide>())
                 {
-                    // <BarLabel>@item.Name</BarLabel>
                     @if (string.IsNullOrEmpty(item.Name))
                     {
-                        foreach (var route in item.Routes)
+                        foreach (var route in item.Routes.Where(c => c.Name != "Home"))
                         {
                             <BarItem>
-                                <BarLink To="@route.Url">
-                                    <BarIcon IconName="@route.Icon"/>
-                                    @route.Name
-                                </BarLink>
+                                <Tooltip Text="@route.Name">
+                                    <BarLink To="@route.Url">
+                                        <BarIcon IconName="@route.Icon"/>
+                                        @route.Name
+                                    </BarLink>
+                                </Tooltip>
                             </BarItem>
                         }
                     }

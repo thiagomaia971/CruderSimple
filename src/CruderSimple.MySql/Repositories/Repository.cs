@@ -56,6 +56,7 @@ public class Repository<TEntity>(DbContext managementDbContext, MultiTenantScope
     public virtual async Task Save(bool withoutTracking = true)
     {
         Saved.SetAllMultiTenant(MultiTenant.MultiTenantType, MultiTenant.Id);
+        Saved.SetAllUserId(MultiTenant.UserId);
         
         if (withoutTracking)
         {

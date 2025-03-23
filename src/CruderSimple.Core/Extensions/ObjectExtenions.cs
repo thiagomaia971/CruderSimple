@@ -20,20 +20,26 @@ namespace CruderSimple.Core.Extensions
             return GetValueByPropertyName(currentValue, string.Join(".", splited.Skip(1)));
         }
 
+        public static PropertyInfo GetPropertyByPropertyName(this object value, string propertyName)
+        {
+            var splited = propertyName.Split('.');
+            var itemProperties = value.GetType().GetProperty(splited[0]);
+            return itemProperties;
+        }
+
         public static T GetValueByPropertyName<T>(this object value, string propertyName)
         {
             if (value == null)
                 return default;
-            var splited = propertyName.Split('.');
-            var itemProperties = value.GetType().GetProperty(splited[0]);
+            var itemProperties = value.GetPropertyByPropertyName(propertyName);
             if (itemProperties == null)
                 return default;
             
             var currentValue = itemProperties.GetValue(value);
-            if (splited.Length == 1)
+            if (propertyName.Split('.').Length == 1)
                 return currentValue == null ? (T) default : (T) currentValue;
 
-            return GetValueByPropertyName<T>(currentValue, string.Join(".", splited.Skip(1)));
+            return GetValueByPropertyName<T>(currentValue, string.Join(".", propertyName.Split('.').Skip(1)));
         }
 
         public static void SetValueByPropertyName(this object @object, object value, string propertyName)
