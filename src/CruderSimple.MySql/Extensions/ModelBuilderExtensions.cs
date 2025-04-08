@@ -52,14 +52,42 @@ public static class ModelBuilderExtensions
         }
     }
     
-    private static IEntity GetLocalDbSet(DbContext context, Type entityType, string entryId)
+    public static IQueryable<IEntity> GetDbSetByType(this DbContext context, Type entityType)
+    {
+        // Obter a propriedade DbSet dinamicamente pelo Type
+        var dbSetProperty = context.GetType()
+            .GetProperties()
+            .FirstOrDefault(p => p.PropertyType.GenericTypeArguments.Contains(entityType));
+
+        if (dbSetProperty == null)
+        {
+            throw new Exception($"DbSet para a entidade {entityType.Name} não encontrado no contexto.");
+        }
+
+        // Retornar o DbSet como IQueryable
+        return dbSetProperty.GetValue(context) as IQueryable<IEntity>;
+    }
+
+    public static dynamic GetDbSet(this DbContext context, Type entityType)
     {
         var methodInfo = context.GetType().GetMethod("Set", new Type[0] {  });
         var methodGenericInfo =
             methodInfo.MakeGenericMethod(entityType);
 
         var dbSet = (dynamic) methodGenericInfo.Invoke(context, new string[0] {  });
+        return dbSet;
+    }
+
+    public static IEnumerable<IEntity> GetLocalDbSet(this DbContext context, Type entityType)
+    {
+        var dbSet = context.GetDbSet(entityType);
         var local = (IEnumerable<IEntity>) dbSet.Local;
+        return local;
+    }
+    
+    private static IEntity GetLocalDbSet(DbContext context, Type entityType, string entryId)
+    {
+        var local = context.GetLocalDbSet(entityType);
         var cc = local.FirstOrDefault(c => c.Id.Equals(entryId));
         return cc;
         // return dbSet.Local.FirstOrDefault(entry => entry.Id.Equals(entryId));

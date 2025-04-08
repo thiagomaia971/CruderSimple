@@ -9,6 +9,8 @@ using CruderSimple.MySql.Extensions;
 using CruderSimple.MySql.Interfaces;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using System.Linq.Dynamic.Core;
 
 namespace CruderSimple.MySql.Repositories;
 
@@ -58,10 +60,12 @@ public class Repository<TEntity>(DbContext managementDbContext, MultiTenantScope
         Saved.SetAllMultiTenant(MultiTenant.MultiTenantType, MultiTenant.Id);
         Saved.SetAllUserId(MultiTenant.UserId);
         
+        var referencesId = Saved.GetReferences();
+        var entries = managementDbContext.ChangeTracker.Entries().ToList();
+        DetectExistingEntities(entries);
+        
         if (withoutTracking)
         {
-            var referencesId = Saved.GetReferences();
-            var entries = managementDbContext.ChangeTracker.Entries().ToList();
             managementDbContext.ChangeTracker.Clear();
             var groupBy = entries
                 .Where(x => referencesId.ContainsKey(((IEntity)x.Entity).Id))
@@ -121,6 +125,39 @@ public class Repository<TEntity>(DbContext managementDbContext, MultiTenantScope
             // }
         }
         await ManagementDbContext.SaveChangesAsync();
+    }
+    
+    private void DetectExistingEntities(List<EntityEntry> entities)
+    {
+        // Agrupar as entidades por tipo e coletar seus IDs
+        var entitiesByType = entities
+            .Where(entry => entry.State == EntityState.Added)
+            .GroupBy(entry => entry.Entity.GetType());
+
+        foreach (var group in entitiesByType)
+        {
+            var entityType = group.Key;
+            var entityIds = group
+                .Select(entry => ((IEntity)entry.Entity).Id)
+                .Distinct()
+                .ToList();
+
+            // Consultar todas as entidades existentes no banco de uma vez
+            var queryable = managementDbContext.GetDbSetByType(entityType);
+            var existingEntities = queryable
+                .Where(x => entityIds.Contains(x.Id))
+                .ToList();
+
+            // Ajustar os estados de tracking para as entidades já existentes
+            foreach (var entry in group)
+            {
+                var entityId = ((IEntity)entry.Entity).Id;
+                if (existingEntities.Any(e => e.Id.Equals(entityId)))
+                {
+                    entry.State = EntityState.Unchanged;
+                }
+            }
+        }
     }
 
     public virtual Task<TEntity> FindById(string id, string select = "*", bool asNoTracking = false) 
