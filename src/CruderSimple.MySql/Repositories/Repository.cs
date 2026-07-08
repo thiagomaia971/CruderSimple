@@ -67,8 +67,11 @@ public class Repository<TEntity>(DbContext managementDbContext, MultiTenantScope
         if (withoutTracking)
         {
             managementDbContext.ChangeTracker.Clear();
+            // Owned-type navigations (e.g. DofusFinderSchedule) get their own
+            // ChangeTracker entries too but don't implement IEntity - filter them
+            // out before casting instead of casting unconditionally.
             var groupBy = entries
-                .Where(x => referencesId.ContainsKey(((IEntity)x.Entity).Id))
+                .Where(x => x.Entity is IEntity entity && referencesId.ContainsKey(entity.Id))
                 .GroupBy(x => ((IEntity)x.Entity).Id)
                 .ToList();
             
@@ -131,7 +134,7 @@ public class Repository<TEntity>(DbContext managementDbContext, MultiTenantScope
     {
         // Agrupar as entidades por tipo e coletar seus IDs
         var entitiesByType = entities
-            .Where(entry => entry.State == EntityState.Added)
+            .Where(entry => entry.State == EntityState.Added && entry.Entity is IEntity)
             .GroupBy(entry => entry.Entity.GetType());
 
         foreach (var group in entitiesByType)
