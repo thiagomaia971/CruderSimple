@@ -9,17 +9,20 @@ public static class JsonSerializeExtensions
 {
     public static JsonSerializerOptions GetDefaultSerializerOptions(this JsonSerializerOptions jsonSerializerOptions)
     {
-        if (jsonSerializerOptions == null)
-            jsonSerializerOptions = new JsonSerializerOptions();
+        // Callers sometimes pass JsonSerializerOptions.Default (a shared, process-wide
+        // singleton). Mutating it in place throws once the runtime has marked it
+        // read-only after first use elsewhere - copy into a fresh instance instead.
+        var options = jsonSerializerOptions == null
+            ? new JsonSerializerOptions()
+            : new JsonSerializerOptions(jsonSerializerOptions);
 
-        
-        jsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-        jsonSerializerOptions.WriteIndented = true;
-        jsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.Never;
-        jsonSerializerOptions.IgnoreReadOnlyFields = true;
-        jsonSerializerOptions.IgnoreReadOnlyProperties = true;
-        jsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
-        return jsonSerializerOptions;
+        options.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+        options.WriteIndented = true;
+        options.DefaultIgnoreCondition = JsonIgnoreCondition.Never;
+        options.IgnoreReadOnlyFields = true;
+        options.IgnoreReadOnlyProperties = true;
+        options.Converters.Add(new JsonStringEnumConverter());
+        return options;
     }
 
     public static Newtonsoft.Json.JsonSerializerSettings GetDefaultSerializerSettings(
